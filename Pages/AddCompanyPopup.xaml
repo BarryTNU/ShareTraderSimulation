@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+    <!-- ================================================================
+            Add Company Popup
+================================================================-->
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShareTrader.AddCompanyPopup"
+    Title="Add Company"
+    BackgroundColor="#80000000">
+
+    <Grid>
+
+        <Border
+            WidthRequest="420"
+            Padding="20"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light=White, Dark=#202020}"
+            HorizontalOptions="Center"
+            VerticalOptions="Center">
+
+            <VerticalStackLayout Spacing="12">
+
+                <Label
+                    Text="Add New Company"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"/>
+
+                <Entry
+                    x:Name="txtName"
+                    Placeholder="Company Name"/>
+
+                <Entry
+                    x:Name="txtSymbol"
+                    Placeholder="Share Symbol"
+                    MaxLength="8"/>
+
+                <Picker
+                    x:Name="pkCountry"
+                    Title="Select Country">
+
+                    <Picker.Items>
+                        <x:String>Australia</x:String>
+                        <x:String>USA</x:String>
+                        <x:String>UK</x:String>
+                        <x:String>NZ</x:String>
+                    </Picker.Items>
+
+                </Picker>
+
+                <Grid ColumnSpacing="10">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        Grid.Column="0"
+                        x:Name="btnTest"
+                        Text="Test"
+                        Clicked="TestDownload_Clicked"/>
+
+                    <Button
+                        Grid.Column="1"
+                        Text="Cancel"
+                        Clicked="Cancel_Clicked"/>
+
+                    <Button
+                        Grid.Column="2"
+                        x:Name="btnSave"
+                        Text="Save"
+                        IsEnabled="False"
+                        Clicked="Save_Clicked"/>
+
+                </Grid>
+
+            </VerticalStackLayout>
+
+        </Border>
+
+    </Grid>
+
+</ContentPage>

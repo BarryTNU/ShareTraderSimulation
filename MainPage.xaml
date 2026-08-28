@@ -1,0 +1,1254 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    x:Class="ShareTrader.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+    xmlns:chart="clr-namespace:Syncfusion.Maui.Charts;assembly=Syncfusion.Maui.Charts"
+    Title="Share Trader">
+
+   
+
+    <!-- ============================================================= -->
+    <!-- MENU BAR                                                       -->
+    <!-- ============================================================= -->
+
+    <ContentPage.MenuBarItems>
+
+        <!-- Company -->
+        <MenuBarItem Text="Company">
+
+            <MenuFlyoutItem
+                x:Name="miAddCompany"
+                Text="Add Company"
+                Clicked="AddCompany_Clicked" />
+
+            <MenuFlyoutItem
+                Text="Remove Company"
+                Clicked="RemoveCompany_Clicked" />
+
+        </MenuBarItem>
+
+
+        <!-- Buy / Sell -->
+        <MenuBarItem Text="Buy / Sell">
+
+            <MenuFlyoutItem
+                Text="Buy Shares"
+                Clicked="BuyShares_Clicked" />
+
+            <MenuFlyoutItem
+                Text="Sell Shares"
+                Clicked="SellShares_Clicked" />
+
+        </MenuBarItem>
+
+
+        <!-- Bank -->
+        <MenuBarItem Text="Bank">
+
+            <MenuFlyoutItem
+                Text="Deposit Funds"
+                Clicked="Deposit_Clicked" />
+
+            <MenuFlyoutItem
+                Text="Withdraw Funds"
+                Clicked="Withdraw_Clicked" />
+
+        </MenuBarItem>
+
+
+        <!-- Functions -->
+        <MenuBarItem Text="Functions">
+
+            <MenuFlyoutItem
+                Text="Download Prices"
+                Clicked="DownloadPrices_Clicked" />
+
+            <MenuFlyoutItem
+                Text="Save Portfolio"
+                Clicked="SavePortfolio_Clicked" />
+
+            <!-- API Provider Flyout -->
+            <MenuFlyoutSubItem
+                   x:Name="apiProviderMenu"
+                   Text="Switch API Provider"/>
+
+
+
+        </MenuBarItem>
+
+
+        <!-- Tools -->
+        <MenuBarItem Text="Tools">
+
+            <MenuFlyoutItem
+                Text="Settings"
+                Clicked="Settings_Clicked" />
+
+            <MenuFlyoutItem
+                Text="Register"
+                Clicked="Register_Clicked" />
+
+            <MenuFlyoutItem
+                Text="Reset Data"
+                Clicked="Reset_Clicked" />
+
+        </MenuBarItem>
+
+
+        <!-- Help -->
+        <MenuBarItem Text="Help">
+
+            <MenuFlyoutItem
+                Text="Manual"
+                Clicked="ShowManual" />
+
+            <MenuFlyoutItem
+                Text="Trading Strategies"
+                Clicked="Strategies_Clicked" />
+
+            <MenuFlyoutItem
+                Text="Log File"
+                Clicked="LogFile_Clicked" />
+
+            <MenuFlyoutItem
+                Text="About"
+                Clicked="About_Clicked" />
+
+        </MenuBarItem>
+
+    </ContentPage.MenuBarItems>
+
+
+    <!-- ============================================================= -->
+    <!-- PAGE CONTENT                                                   -->
+    <!-- ============================================================= -->
+
+    <ContentPage.Content>
+
+        <!-- ========================================================= -->
+        <!-- MAIN PAGE - THREE ROWS                                    -->
+        <!-- ========================================================= -->
+
+        <Grid
+            Padding="8"
+            RowSpacing="8">
+
+            <Grid.RowDefinitions>
+
+                <!-- Portfolio Details -->
+                <RowDefinition Height="Auto" />
+
+                <!-- Portfolio DataGrid -->
+                <RowDefinition Height="*" />
+
+                <!-- Analysis -->
+                <RowDefinition Height="400" />
+
+            </Grid.RowDefinitions>
+
+
+            <!-- ===================================================== -->
+            <!-- ROW 0 - PORTFOLIO DETAILS                             -->
+            <!-- ===================================================== -->
+
+            <Border
+                Grid.Row="0"
+                StrokeThickness="1"
+                Padding="10">
+
+                <Grid
+                    RowSpacing="6"
+                    ColumnSpacing="10">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="110" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+
+                    <!-- Title -->
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="4"
+                        Text="Portfolio Details"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        Margin="0,0,0,5" />
+
+
+                    <!-- Bank Balance -->
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Text="Bank Balance:"
+                        VerticalOptions="Center" />
+
+                    <Label
+                        x:Name="LblBankBalance"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Text="$0.00"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Start" />
+
+
+                    <!-- Capital Invested -->
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Text="Capital Invested:"
+                        VerticalOptions="Center" />
+
+                    <Label
+                        x:Name="LblCapitalInvested"
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Text="$0.00"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Start" />
+
+
+                    <!-- Portfolio Value -->
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="6"
+                        Text="Portfolio Value:"
+                        VerticalOptions="Center" />
+
+                    <Label
+                        x:Name="LblPortfolioValue"
+                        Grid.Row="1"
+                        Grid.Column="7"
+                        Text="$0.00"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Start" />
+
+
+                    <!-- Gain / Loss -->
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="6"
+                        Text="Gain / Loss:"
+                        VerticalOptions="Center" />
+
+                    <Label
+                        x:Name="LblGainLoss"
+                        Grid.Row="2"
+                        Grid.Column="7"
+                        Text="$0.00"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Start" />
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- ===================================================== -->
+            <!-- ROW 1 - PORTFOLIO DATA GRID                           -->
+            <!-- ===================================================== -->
+
+            <Border
+                Grid.Row="1"
+                StrokeThickness="1"
+                Padding="5">
+
+                <Grid>
+
+                    <syncfusion:SfDataGrid
+                        x:Name="dgPortfolio"
+                        SelectionMode="Single"
+                        ColumnWidthMode="Fill"
+                        SelectionChanged="dgPortfolio_SelectionChanged">
+
+                        <syncfusion:SfDataGrid.Columns>
+
+                            <syncfusion:DataGridTextColumn
+                                MappingName="CompanyName"
+                                HeaderText="Company"
+                                Width="200" />
+
+                            <syncfusion:DataGridTextColumn
+                                MappingName="Trend"
+                                HeaderText="Trend"
+                                Width="85" />
+
+                            <syncfusion:DataGridNumericColumn
+                                MappingName="Shares"
+                                HeaderText="Shares"
+                                Format="N0"
+                                Width="100" />
+
+                            <syncfusion:DataGridNumericColumn
+                                MappingName="BuyPrice"
+                                HeaderText="Buy Price"
+                                Format="C2"
+                                Width="110" />
+
+                            <syncfusion:DataGridNumericColumn
+                                MappingName="CurrentPrice"
+                                HeaderText="Current Price"
+                                Format="C2"
+                                Width="110" />
+
+                            <syncfusion:DataGridNumericColumn
+                                MappingName="Value"
+                                HeaderText="Value"
+                                Format="C2"
+                                Width="110" />
+
+                        </syncfusion:SfDataGrid.Columns>
+
+                    </syncfusion:SfDataGrid>
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- ===================================================== -->
+            <!-- ROW 2 - INFORMATION / ANALYSIS PANEL                  -->
+            <!-- ===================================================== -->
+
+            <Border
+                x:Name="InformationPanel"
+                Grid.Row="2"
+                IsVisible="True"
+                StrokeThickness="1"
+                Padding="8">
+
+                <Grid RowSpacing="5">
+
+                    <Grid.RowDefinitions>
+
+                        <!-- Analysis title -->
+                        <RowDefinition Height="Auto" />
+
+                        <!-- Analysis / TextView -->
+                        <RowDefinition Height="*" />
+
+                    </Grid.RowDefinitions>
+
+
+                    <!-- ================================================= -->
+                    <!-- ANALYSIS TITLE                                     -->
+                    <!-- ================================================= -->
+
+                    <Label
+                        x:Name="LblAnalysisTitle"
+                        Grid.Row="0"
+                        Text="Market Analysis"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        Margin="5" />
+
+
+                    <!-- ================================================= -->
+                    <!-- ANALYSIS VIEW                                      -->
+                    <!-- ================================================= -->
+
+                    <Grid
+                        x:Name="AnalysisView"
+                        Grid.Row="1"
+                        IsVisible="True"
+                        ColumnSpacing="6"
+                        RowSpacing="6">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+
+                        <!-- ================================================= -->
+                        <!-- COLUMN 1                                         -->
+                        <!-- ================================================= -->
+
+                        <Border
+                            Grid.Column="0"
+                            StrokeThickness="1"
+                            Padding="5">
+
+                            <Grid RowSpacing="5">
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="135" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+
+                                <!-- ================================================= -->
+                                <!-- CHART 1                                           -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="0"
+                                    StrokeThickness="1"
+                                    Padding="2">
+
+                                    <chart:SfCartesianChart
+                                        x:Name="AdxChart"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill">
+
+                                        <chart:SfCartesianChart.XAxes>
+                                            <chart:CategoryAxis />
+                                        </chart:SfCartesianChart.XAxes>
+
+                                        <chart:SfCartesianChart.YAxes>
+                                            <chart:NumericalAxis />
+                                        </chart:SfCartesianChart.YAxes>
+
+                                    </chart:SfCartesianChart>
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- CHART 1 LABEL                                     -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="1"
+                                    StrokeThickness="1"
+                                    Padding="3">
+
+                                    <Label
+                                        Text="Average Directional Index  (ADX)"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- TEXT / ANALYSIS 1                                -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="2"
+                                    StrokeThickness="1"
+                                    Padding="5">
+
+                                    <ScrollView>
+
+                                        <Editor
+                                            x:Name="TxtAnalysis1"
+                                            IsReadOnly="True"
+                                            FontSize="12"
+                                            BackgroundColor="Transparent"
+                                            AutoSize="TextChanges" />
+
+                                    </ScrollView>
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- COLUMN 1 BOTTOM LABEL                             -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="3"
+                                    StrokeThickness="1"
+                                    Padding="5">
+
+                                    <Label
+                                        x:Name="LblColumn1Bottom"
+                                        Text="Buy / Sell Suggestion."
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+
+                                </Border>
+
+                            </Grid>
+
+                        </Border>
+
+
+                        <!-- ================================================= -->
+                        <!-- COLUMN 2                                         -->
+                        <!-- ================================================= -->
+
+                        <Border
+                            Grid.Column="1"
+                            StrokeThickness="1"
+                            Padding="5">
+
+                            <Grid RowSpacing="5">
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="135" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+
+                                <!-- ================================================= -->
+                                <!-- CHART 2                                           -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="0"
+                                    StrokeThickness="1"
+                                    Padding="2">
+
+                                    <chart:SfCartesianChart
+                                        x:Name="BollingerChart"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill">
+
+                                        <chart:SfCartesianChart.XAxes>
+                                            <chart:CategoryAxis />
+                                        </chart:SfCartesianChart.XAxes>
+
+                                        <chart:SfCartesianChart.YAxes>
+                                            <chart:NumericalAxis />
+                                        </chart:SfCartesianChart.YAxes>
+
+                                    </chart:SfCartesianChart>
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- CHART 2 LABEL                                     -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="1"
+                                    StrokeThickness="1"
+                                    Padding="3">
+
+                                    <Grid>
+
+                                        <Label
+                                            Text="Bollinger Bands (Volatility)"
+                                            FontAttributes="Bold"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center" />
+
+                                        <Label
+                                            x:Name="LblChart2Placeholder"
+                                            Text=""
+                                            FontSize="16"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            Opacity="0.5" />
+
+                                    </Grid>
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- TEXT / ANALYSIS 2                                -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="2"
+                                    StrokeThickness="1"
+                                    Padding="5">
+
+                                    <Grid RowSpacing="4">
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="20" />
+                                            <RowDefinition Height="20" />
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Label
+            x:Name="LblAnalysis2Row1"
+            Grid.Row="0"
+            Text="First line of analysis"
+            FontSize="12"
+            VerticalOptions="Center" />
+
+                                        <Label
+            x:Name="LblAnalysis2Row2"
+            Grid.Row="1"
+            Text="Second line of analysis"
+            FontSize="12"
+            VerticalOptions="Center" />
+
+                                        <Label
+            x:Name="LblAnalysis2Row3"
+            Grid.Row="2"
+            Text="Third line of analysis"
+            FontSize="12"
+            VerticalOptions="Center" />
+
+                                        <Label
+            x:Name="LblAnalysis2Row4"
+            Grid.Row="3"
+            Text="Fourth line of analysis"
+            FontSize="12"
+            VerticalOptions="Center" />
+
+                                    </Grid>
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- COLUMN 2 BOTTOM LABEL                             -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="3"
+                                    StrokeThickness="1"
+                                    Padding="5">
+
+                                    <Label
+                                        x:Name="LblColumn2Bottom"
+                                        Text=""
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+
+                                </Border>
+
+                            </Grid>
+
+                        </Border>
+
+
+                        <!-- ================================================= -->
+                        <!-- COLUMN 3                                         -->
+                        <!-- ================================================= -->
+
+                        <Border
+                            Grid.Column="2"
+                            StrokeThickness="1"
+                            Padding="5">
+
+                            <Grid RowSpacing="5">
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="135" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+
+                                <!-- ================================================= -->
+                                <!-- VOLUME CHART                                      -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="0"
+                                    StrokeThickness="1"
+                                    Padding="2">
+
+                                    <chart:SfCartesianChart
+                                        x:Name="VolumeChart"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill">
+
+                                        <chart:SfCartesianChart.XAxes>
+                                            <chart:CategoryAxis />
+                                        </chart:SfCartesianChart.XAxes>
+
+                                        <chart:SfCartesianChart.YAxes>
+                                            <chart:NumericalAxis />
+                                        </chart:SfCartesianChart.YAxes>
+
+                                    </chart:SfCartesianChart>
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- VOLUME LABEL                                      -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="1"
+                                    StrokeThickness="1"
+                                    Padding="3">
+
+                                    <Label
+                                        Text="Moving Average Slope (MAS)"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- PRICE BY DATE LIST                                -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="2"
+                                    StrokeThickness="1"
+                                    Padding="5">
+
+                                    <CollectionView
+                                        x:Name="lstPriceByDate"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill">
+
+                                        <CollectionView.ItemTemplate>
+
+                                            <DataTemplate>
+
+                                                <Label
+                                                    Text="{Binding .}"
+                                                    FontSize="12"
+                                                    Padding="5,2" />
+
+                                            </DataTemplate>
+
+                                        </CollectionView.ItemTemplate>
+
+                                    </CollectionView>
+
+                                </Border>
+
+
+                                <!-- ================================================= -->
+                                <!-- COLUMN 3 BOTTOM LABEL                             -->
+                                <!-- ================================================= -->
+
+                                <Border
+                                    Grid.Row="3"
+                                    StrokeThickness="1"
+                                    Padding="5">
+
+                                    <Label
+                                        x:Name="LblClosingPrices"
+                                        Text="30 Day Closing Prices"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+
+                                </Border>
+
+                            </Grid>
+
+                        </Border>
+
+                    </Grid>
+
+
+                    <!-- ===================================================== -->
+                    <!-- TEXT VIEW                                             -->
+                    <!-- Used for Manual, Trading Strategies, etc.             -->
+                    <!-- This replaces/overlays AnalysisView                   -->
+                    <!-- ===================================================== -->
+
+                    <Grid
+                        x:Name="TextView"
+                        Grid.Row="1"
+                        IsVisible="False">
+
+                        <ScrollView>
+
+                            <Editor
+                                x:Name="Information"
+                                IsReadOnly="True"
+                                FontSize="14"
+                                BackgroundColor="Transparent"
+                                AutoSize="TextChanges"
+                                VerticalOptions="Fill"
+                                HorizontalOptions="Fill" />
+
+                        </ScrollView>
+
+                    </Grid>
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- ===================================================== -->
+            <!-- BUSY INDICATOR OVERLAY                                -->
+            <!-- ===================================================== -->
+
+            <Grid
+                x:Name="BusyOverlay"
+                Grid.Row="0"
+                Grid.RowSpan="3"
+                BackgroundColor="#80000000"
+                IsVisible="False"
+                ZIndex="100">
+
+                <ActivityIndicator
+                    x:Name="busyIndicator"
+                    IsRunning="False"
+                    IsVisible="False"
+                    WidthRequest="60"
+                    HeightRequest="60"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+
+            </Grid>
+
+
+            <!-- ===================================================== -->
+            <!-- COMPANY SELECTOR POPUP                                -->
+            <!-- ===================================================== -->
+
+            <Grid
+                x:Name="CompanySelector"
+                Grid.Row="0"
+                Grid.RowSpan="3"
+                BackgroundColor="#80000000"
+                IsVisible="False"
+                ZIndex="200">
+
+                <Border
+                    WidthRequest="500"
+                    HeightRequest="600"
+                    Padding="15"
+                    StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#202020}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+
+                    <Grid RowSpacing="8">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+
+                        <!-- Title -->
+                        <Label
+                            x:Name="LblCompanySelectorTitle"
+                            Grid.Row="0"
+                            Text="Select Company"
+                            FontSize="20"
+                            FontAttributes="Bold" />
+
+
+                        <!-- Search -->
+                        <Entry
+                            x:Name="TxtSearch"
+                            Grid.Row="1"
+                            Placeholder="Search companies..."
+                            TextChanged="TxtSearch_TextChanged" />
+
+
+                        <!-- Companies -->
+                        <syncfusion:SfDataGrid
+                            x:Name="gridCompanies"
+                            Grid.Row="2"
+                            SelectionMode="Single"
+                            ColumnWidthMode="Fill">
+
+                            <syncfusion:SfDataGrid.Columns>
+
+                                <syncfusion:DataGridTextColumn
+                                    MappingName="Name"
+                                    HeaderText="Company" />
+
+                                <syncfusion:DataGridTextColumn
+                                    MappingName="Symbol"
+                                    HeaderText="Symbol" />
+
+                            </syncfusion:SfDataGrid.Columns>
+
+                        </syncfusion:SfDataGrid>
+
+
+                        <!-- Buttons -->
+                        <Grid
+                            Grid.Row="3"
+                            ColumnSpacing="10">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                x:Name="BtnCompanyAction"
+                                Grid.Column="0"
+                                Text="Add Company"
+                                Clicked="CompanyAction_Clicked" />
+
+                            <Button
+                                x:Name="btnAddNewCompany"
+                                Grid.Column="1"
+                                Text="New Company"
+                                IsVisible="false"
+                                Clicked="btnAddNewCompany_Clicked"/>
+
+                            <Button
+                                 x:Name="BtnCancel"
+                                Grid.Column="2"
+                                Text="Cancel"
+                                Clicked="CancelCompanySelection_Clicked" />
+
+                        </Grid>
+
+                    </Grid>
+
+                </Border>
+
+            </Grid>
+            
+            
+
+
+            <!-- ===================================================== -->
+            <!-- BUY / SELL POPUP                                      -->
+            <!-- ===================================================== -->
+
+            <Grid
+                x:Name="BuySellPopup"
+                Grid.Row="0"
+                Grid.RowSpan="3"
+                BackgroundColor="#80000000"
+                IsVisible="False"
+                ZIndex="300">
+
+                <Border
+                    WidthRequest="400"
+                    Padding="20"
+                    StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#202020}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+
+                    <Grid RowSpacing="10">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+
+                        <!-- Title -->
+                        <Label
+                            x:Name="LblTradeTitle"
+                            Grid.Row="0"
+                            Text="Buy Shares"
+                            FontSize="20"
+                            FontAttributes="Bold" />
+
+
+                        <!-- Company -->
+                        <Grid Grid.Row="1">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="Company:"
+                                VerticalOptions="Center" />
+
+                            <Label
+                                x:Name="LblCompany"
+                                Grid.Column="1"
+                                FontAttributes="Bold"
+                                HorizontalTextAlignment="End" />
+
+                        </Grid>
+
+
+                        <!-- Price -->
+                        <Grid Grid.Row="2">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="Price:"
+                                VerticalOptions="Center" />
+
+                            <Label
+                                x:Name="LblPrice"
+                                Grid.Column="1"
+                                Text="$0.00"
+                                FontAttributes="Bold"
+                                HorizontalTextAlignment="End" />
+
+                        </Grid>
+
+
+                        <!-- Shares -->
+                        <Grid Grid.Row="3">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="Shares:"
+                                VerticalOptions="Center" />
+
+                            <Entry
+                                x:Name="TxtShares"
+                                Grid.Column="1"
+                                Keyboard="Numeric"
+                                HorizontalTextAlignment="End"
+                                TextChanged="TxtShares_TextChanged" />
+
+                        </Grid>
+
+
+                        <!-- Trade Value -->
+                        <Grid Grid.Row="4">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="Trade Value:"
+                                VerticalOptions="Center" />
+
+                            <Label
+                                x:Name="LblTradeValue"
+                                Grid.Column="1"
+                                Text="$0.00"
+                                FontAttributes="Bold"
+                                HorizontalTextAlignment="End" />
+
+                        </Grid>
+
+
+                        <!-- Popup bank balance -->
+                        <Grid Grid.Row="5">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="Bank Balance:"
+                                VerticalOptions="Center" />
+
+                            <Label
+                                x:Name="LblPopupBankBalance"
+                                Grid.Column="1"
+                                Text="$0.00"
+                                FontAttributes="Bold"
+                                HorizontalTextAlignment="End" />
+
+                        </Grid>
+
+
+                        <!-- Buttons -->
+                        <Grid
+                            Grid.Row="6"
+                            ColumnSpacing="10"
+                            Margin="0,5,0,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Column="0"
+                                Text="OK"
+                                Clicked="BtnTradeOK_Clicked" />
+
+                            <Button
+                                Grid.Column="1"
+                                Text="Cancel"
+                                Clicked="BtnTradeCancel_Clicked" />
+
+                        </Grid>
+
+                    </Grid>
+
+                </Border>
+
+            </Grid>
+
+
+            <!-- ===================================================== -->
+            <!-- BANK POPUP                                            -->
+            <!-- ===================================================== -->
+
+            <Grid
+                x:Name="BankPopup"
+                Grid.Row="0"
+                Grid.RowSpan="3"
+                BackgroundColor="#80000000"
+                IsVisible="False"
+                ZIndex="400">
+
+                <Border
+                    WidthRequest="400"
+                    Padding="20"
+                    StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#202020}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+
+                    <Grid RowSpacing="10">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+
+                        <!-- Title -->
+                        <Label
+                            x:Name="LblBankTitle"
+                            Grid.Row="0"
+                            Text="Deposit Funds"
+                            FontSize="20"
+                            FontAttributes="Bold" />
+
+
+                        <!-- Current balance -->
+                        <Grid Grid.Row="1">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="Current Balance:"
+                                VerticalOptions="Center" />
+
+                            <Label
+                                x:Name="LblCurrentBalance"
+                                Grid.Column="1"
+                                Text="$0.00"
+                                FontAttributes="Bold"
+                                HorizontalTextAlignment="End" />
+
+                        </Grid>
+
+
+                        <!-- Amount -->
+                        <Grid Grid.Row="2">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="Amount:"
+                                VerticalOptions="Center" />
+
+                            <Entry
+                                x:Name="TxtBankAmount"
+                                Grid.Column="1"
+                                Keyboard="Numeric"
+                                HorizontalTextAlignment="End"
+                                TextChanged="TxtBankAmount_TextChanged" />
+
+                        </Grid>
+
+
+                        <!-- New balance -->
+                        <Grid Grid.Row="3">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="New Balance:"
+                                VerticalOptions="Center" />
+
+                            <Label
+                                x:Name="LblNewBalance"
+                                Grid.Column="1"
+                                Text="$0.00"
+                                FontAttributes="Bold"
+                                HorizontalTextAlignment="End" />
+
+                        </Grid>
+
+
+                        <!-- Buttons -->
+                        <Grid
+                            Grid.Row="4"
+                            ColumnSpacing="10"
+                            Margin="0,5,0,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button
+                                Grid.Column="0"
+                                Text="OK"
+                                Clicked="BtnBankOK_Clicked" />
+
+                            <Button
+                                Grid.Column="1"
+                                Text="Cancel"
+                                Clicked="BtnBankCancel_Clicked" />
+
+                        </Grid>
+
+                    </Grid>
+
+                </Border>
+
+            </Grid>
+
+        </Grid>
+
+    </ContentPage.Content>
+
+</ContentPage>
