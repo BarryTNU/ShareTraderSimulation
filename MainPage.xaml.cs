@@ -311,7 +311,7 @@ public partial class MainPage : ContentPage
                 AppGlobals.APIKey = "1e22624fd218a84bb88c3d777a08c7aa225190ad";
                 break;
 
-            case "Alpha Vantage":
+            case "AlphaVantage":
                 AppGlobals.ConfigurationManager.APIProvider="AlphaVantage";
                 AppGlobals.APIKey = "JNH36WFVGKTM5DLH";
                 break;

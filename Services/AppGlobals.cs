@@ -98,11 +98,7 @@ namespace ShareTrader.Services
             public static DateTime LastUpdate = DateTime.MinValue;
         }
 
-
-
         // Your existing globals...
-        // 
-
         public static string CurrentApiProvider;
 
         public static List<string> MyPortfolio = new();
@@ -114,9 +110,9 @@ namespace ShareTrader.Services
             {
                 "Auto",
                 "Tiingo",
-                "Alpha Vantage",
+                "AlphaVantage",
                 "TwelveData",
-                "MarketStack"
+                "MarketStack"                
             };
 
         public class PortfolioItem
