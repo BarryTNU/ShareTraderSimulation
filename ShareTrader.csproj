@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
  <PropertyGroup>
-    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+   <TargetFramework>net10.0-maccatalyst</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>ShareTrader</RootNamespace>
 
@@ -16,37 +16,11 @@
 
     <ApplicationDisplayVersion>1.0.13</ApplicationDisplayVersion>
     <ApplicationVersion>13</ApplicationVersion>
-
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    
 
     <DefaultLanguage>en</DefaultLanguage>
 
-    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-
-    <PackageCertificateThumbprint>8051B4845D49C2CC81B3BD30739FC7151F5EE518</PackageCertificateThumbprint>
-
-    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-
-    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-
-    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
-
-    <GenerateTestArtifacts>False</GenerateTestArtifacts>
-
-    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-
-    <AppxPackageDir>G:\Publish\ShareTrader\</AppxPackageDir>
-</PropertyGroup>
-
-<PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <WindowsPackageType>MSIX</WindowsPackageType>
-</PropertyGroup>
-
-<PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <WindowsPackageType>None</WindowsPackageType>
+    
 </PropertyGroup>
 
   <!-- MAUI resources -->
