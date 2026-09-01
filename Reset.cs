@@ -28,10 +28,12 @@ namespace ShareTrader
                 File.Delete(AppGlobals.CompaniesFile);
                 File.Delete(AppGlobals.PortfolioFile);
                 File.Delete(AppGlobals.BankBalanceFile);
-               // File.Delete(AppGlobals.InvestmentFile);
-                File.Delete(AppGlobals.LogFile);
+                File.Delete(AppGlobals.LastPriceUpdate);
+                File.Delete(AppGlobals.PortfolioPath + "\\Capitalinvested.csv");
+                Directory.Delete(AppGlobals.PortfolioPath +"\\TradingHistory", true);
 
-            }
-        }
+               await PortfolioManager.UpdatePortfolio();
+          }
+       }
     }
 }

@@ -56,8 +56,8 @@ namespace ShareTrader
 
             message = $"Buying {shares} {company} shares will cost {value:C}";
 
-            response = await Application.Current.MainPage.DisplayAlert(
-                message,
+            response = await Application.Current.MainPage.DisplayAlert(           
+                 message,
                 "Do you want to continue?",
                 "Yes",
                 "No");

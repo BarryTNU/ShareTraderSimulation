@@ -17,7 +17,7 @@ namespace ShareTrader
         public static List<decimal> lst_Low = new();
         public static List<decimal> lst_Volume = new();
         public static List<string> lst_PriceByDate = new();
-        public static string FmDate;
+        public static string FmDate ="";
         public static string Reccomendations = "";
 
         public static decimal closePrice;
@@ -333,8 +333,10 @@ namespace ShareTrader
                 }
             }
             catch (Exception ex)
-            {
-                //     MessageBox.Show(e.Message);
+            {           
+               AppGlobals.ShowMessage(
+                "Loading Data Error",
+                $"{ex.Message}");                       
             }
 
             AppGlobals.PeriodHigh = periodHigh;

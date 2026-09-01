@@ -144,7 +144,7 @@
                 <RowDefinition Height="*" />
 
                 <!-- Analysis -->
-                <RowDefinition Height="400" />
+                <RowDefinition Height="450" />
 
             </Grid.RowDefinitions>
 
@@ -330,7 +330,8 @@
                 Grid.Row="2"
                 IsVisible="True"
                 StrokeThickness="1"
-                Padding="8">
+                Padding="8"
+                HeightRequest="475">
 
                 <Grid RowSpacing="5">
 
@@ -454,7 +455,7 @@
                                         <Editor
                                             x:Name="TxtAnalysis1"
                                             IsReadOnly="True"
-                                            FontSize="12"
+                                            FontSize="11"
                                             BackgroundColor="Transparent"
                                             AutoSize="TextChanges" />
 

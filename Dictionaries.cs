@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 namespace ShareTrader
 {
     public static class Dictionaries
-    { 
-    // Dictionary of companies and their stock symbols
-    public static Dictionary<string, string> AllCompanies = new Dictionary<string, string>
+    {
+        // Dictionary of companies and their stock symbols
+        public static Dictionary<string, string> AllCompanies = new Dictionary<string, string>
             {
 {"BHP","BHP,ax"},
 {"Commonwealth Bank","CBA,ax"},
+{"Endeavour Group","EDV,ax"},
+{"MFF Capital Investments","MFF,ax"},
+{"Santana Minerals Ltd","SMI,ax"},
+{"Seek Minerals Ltd","SEK,ax"},
+{"Washington H Soul Pattinson & Co Ltd","SOL,ax"},
+{"XERO Ltd","XRO,ax"},
 {"CSL","CSL,ax"},
 {"National Australia Bank","NAB,ax"},
 {"Westpac Banking Corporation","WBC,ax"},
@@ -21,6 +27,7 @@ namespace ShareTrader
 {"Wesfarmers","WES,ax"},
 {"Woodside Energy","WDS,ax"},
 {"Telstra","TLS,ax"},
+{"Aussie Broadband Ltd","ABB,ax" },
 {"Woolworths Group","WOW,ax"},
 {"Rio Tinto (Australia)","RIO,ax"},
 {"Fortescue","FMG,ax"},
@@ -31,15 +38,12 @@ namespace ShareTrader
 {"QBE Insurance","QBE,ax"},
 {"Origin Energy","ORG,ax"},
 {"Suncorp Group","SUN,ax"},
-{"Brambles","BXB,ax"},
 {"Coles Group","COL,ax"},
 {"James Hardie","JHX,ax"},
 {"Cochlear","COH,ax"},
 {"ResMed","RMD,ax"},
 {"South32","S32,ax"},
-{"Ampol","ALD,ax"},
 {"Insurance Australia Group","IAG,ax"},
-{"Computershare","CPU,ax"},
 {"APA Group","APA,ax"},
 {"Apple","AAPL,USA"},
 {"Microsoft","MSFT,USA"},
@@ -55,6 +59,7 @@ namespace ShareTrader
 {"Johnson & Johnson","JNJ,USA"},
 {"Procter & Gamble","PG,USA"},
 {"Coca-Cola","KO,USA"},
+{"Heron Theraoeutics Ltd","HRTX.USA" },
 {"PepsiCo","PEP,USA"},
 {"Walmart","WMT,USA"},
 {"Costco Wholesale","COST,USA"},
@@ -69,6 +74,9 @@ namespace ShareTrader
 {"Salesforce","CRM,USA"},
 {"Intel","INTC,USA"},
 {"AMD","AMD,USA"},
+{"AT&T","T.USA" },
+{"Berkshire Hathaway-B", "BRK-B.us" },
+{"Berkshire Hathaway-A", "BRK-A.us" },
 {"Qualcomm","QCOM,USA"},
 {"Cisco Systems","CSCO,USA"},
 {"AstraZeneca","AZN,UK"},
@@ -130,6 +138,8 @@ namespace ShareTrader
                 { "Amazon", "AMZN.us" },
                 { "Alphabet (Google)", "GOOGL.us" },
                 { "Meta (Facebook)", "META.us" },
+                {"Heron Therapeutics Ltd","HRTX.USA" },
+                {"AT&T","T.USA" },
                 { "Tesla", "TSLA.us" },
                 { "NVIDIA", "NVDA.us" },
                 { "Berkshire Hathaway", "BRK-B.us" },
@@ -157,21 +167,27 @@ namespace ShareTrader
 
     public static Dictionary<string, string> AUSCompanies = new Dictionary<string, string>
             {
-                { "Commonwealth Bank", "CBA.ax" },
-                { "BHP Group", "BHP.ax" },
-                { "Rio Tinto", "RIO.ax" },
-                { "ANZ Bank", "ANZ.ax" },
-                { "National Australia Bank", "NAB.ax" },
-                { "Telstra", "TLS.ax" },
-                { "Wesfarmers", "WES.ax" },
-                { "CSL", "CSL.ax" },
-                { "Macquarie Group", "MQG.ax" },
-                { "Woodside Energy", "WDS.ax" },
-                { "Fortescue Metals", "FMG.ax" },
-                { "Transurban", "TCL.ax" },
-                { "Origin Energy", "ORG.ax" },
-                { "Santos", "STO.ax" },
-                { "QBE Insurance", "QBE.ax" }
+                {"BHP","BHP,ax"},
+                {"Commonwealth Bank","CBA,ax"},
+                {"Endeavour Group","EDV.ax"},
+                {"MFF Capital Investments","MFF.ax"},
+                {"Santana Minerals Ltd","SMI.ax"},
+                {"Seek Minerals Ltd","SEK.ax"},
+                {"Washington H Soul Pattinson & Co Ltd","SOL.ax"},
+                {"XERO Ltd","XRO.ax"},       
+                {"Rio Tinto", "RIO.ax" },
+                {"ANZ Bank", "ANZ.ax" },
+                {"National Australia Bank", "NAB.ax" },
+                {"Telstra", "TLS.ax" },
+                {"Wesfarmers", "WES.ax" },
+                {"CSL", "CSL.ax" },
+                {"Macquarie Group", "MQG.ax" },
+                {"Woodside Energy", "WDS.ax" },
+                {"Fortescue Metals", "FMG.ax" },
+                {"Transurban", "TCL.ax" },
+                {"Origin Energy", "ORG.ax" },
+                {"Santos", "STO.ax" },
+                {"QBE Insurance", "QBE.ax" }
             };
     }
 }

@@ -233,7 +233,7 @@ namespace ShareTrader.Services
                                 AppGlobals.lst_low.Add(Low);
                                 AppGlobals.lst_Closing.Add(Close);
                                 AppGlobals.lst_volume.Add(Volume);
-                                string PxD = FmDate + ",  Close  " + Close;
+                                string PxD = FmDate + ",  Close  " + Close; // Price by Date list
                                 AppGlobals.lst_PriceByDate.Add(PxD);
                             }
                         }

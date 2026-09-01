@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <!-- Windows-only MAUI project -->
+ <PropertyGroup>
     <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
-
     <OutputType>Exe</OutputType>
     <RootNamespace>ShareTrader</RootNamespace>
 
@@ -13,46 +11,56 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <!-- Application -->
     <ApplicationTitle>ShareTrader</ApplicationTitle>
     <ApplicationId>com.companyname.sharetrader</ApplicationId>
 
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.13</ApplicationDisplayVersion>
+    <ApplicationVersion>13</ApplicationVersion>
 
-    <!-- Standalone EXE, not MSIX -->
-    <WindowsPackageType>None</WindowsPackageType>
-
-    <!-- Windows platform -->
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 
-    <!-- Publish defaults -->
-       <SelfContained>true</SelfContained>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-
     <DefaultLanguage>en</DefaultLanguage>
-  </PropertyGroup>
+
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+
+    <PackageCertificateThumbprint>8051B4845D49C2CC81B3BD30739FC7151F5EE518</PackageCertificateThumbprint>
+
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+
+    <AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+
+    <GenerateTestArtifacts>False</GenerateTestArtifacts>
+
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+
+    <AppxPackageDir>G:\Publish\ShareTrader\</AppxPackageDir>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <WindowsPackageType>MSIX</WindowsPackageType>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <WindowsPackageType>None</WindowsPackageType>
+</PropertyGroup>
 
   <!-- MAUI resources -->
   <ItemGroup>
-    <MauiIcon Include="Resources\AppIcon\appicon.svg"
-              ForegroundFile="Resources\AppIcon\appiconfg.svg"
-              Color="#512BD4" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
 
-    <MauiSplashScreen Include="Resources\Splash\splash.svg"
-                      Color="#512BD4"
-                      BaseSize="128,128" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
     <MauiImage Include="Resources\Images\*" />
-    <MauiImage Update="Resources\Images\dotnet_bot.png"
-               Resize="True"
-               BaseSize="300,185" />
+    <MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 
     <MauiFont Include="Resources\Fonts\*" />
 
-    <MauiAsset Include="Resources\Raw\**"
-               LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <!-- Files excluded from compilation -->

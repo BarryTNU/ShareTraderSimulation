@@ -1,25 +1,7 @@
 ﻿using Microsoft.Maui.Controls.Handlers;
 using ShareTrader.Services;
-using Syncfusion.Maui.DataGrid;
-using Syncfusion.Maui.ListView;
-using System;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+
+
 
 
 namespace ShareTrader
@@ -39,7 +21,7 @@ namespace ShareTrader
             {
                 //==== Match a file in StockData with a company in MyPortfolio and update dgPortfolio ====
 
-                decimal currentPrice = 0;         
+             //   decimal currentPrice = 0;         
                 decimal PfCost = 0;
                 decimal PfValue = 0;
                 decimal PfGain = 0;
@@ -52,7 +34,7 @@ namespace ShareTrader
                 AppGlobals.PortfolioItems.Clear();
                 AppGlobals.CapitalInvested =0m;
                 AppGlobals.PortfolioValue=0m;
-                bool Success = await  FileManager.LoadPortfolio();
+                bool Success = await FileManager.LoadPortfolio();
              
                 //Iterate through the Portfolio list and get data for each company.
 
@@ -77,15 +59,15 @@ namespace ShareTrader
 
                         //===== Get the closing price for this company=====
                       
-                        decimal cPrice = FileManager.LoadCompanyData(Name, 1);
+                        decimal SharePrice = FileManager.LoadCompanyData(Name, 1); //Closing Price of share
                       
-                       if (cPrice == null)  
-                        {
-                            await AppGlobals.ShowMessage(
-                            "UpdatePortfolio Error",
-                            $"Failed to load company data for {Name}.");
-                            continue;
-                        }
+                     //  if (SharePrice == null)  
+                     //   {
+                      //      await AppGlobals.ShowMessage(
+                      //     "UpdatePortfolio Error",
+                      //      $"Failed to load company data for {Name}.");
+                      //      continue;
+                      //  }
 
 
                         //====== Get the Trading History for this company=====
@@ -105,11 +87,11 @@ namespace ShareTrader
                             Holdings += shares;
                         }
 
-                         
-                         PfValue = Holdings * FileManager.LoadCompanyData(Name, 1);
-                         PfGain = PfValue - PfCost;
-                         AppGlobals.CapitalInvested += PfCost;
-                         AppGlobals.PortfolioValue += PfValue;                                             
+                        PfValue = Holdings * SharePrice;
+                        PfGain = PfValue - PfCost;
+                        AppGlobals.CapitalInvested += PfCost;
+                        AppGlobals.PortfolioValue += PfValue;
+                       
 
                         string trends = ChartManager.BuyOrSell(Name);
 
@@ -120,11 +102,12 @@ namespace ShareTrader
                             Shares = Holdings,
                             BuyPrice = bPrice,
                             TotalCost = PfCost,
-                            CurrentPrice = FileManager.LoadCompanyData(Name, 1),                            
+                            CurrentPrice = SharePrice,                            
                             Value = PfValue,
                             Profit = PfGain
-                        });                        
-                        
+                        });
+                                             
+
                     }
                     catch (Exception ex)
                     {

@@ -41,12 +41,15 @@ public partial class AddCompanyPopup : ContentPage
             return;
         }
 
-       NewCompany = new AppGlobals.CompanyItem
-      {
-          Name = txtName.Text.Trim(),
-          Symbol = txtSymbol.Text.Trim().ToUpper(),
-           Country = pkCountry.SelectedItem.ToString(),
-        };
+        if (!(pkCountry.SelectedIndex == -1))
+
+            NewCompany = new AppGlobals.CompanyItem
+            {
+                Name = txtName.Text.Trim(),
+                Symbol = txtSymbol.Text.Trim().ToUpper(),
+                Country = pkCountry.SelectedItem.ToString(),
+            };
+   
 
     FileManager.SaveCompany(NewCompany);
 

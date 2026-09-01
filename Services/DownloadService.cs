@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ShareTrader.Services
 {
@@ -206,10 +198,7 @@ namespace ShareTrader.Services
        
         public static string ConvertSymbol(string symbol, string provider)
         {
-            symbol = symbol.Trim();
-            int n;
-            string symbl = "";
-            string country = "";
+            symbol = symbol.Trim();                 
 
             string[] parts = symbol.Split('.');
 

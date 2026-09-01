@@ -2,6 +2,8 @@
 using ShareTrader.Services;
 using System.Collections.ObjectModel;
 using static ShareTrader.Services.AppGlobals;
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.Controls;
 
 
 namespace ShareTrader;
@@ -30,9 +32,7 @@ public partial class MainPage : ContentPage
         Sell
     }
 
-    private string? companyToHighlight;
-
-    private TradeMode currentTradeMode;
+       private TradeMode currentTradeMode;
 
     private enum CompanySelectorMode
     {
@@ -56,11 +56,14 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+     //   DeviceDisplay.MainDisplayInfoChanged += OnMainDisplayInfoChanged;
         Loaded += MainPage_Loaded;
+       
     }
 
     private async void MainPage_Loaded(object sender, EventArgs e)
-    {
+    {       
+
         CreateDirectories();       
         FileManager.LoadConfigData();
         BuildApiProviderMenu();
@@ -151,34 +154,35 @@ public partial class MainPage : ContentPage
                                "Please select a company.",
                                "OK"); 
             return;
-        }
+        }    
 
-        string CompanyName = company.Name;
-        string CompanySymbol = company.Symbol;  
+    string companyName = company.Name;
+    string companySymbol = company.Symbol;
+
+        decimal SharePrice = FileManager.LoadCompanyData(companyName, 1);
 
         switch (selectorMode)
         {
             case CompanySelectorMode.Add:
                 miAddCompany.IsEnabled = MyPortfolio.Count < MaxPortfolioCompanies;
-                await PortfolioManager.AddSelectedCompany(CompanyName, CompanySymbol);
+                await PortfolioManager.AddSelectedCompany(companyName, companySymbol);
                 // Tell Syncfusion to refresh.
                 dgPortfolio.ItemsSource = null;
                dgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
                 // Force SfDataGrid to redraw.
                dgPortfolio.View?.Refresh();
-                dgPortfolio.InvalidateMeasure();
-                // dgPortfolio.ForceLayout();
+                dgPortfolio.InvalidateMeasure();              
                
                 break;
             case CompanySelectorMode.Remove:
-                PortfolioManager.RemovePortfolioItem(CompanyName, "0");
+                PortfolioManager.RemovePortfolioItem(companyName, "0");
                 btnAddNewCompany.IsVisible = false;
                 break;
             case CompanySelectorMode.Buy:
-                ShowTradePopup(company.Name, currentPrice, true); //true if Buying, false if selling
+                ShowTradePopup(company.Name, SharePrice, true); //true if Buying, false if selling
                 break;
             case CompanySelectorMode.Sell:
-                ShowTradePopup(company.Name, currentPrice, false);  //true if Buying, false if selling
+                ShowTradePopup(company.Name, SharePrice, false);  //true if Buying, false if selling
                 break;
         }
 
@@ -225,6 +229,7 @@ public partial class MainPage : ContentPage
 
         LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
+
     }
 
    void TxtSearch_TextChanged(object sender, EventArgs e)
@@ -568,9 +573,9 @@ public partial class MainPage : ContentPage
         CompanySelector.IsVisible = false;
     }
 
-    public async Task LoadCompanySelector(string fPath )
+    public async Task LoadCompanySelector(string fPath)
     {
-       CompaniesPopup.Clear();
+        CompaniesPopup.Clear();
 
 
         if (!File.Exists(fPath))
@@ -584,36 +589,53 @@ public partial class MainPage : ContentPage
                     Symbol = company.Value
                 };
 
-              CompaniesPopup.Add(item);
+                CompaniesPopup.Add(item);
 
                 // Save the initial file.
                 FileManager.SaveCompany(item);
             }
-
         }
         else
-        {
-            // Load from file
-            foreach (string line in File.ReadAllLines(fPath))
-            {
-                if (string.IsNullOrWhiteSpace(line))
-                    continue;
-
-                string[] parts = line.Split(',');
-                if (parts.Length >= 2)
+        {            
+                // Load from file
+                foreach (string line in File.ReadAllLines(fPath))
+                
                 {
-                   CompaniesPopup.Add(new CompanyItem
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    string[] parts = line.Split(',');
+                    if (parts.Length >= 2)
                     {
-                        Name = parts[0].Trim(),
-                        Symbol = parts[1].Trim()
-                    });
+                        CompaniesPopup.Add(new CompanyItem
+                        {
+                            Name = parts[0].Trim(),
+                            Symbol = parts[1].Trim()
+                        });
+
+                    SortCompaniesPopup();
+
                 }
-            }
-        }
-      
-        gridCompanies.ItemsSource = null;
-        gridCompanies.ItemsSource =CompaniesPopup;
-       
+          }
+     }
+
+            gridCompanies.ItemsSource = null;
+            gridCompanies.ItemsSource = CompaniesPopup;
+
+ }
+
+    private void SortCompaniesPopup()
+    {
+        var ordered = CompaniesPopup
+            .OrderBy(c => c.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
+        CompaniesPopup.Clear();
+        foreach (var c in ordered)
+            CompaniesPopup.Add(c);
+
+        // If a grid is bound to CompaniesPopup, refresh it (Syncfusion example)
+        gridCompanies?.View?.Refresh();
     }
 
     public static int GetPortfolioCount()
@@ -641,6 +663,26 @@ public partial class MainPage : ContentPage
         }
     }
 
+    private void OnMainDisplayInfoChanged(object? sender, DisplayInfoChangedEventArgs e)
+    {
+        // Update when orientation or density changes
+        SetPageHeightToScreen(e.DisplayInfo);
+    }
 
+    private void SetPageHeightToScreen(DisplayInfo? info = null)
+    {
+        var display = info ?? DeviceDisplay.MainDisplayInfo;
+        // DisplayInfo.Height is in physical pixels; divide by Density to get device-independent units (DIP)
+        double screenHeightDip = display.Height / display.Density;
 
+        // Apply to root layout (preferred) or the page itself
+    // RootGrid.HeightRequest = screenHeightDip;
+        // Optionally: this.HeightRequest = screenHeightDip;
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        DeviceDisplay.MainDisplayInfoChanged -= OnMainDisplayInfoChanged;
+    }
 }

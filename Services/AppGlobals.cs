@@ -25,6 +25,7 @@ namespace ShareTrader.Services
         public static readonly string PortfolioFile = Path.Combine(PortfolioPath, "MyPortfolio.csv");
         public static readonly string BankBalanceFile = Path.Combine(PortfolioPath, "BankBalance.csv");
         public static readonly string LastPriceUpdate = Path.Combine(PortfolioPath, "LastPriceUpdate.csv");
+
         public static readonly string LogFile = Path.Combine(LogPath, "TradingLog.csv");
 
 
@@ -77,7 +78,7 @@ namespace ShareTrader.Services
         public static decimal BankingData = 0;
         public static decimal BankBalance = 0;
         public static int Holdings = 0;
-        public static decimal CurrentValue = 0;
+      //  public static decimal SharePrice = 0;
         public static string Trend = "";
         public static string BuySellMessage ="";
         public static string signal ="";
