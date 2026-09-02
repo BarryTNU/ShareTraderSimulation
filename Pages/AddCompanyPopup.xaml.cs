@@ -6,7 +6,7 @@ public partial class AddCompanyPopup : ContentPage
 {
 
     public event Action? CompanyAdded;
-    public AppGlobals.CompanyItem NewCompany { get; private set; }
+    public AppGlobals.CompanyItem NewCompany { get; set; } = new AppGlobals.CompanyItem();
     private List<AppGlobals.CompanyItem> CompaniesPopup = new();
 
     public AddCompanyPopup()
@@ -41,17 +41,18 @@ public partial class AddCompanyPopup : ContentPage
             return;
         }
 
-        if (!(pkCountry.SelectedIndex == -1))
-
+        if (pkCountry.SelectedIndex != -1)
+        {
             NewCompany = new AppGlobals.CompanyItem
             {
-                Name = txtName.Text.Trim(),
-                Symbol = txtSymbol.Text.Trim().ToUpper(),
-                Country = pkCountry.SelectedItem.ToString(),
+                Name = txtName.Text?.Trim() ?? "",
+                Symbol = txtSymbol.Text?.Trim().ToUpper() ?? "",
+                Country = pkCountry.SelectedItem?.ToString() ?? "",
             };
-   
+        }
 
-    FileManager.SaveCompany(NewCompany);
+
+        FileManager.SaveCompany(NewCompany);
 
         await DisplayAlert(
             "Company Added",

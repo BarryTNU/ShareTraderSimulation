@@ -196,7 +196,7 @@
                         Grid.Row="1"
                         Grid.Column="0"
                         Text="Bank Balance:"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center" /> 
 
                     <Label
                         x:Name="LblBankBalance"
@@ -212,7 +212,7 @@
                         Grid.Row="2"
                         Grid.Column="0"
                         Text="Capital Invested:"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center"  />
 
                     <Label
                         x:Name="LblCapitalInvested"
@@ -228,7 +228,7 @@
                         Grid.Row="1"
                         Grid.Column="6"
                         Text="Portfolio Value:"
-                        VerticalOptions="Center" />
+                        VerticalOptions="Center"  />
 
                     <Label
                         x:Name="LblPortfolioValue"
@@ -236,7 +236,7 @@
                         Grid.Column="7"
                         Text="$0.00"
                         FontAttributes="Bold"
-                        HorizontalTextAlignment="Start" />
+                        HorizontalTextAlignment="Start"  />
 
 
                     <!-- Gain / Loss -->
@@ -272,6 +272,7 @@
 
                     <syncfusion:SfDataGrid
                         x:Name="dgPortfolio"
+                        AutoGenerateColumnsMode="None"
                         SelectionMode="Single"
                         ColumnWidthMode="Fill"
                         SelectionChanged="dgPortfolio_SelectionChanged">
@@ -311,6 +312,18 @@
                                 HeaderText="Value"
                                 Format="C2"
                                 Width="110" />
+
+                            <syncfusion:DataGridNumericColumn
+                                MappingName="TotalCost"
+                                 HeaderText="Cost"
+                                 Format="C2"
+                                 Width="120" />
+
+                            <syncfusion:DataGridNumericColumn
+                                 MappingName="Profit"
+                                 HeaderText="Profit/Loss"
+                                 Format="C2"
+                                 Width="120" />
 
                         </syncfusion:SfDataGrid.Columns>
 
@@ -716,7 +729,7 @@
 
                                         <CollectionView.ItemTemplate>
 
-                                            <DataTemplate>
+                                            <DataTemplate x:DataType="x:String">
 
                                                 <Label
                                                     Text="{Binding .}"

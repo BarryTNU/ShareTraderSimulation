@@ -137,11 +137,11 @@ namespace ShareTrader.Services
                         {
                             DateTime d = DateTime.Parse(day.Name);
 
-                            string o = day.Value.GetProperty("1. open").GetString();
-                            string h = day.Value.GetProperty("2. high").GetString();
-                            string l = day.Value.GetProperty("3. low").GetString();
-                            string c = day.Value.GetProperty("4. close").GetString();
-                            string v = day.Value.GetProperty("5. volume").GetString();
+                            string o = day.Value.GetProperty("1. open").GetString() ?? "";
+                            string h = day.Value.GetProperty("2. high").GetString() ?? "";
+                            string l = day.Value.GetProperty("3. low").GetString() ?? "";
+                            string c = day.Value.GetProperty("4. close").GetString() ?? "";
+                            string v = day.Value.GetProperty("5. volume").GetString() ?? "";
 
                             sb.AppendLine($"{d:yyyy-MM-dd},{o},{h},{l},{c},{v}");
                         }
@@ -156,7 +156,10 @@ namespace ShareTrader.Services
                     {
                         foreach (JsonElement item in doc.RootElement.EnumerateArray())
                         {
-                            DateTime d = DateTime.Parse(item.GetProperty("date").GetString());
+                            string? dateString = item.GetProperty("date").GetString();
+
+                            if (!DateTime.TryParse(dateString, out DateTime d))
+                                continue;   // Skip bad record.
 
                             decimal o = item.GetProperty("open").GetDecimal();
                             decimal h = item.GetProperty("high").GetDecimal();

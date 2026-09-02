@@ -35,7 +35,7 @@ namespace ShareTrader
           //  string tempPath = "";
             string LogData = "";
             string message;
-            bool response;
+       //    bool response;
             decimal BankBalance = 0m;
 
             decimal value = shares * price;
@@ -56,13 +56,18 @@ namespace ShareTrader
 
             message = $"Buying {shares} {company} shares will cost {value:C}";
 
-            response = await Application.Current.MainPage.DisplayAlert(           
-                 message,
-                "Do you want to continue?",
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+
+            if (page == null)
+                return;          // or return false if this method returns bool
+
+            bool answer = await page.DisplayAlert(
+                "Reset all Data. Are you sure?",
+                message,
                 "Yes",
                 "No");
 
-            if (!response)
+            if (!answer)
                 return;
 
 
@@ -145,13 +150,18 @@ namespace ShareTrader
             string message =
                 $"Selling {shares} {company} shares will return {TotalCost:C}";
 
-            bool response = await Application.Current.MainPage.DisplayAlert(
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+
+            if (page == null)
+                return;          // or return false if this method returns bool
+
+            bool answer = await page.DisplayAlert(
+                "Reset all Data. Are you sure?",
                 message,
-                "Do you want to continue?",
                 "Yes",
                 "No");
 
-            if (!response)
+            if (!answer)
                 return;
 
             holdings -= shares;

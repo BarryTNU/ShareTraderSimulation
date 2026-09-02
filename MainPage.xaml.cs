@@ -61,7 +61,7 @@ public partial class MainPage : ContentPage
        
     }
 
-    private async void MainPage_Loaded(object sender, EventArgs e)
+    private async void MainPage_Loaded(object? sender, EventArgs e)
     {       
 
         CreateDirectories();       
@@ -82,7 +82,7 @@ public partial class MainPage : ContentPage
            DownloadPrices_Clicked(sender, e);
         }
         
-        PortfolioManager.UpdatePortfolio();
+        await PortfolioManager.UpdatePortfolio();
         if (AppGlobals.PortfolioItems.Count > 0)
         {
             string company = AppGlobals.PortfolioItems[0].CompanyName;
@@ -95,19 +95,19 @@ public partial class MainPage : ContentPage
     public void UpdatePortfolioTotals()
     {
         LblBankBalance.Text =
-      AppGlobals.BankBalance.ToString("C");
+      AppGlobals.BankBalance.ToString("C2");
 
         LblCapitalInvested.Text =
-           AppGlobals.CapitalInvested.ToString("C");
+           AppGlobals.CapitalInvested.ToString("C2");
 
         LblPortfolioValue.Text =
-       AppGlobals.PortfolioValue.ToString("C");
+       AppGlobals.PortfolioValue.ToString("C2");
 
         decimal gain =
          AppGlobals.PortfolioValue -
           AppGlobals.CapitalInvested;
 
-        LblGainLoss.Text = gain.ToString("C");
+        LblGainLoss.Text = gain.ToString("C2");
 
         LblGainLoss.TextColor =
         gain >= 0 ? Colors.Green : Colors.Red;
@@ -143,7 +143,7 @@ public partial class MainPage : ContentPage
     }
 
 
-    private async void CompanyAction_Clicked(object sender, EventArgs e)
+    private async void CompanyAction_Clicked(object? sender, EventArgs e)
     {
         CompanyItem? company = gridCompanies.SelectedRow as AppGlobals.CompanyItem;
 
@@ -175,7 +175,7 @@ public partial class MainPage : ContentPage
                
                 break;
             case CompanySelectorMode.Remove:
-                PortfolioManager.RemovePortfolioItem(companyName, "0");
+               await  PortfolioManager.RemovePortfolioItem(companyName, "0");
                 btnAddNewCompany.IsVisible = false;
                 break;
             case CompanySelectorMode.Buy:
@@ -190,7 +190,7 @@ public partial class MainPage : ContentPage
        
     }
 
-        private void AddCompany_Clicked(object sender, EventArgs e)
+        private async void AddCompany_Clicked(object? sender, EventArgs e)
     {
         string fPath = CompaniesFile;
         selectorMode = CompanySelectorMode.Add;
@@ -200,11 +200,11 @@ public partial class MainPage : ContentPage
         TxtSearch.Text = "";
         TxtSearch.Focus();
         btnAddNewCompany.IsVisible = MyPortfolio.Count < MaxPortfolioCompanies;
-        LoadCompanySelector(fPath);
+      await  LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
     }
 
-    private async void btnAddNewCompany_Clicked(object sender, EventArgs e)
+    private async void btnAddNewCompany_Clicked(object? sender, EventArgs e)
     {
         var popup = new AddCompanyPopup();
 
@@ -217,7 +217,7 @@ public partial class MainPage : ContentPage
         await Navigation.PushModalAsync(popup);
     }
 
-    private void RemoveCompany_Clicked(object sender, EventArgs e)
+    private  async void RemoveCompany_Clicked(object? sender, EventArgs e)
     {
         string fPath = PortfolioFile;
         selectorMode = CompanySelectorMode.Remove;
@@ -227,16 +227,16 @@ public partial class MainPage : ContentPage
         TxtSearch.Focus();
         btnAddNewCompany.IsVisible = false;
 
-        LoadCompanySelector(fPath);
+       await LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
 
     }
 
-   void TxtSearch_TextChanged(object sender, EventArgs e)
+   void TxtSearch_TextChanged(object? sender, EventArgs e)
     {
     }
 
-    async void SavePortfolio_Clicked(object sender, EventArgs e)
+    async void SavePortfolio_Clicked(object? sender, EventArgs e)
     {
         FileManager.SaveConfig();
         FileManager.SaveBalances();
@@ -246,7 +246,7 @@ public partial class MainPage : ContentPage
         await DisplayAlert("Portfolio", "Portfolio Saved.", "OK");
     }
 
-   void BuyShares_Clicked(object sender, EventArgs e)
+   private async void BuyShares_Clicked(object? sender, EventArgs e)
     {
         string fPath = AppGlobals.PortfolioFile;
         selectorMode = CompanySelectorMode.Buy;
@@ -255,11 +255,11 @@ public partial class MainPage : ContentPage
         BtnCompanyAction.Text = "Buy Shares";
         TxtSearch.Text = "";
         TxtSearch.Focus();
-        LoadCompanySelector(fPath);
+      await  LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
     }
 
-    void SellShares_Clicked(object sender, EventArgs e)
+    private async void SellShares_Clicked(object? sender, EventArgs e)
     {
         string fPath = AppGlobals.PortfolioFile;
         selectorMode = CompanySelectorMode.Sell;
@@ -268,10 +268,10 @@ public partial class MainPage : ContentPage
         BtnCompanyAction.Text = "Sell Shares";
         TxtSearch.Text = "";
         TxtSearch.Focus();
-        LoadCompanySelector(fPath);
+     await   LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
     }
-    void Deposit_Clicked(object sender, EventArgs e)
+    void Deposit_Clicked(object? sender, EventArgs e)
     {
         currentBankMode = BankMode.Deposit;
 
@@ -302,12 +302,14 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private async void ApiProviderItem_Clicked(object sender, EventArgs e)
+    private async void ApiProviderItem_Clicked(object? sender, EventArgs e)
     {
-        var item = (MenuFlyoutItem)sender;
+        if (sender is not MenuFlyoutItem item)
+            return;
 
         // Remove the ✓ if it was clicked.
         string provider = item.Text.Replace("✓ ", "");
+
 
         switch (provider)
         {
@@ -352,7 +354,7 @@ public partial class MainPage : ContentPage
     }
 
 
-    void Withdraw_Clicked(object sender, EventArgs e)
+    void Withdraw_Clicked(object? sender, EventArgs e)
     {
         currentBankMode = BankMode.Withdraw;
 
@@ -364,7 +366,7 @@ public partial class MainPage : ContentPage
         TxtBankAmount.Focus();
     }
 
-    void TxtBankAmount_TextChanged(object sender, TextChangedEventArgs e)
+    void TxtBankAmount_TextChanged(object? sender, TextChangedEventArgs e)
     {
         if (!decimal.TryParse(e.NewTextValue, out decimal amount))
         {
@@ -378,7 +380,7 @@ public partial class MainPage : ContentPage
 
         LblNewBalance.Text = newBalance.ToString("C");
     }
-    async void BtnBankOK_Clicked(object sender, EventArgs e)
+    async void BtnBankOK_Clicked(object? sender, EventArgs e)
     {
         if (!decimal.TryParse(TxtBankAmount.Text, out decimal amount))
         {
@@ -398,22 +400,22 @@ public partial class MainPage : ContentPage
         BankPopup.IsVisible = false;
     }
 
-    void BtnBankCancel_Clicked(object sender, EventArgs e)
+    void BtnBankCancel_Clicked(object? sender, EventArgs e)
     {
         BankPopup.IsVisible = false;
         return;
     } 
 
-    async void DownloadPrices_Clicked(object sender, EventArgs e)
+    async void DownloadPrices_Clicked(object? sender, EventArgs e)
     {
         await Services.DownloadService.UpdateSharePrices(busyIndicator, BusyOverlay);
    }
 
 
-    async void Settings_Clicked(object sender, EventArgs e)
+    async void Settings_Clicked(object? sender, EventArgs e)
         => await DisplayAlert("Tools", "Settings not available in this version.", "OK");
 
-    async void Register_Clicked(object sender, EventArgs e)
+    async void Register_Clicked(object? sender, EventArgs e)
     {
         string Message = "Registration is not required in this version." + Environment.NewLine +
             "However if you use and enjoy the app, please consider supporting us." + Environment.NewLine +
@@ -422,7 +424,7 @@ public partial class MainPage : ContentPage
              await DisplayAlert("Register", Message,"OK");
          }
 
-     void Reset_Clicked(object sender, EventArgs e)
+     void Reset_Clicked(object? sender, EventArgs e)
     {
         Reset.ResetAlldData();
     }  
@@ -529,7 +531,7 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        LblTradeValue.Text = tradeValue.ToString("C");
+        LblTradeValue.Text = tradeValue.ToString("C2");
     }
 
     private async void BtnTradeOK_Clicked(object sender, EventArgs e)
@@ -557,7 +559,7 @@ public partial class MainPage : ContentPage
             await ShareTrading.SellShares(currentCompany, shares, currentPrice);
         }
 
-        PortfolioManager.UpdatePortfolio();
+      await PortfolioManager.UpdatePortfolio();
         UpdatePortfolioTotals();
         BuySellPopup.IsVisible = false;
     }
@@ -649,7 +651,7 @@ public partial class MainPage : ContentPage
 
     private async Task RefreshCompanyGrid()
     {
-        LoadCompanySelector(AppGlobals.CompaniesFile);
+      await  LoadCompanySelector(AppGlobals.CompaniesFile);
 
         gridCompanies.ItemsSource = null;
         gridCompanies.ItemsSource = CompaniesPopup;

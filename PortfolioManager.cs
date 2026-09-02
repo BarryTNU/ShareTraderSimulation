@@ -14,14 +14,14 @@ namespace ShareTrader
 
         public const int MaxPortfolioCompanies = 50;
 
-      public static bool success;
+        public static bool success;
         public static async Task UpdatePortfolio()
-        {            
+        {
             try
             {
                 //==== Match a file in StockData with a company in MyPortfolio and update dgPortfolio ====
 
-             //   decimal currentPrice = 0;         
+                //   decimal currentPrice = 0;         
                 decimal PfCost = 0;
                 decimal PfValue = 0;
                 decimal PfGain = 0;
@@ -29,13 +29,13 @@ namespace ShareTrader
                 decimal bPrice = 0m; // FIX: Initialize bPrice
                 int Holdings = 0;
                 string fPath = "";
-            //    string bS = "";
+                //    string bS = "";
 
                 AppGlobals.PortfolioItems.Clear();
-                AppGlobals.CapitalInvested =0m;
-                AppGlobals.PortfolioValue=0m;
+                AppGlobals.CapitalInvested = 0m;
+                AppGlobals.PortfolioValue = 0m;
                 bool Success = await FileManager.LoadPortfolio();
-             
+
                 //Iterate through the Portfolio list and get data for each company.
 
                 foreach (string line in AppGlobals.MyPortfolio)
@@ -46,7 +46,7 @@ namespace ShareTrader
                         Price = 0;
                         PfValue = 0;
                         PfGain = 0;
-                        PfCost = 0;                      
+                        PfCost = 0;
                         bPrice = 0m; // FIX: Reset bPrice for each company
 
                         if (string.IsNullOrWhiteSpace(line))
@@ -58,24 +58,24 @@ namespace ShareTrader
                         string Symbol = sp[1];
 
                         //===== Get the closing price for this company=====
-                      
+
                         decimal SharePrice = FileManager.LoadCompanyData(Name, 1); //Closing Price of share
-                      
-                     //  if (SharePrice == null)  
-                     //   {
-                      //      await AppGlobals.ShowMessage(
-                      //     "UpdatePortfolio Error",
-                      //      $"Failed to load company data for {Name}.");
-                      //      continue;
-                      //  }
+
+                        //  if (SharePrice == null)  
+                        //   {
+                        //      await AppGlobals.ShowMessage(
+                        //     "UpdatePortfolio Error",
+                        //      $"Failed to load company data for {Name}.");
+                        //      continue;
+                        //  }
 
 
                         //====== Get the Trading History for this company=====
 
-                        List<AppGlobals.TransactionItem> trades =  FileManager.LoadTradingHistory(Name);
+                        List<AppGlobals.TransactionItem> trades = FileManager.LoadTradingHistory(Name);
 
                         foreach (AppGlobals.TransactionItem trade in trades)
-                         {
+                        {
                             if (trade == null)
                                 continue;
 
@@ -91,7 +91,7 @@ namespace ShareTrader
                         PfGain = PfValue - PfCost;
                         AppGlobals.CapitalInvested += PfCost;
                         AppGlobals.PortfolioValue += PfValue;
-                       
+
 
                         string trends = ChartManager.BuyOrSell(Name);
 
@@ -102,11 +102,11 @@ namespace ShareTrader
                             Shares = Holdings,
                             BuyPrice = bPrice,
                             TotalCost = PfCost,
-                            CurrentPrice = SharePrice,                            
+                            CurrentPrice = SharePrice,
                             Value = PfValue,
                             Profit = PfGain
                         });
-                                             
+
 
                     }
                     catch (Exception ex)
@@ -119,7 +119,7 @@ namespace ShareTrader
                     }
                 }
 
-                AppGlobals.GainsLosses =AppGlobals.PortfolioValue - AppGlobals.CapitalInvested;
+                AppGlobals.GainsLosses = AppGlobals.PortfolioValue - AppGlobals.CapitalInvested;
 
                 fPath = AppGlobals.BankBalanceFile;
                 string text = File.ReadAllText(fPath);
@@ -127,7 +127,7 @@ namespace ShareTrader
                 if (decimal.TryParse(text, out decimal balance))
                 {
                     AppGlobals.BankBalance = balance;
-                    
+
                 }
                 else
                 {
@@ -138,8 +138,8 @@ namespace ShareTrader
             {
                 // Optionally log or handle the exception
             }
-           
-        }        
+
+        }
 
         //====Add company to Portfolio======
         public static async Task AddSelectedCompany(string CompanyName, string Symbol)
@@ -162,7 +162,7 @@ namespace ShareTrader
 
                     if (parts.Length > 1 &&
                         parts[0].Equals(CompanyName, StringComparison.OrdinalIgnoreCase))
-                        
+
                     {
                         await AppGlobals.ShowMessage("Portfolio", CompanyName + " is already in your portfolio.");
                         return;
@@ -171,12 +171,12 @@ namespace ShareTrader
             }
 
             //Download share prices for this company
-           
+
             try
             {
                 string provider = AppGlobals.ConfigurationManager.APIProvider;
 
-               success = await Services.DownloadService.DownloadData(Symbol, CompanyName );
+                success = await Services.DownloadService.DownloadData(Symbol, CompanyName);
 
             }
             finally
@@ -192,8 +192,8 @@ namespace ShareTrader
                 File.AppendAllText(fPath, record + Environment.NewLine);
 
                 await AppGlobals.ShowMessage("Portfolio", CompanyName + " added to Portfolio.");
-               
-                UpdatePortfolio();
+
+                await UpdatePortfolio();
             }
             else
             {
@@ -203,79 +203,67 @@ namespace ShareTrader
                 success = false;
             }
 
-            return ;
+            return;
         }
 
         //===Remove Company from Portfolio=======
-        public async static void RemovePortfolioItem(string companyName, string shares)
+        public static async Task RemovePortfolioItem(string companyName, string shares)
         {
-            // Show confirmation dialog using MessageBox from System.Windows.Forms
-            bool answer = await Application.Current.MainPage.DisplayAlert(
-                       "Remove Company",
-                         "Are you sure you want to remove " + companyName + "?",
-                        "Yes",
-                          "No");
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+            if (page == null)
+                return;
 
-            // Only proceed if user clicked Yes
+            // Confirm deletion.
+            bool answer = await page.DisplayAlert(
+                "Remove Company",
+                $"Are you sure you want to remove {companyName}?",
+                "Yes",
+                "No");
+
             if (!answer)
+                return;
+
+            // If shares are still held, ask whether to sell them.
+            if (shares != "0")
             {
-                return; // User clicked No
+                answer = await page.DisplayAlert(
+                    $"You still hold {shares} {companyName} shares.",
+                    "Do you want to sell them?",
+                    "Yes",
+                    "No");
+
+                if (!answer)
+                    return;
+
+                int nrShares = int.Parse(shares);
+                await ShareTrading.SellShares(companyName, nrShares, 34.56m); // Temporary fix.
             }
-            else         // User clicked Yes
+
+            // Remove company from portfolio.
+            var tempList = new List<string>();
+
+            foreach (var item in AppGlobals.MyPortfolio)
             {
-                {
-                    // Check if there are shares to sell
-                    
-                    if (shares != "0")
-                    {
-                        answer = await Application.Current.MainPage.DisplayAlert(
-                             "You still hold " + shares + " " + companyName + " shares.",
-                              "Do you want to sell them?",
-                              "Yes",
-                              "No");
+                var spt = item.Split(',');
 
-                        if (!answer)
-                        {
-                            return; // User clicked No
-                        }
-                        else         // User clicked Yes
-                        {
-                            {
-                                int NrShares = int.Parse(shares);
-                               ShareTrading.SellShares(companyName, NrShares,34.56m);//temporary fix
-
-                            }
-                        }
-                    }
-
-                    // Remove company from portfolio
-                    var tempList = new List<string>();
-                    foreach (var item in AppGlobals.MyPortfolio)
-                    {
-                        var spt = item.Split(',');
-                        var deleteThis = spt[0];
-
-                        if (!deleteThis.Equals(companyName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            tempList.Add(item);
-                        }
-
-                    }
-
-                    string fPath = AppGlobals.PortfolioFile;
-                   
-                    if (File.Exists(fPath))
-                    {
-                     File.WriteAllLines(fPath, tempList);
-                     string LogEntry = $"{companyName} Deleted {DateTime.Today.ToShortDateString()}";
-                    string LogFile = AppGlobals.LogFile;
-                    if (File.Exists(LogFile))                   
-                     File.WriteAllText(LogFile, LogEntry + Environment.NewLine);                           
-                    }
-
-                    UpdatePortfolio();
-                }
+                if (!spt[0].Equals(companyName, StringComparison.OrdinalIgnoreCase))
+                    tempList.Add(item);
             }
-        }
+
+            string fPath = AppGlobals.PortfolioFile;
+
+            if (File.Exists(fPath))
+            {
+                File.WriteAllLines(fPath, tempList);
+
+                string logEntry = $"{companyName} Deleted {DateTime.Today:d}";
+                string logFile = AppGlobals.LogFile;
+
+                File.AppendAllText(logFile, logEntry + Environment.NewLine);
+            }
+
+            await UpdatePortfolio();
+        }     
+       
     }
 }

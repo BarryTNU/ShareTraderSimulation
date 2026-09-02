@@ -31,22 +31,22 @@ namespace ShareTrader.Services
 
         public static bool NewDataRequested;
         public static bool ProgramRegistered;
-        public static string regkey;
+        public static string regkey ="";
         public static bool Success;
         public static Page? LoadingPage;
 
         //=====API info=======
-        public static string APIProvider;
-        public static string APIKey;
-        public static int maxHourlyRequests;
-        public static int maxDailyRequests;
-        public static int RequestCount;
-        public static DateTime LastUpdate;
+        public static string APIProvider ="";
+        public static string APIKey ="";
+        public static int maxHourlyRequests =50;
+        public static int maxDailyRequests = 1000;
+        public static int RequestCount = 0
+;       public static DateTime LastUpdate = DateTime.Today;
         //====================================
-                 
-        
+       
+
         //====Share trading info============
-      
+
         public static decimal High;
         public static decimal Low;
         public static decimal PeriodHigh;
@@ -55,7 +55,7 @@ namespace ShareTrader.Services
         public static DateTime Lowdate;       
        
 
-        public static string ProviderMessage;    
+        public static string ProviderMessage ="";    
 
       
         public static List<string> lst_Companydata = new List<string>();
@@ -100,7 +100,7 @@ namespace ShareTrader.Services
         }
 
         // Your existing globals...
-        public static string CurrentApiProvider;
+        public static string CurrentApiProvider ="";
 
         public static List<string> MyPortfolio = new();
 
@@ -195,13 +195,24 @@ namespace ShareTrader.Services
                 }
             };
 
-            await Application.Current.MainPage.Navigation.PushModalAsync(LoadingPage, false);
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+
+            if (page != null)
+            {
+                await page.Navigation.PushModalAsync(LoadingPage, false);
+            }
         }
         public static async Task HideLoading()
         {
             if (LoadingPage != null)
             {
-                await Application.Current.MainPage.Navigation.PopModalAsync(false);
+                var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+
+                if (page != null)
+                {
+                    await page.Navigation.PopModalAsync(false);
+                }
+
                 LoadingPage = null;
             }
         }
@@ -234,19 +245,19 @@ namespace ShareTrader.Services
 
 
         public static async Task<string> AskYesNoCancel(string title, string message)
-            {
-                if (Application.Current? .MainPage != null)
-                {
-                    return await Application.Current.MainPage.DisplayActionSheet(
-                        title,
-                        "Cancel",
-                        null,
-                        "Yes",
-                        "No");
-                }
+        {
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
 
-                return "Cancel";
+            if (page != null)
+            {
+                bool yes = await page.DisplayAlert(title, message, "Yes", "No");
+
+                return yes ? "Yes" : "No";
             }
+
+            return "Cancel";
+        }
+
         //====Example===
         //          if (result == "Yes")
         //          {

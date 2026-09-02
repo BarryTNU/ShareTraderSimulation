@@ -11,12 +11,18 @@ namespace ShareTrader
     {
      public async static void ResetAlldData()
         {
-            string Message = $@"This will clear all data except company Trade data.";
-            bool answer = await Application.Current.MainPage.DisplayAlert(
-                      "Reset all Data. are you sure?",
-                        Message,
-                       "Yes",
-                         "No");
+            string message = "This will clear all data except company Trade data.";
+
+            var page = Application.Current?.Windows.FirstOrDefault()?.Page;
+
+            if (page == null)
+                return;          // or return false if this method returns bool
+
+            bool answer = await page.DisplayAlert(
+                "Reset all Data. Are you sure?",
+                message,
+                "Yes",
+                "No"); 
             // Only proceed if user clicked Yes
             if (!answer)
             {

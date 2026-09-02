@@ -189,7 +189,7 @@ namespace ShareTrader
             chart.Series.Clear();
             chart.Series.Add(series);
         }
-        public static void PlotMAS(SfCartesianChart chart, string CompanyName)
+        public async static void PlotMAS(SfCartesianChart chart, string CompanyName)
         {
             chart.Series.Clear();
 
@@ -238,7 +238,7 @@ namespace ShareTrader
 
             chart.Series.Add(series);
         }
-        public static List<decimal> LoadCompanyData(string Company, int Startindex)
+        public static List<decimal> LoadCompanyData(string Company, int startindex)
         {
             if (string.IsNullOrEmpty(Company))
                 return new List<decimal>();
@@ -262,9 +262,9 @@ namespace ShareTrader
             lst_Volume.Clear();
             lst_PriceByDate.Clear();
 
-            // Ensure Startindex is set to 30 if 0
-            if (Startindex == 0)
-                Startindex = 30;
+            // Ensure startindex is set to 30 if 0
+            if (startindex == 0)
+                startindex = 30;
 
             if (Company.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
             {
@@ -287,7 +287,7 @@ namespace ShareTrader
                 {
                     var lastX = File.ReadLines(fPath)
                         .Reverse()
-                        .Take(Startindex)
+                        .Take(startindex)
                         .Reverse()
                         .ToList();
 
@@ -334,7 +334,7 @@ namespace ShareTrader
             }
             catch (Exception ex)
             {           
-               AppGlobals.ShowMessage(
+         _ = AppGlobals.ShowMessage(
                 "Loading Data Error",
                 $"{ex.Message}");                       
             }

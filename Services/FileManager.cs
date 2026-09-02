@@ -266,8 +266,9 @@ namespace ShareTrader.Services
                return 0m;
         }
 
-        public static AppGlobals.TransactionItem GetTradeInfo(string company)
-        {
+        public static AppGlobals.TransactionItem? GetTradeInfo(string company)
+        {        
+                  
             string fPath = Path.Combine(
                 AppGlobals.TradingHistoryPath,
                 company + ".csv");
@@ -277,9 +278,8 @@ namespace ShareTrader.Services
 
             string[] lines = File.ReadAllLines(fPath);
 
-            // Find the last non-empty line
-            string lastLine = lines
-                .LastOrDefault(line => !string.IsNullOrWhiteSpace(line));
+            // Find the last non-empty line.
+            string? lastLine = lines.LastOrDefault(line => !string.IsNullOrWhiteSpace(line));
 
             if (string.IsNullOrWhiteSpace(lastLine))
                 return null;
@@ -289,15 +289,13 @@ namespace ShareTrader.Services
             if (fields.Length < 4)
                 return null;
 
-            AppGlobals.TransactionItem transaction =
-                new()
-                {
-                    Name = fields[0],
-                    Holdings = int.Parse(fields[1]),
-                    BuyPrice = decimal.Parse(fields[2]),
-                    TransDate = DateTime.Parse(fields[3])
-                };
-
+            AppGlobals.TransactionItem transaction = new()
+            {
+                Name = fields[0],
+                Holdings = int.Parse(fields[1]),
+                BuyPrice = decimal.Parse(fields[2]),
+                TransDate = DateTime.Parse(fields[3])
+            };
 
             return transaction;
         }

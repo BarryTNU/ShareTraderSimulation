@@ -59,10 +59,9 @@ namespace ShareTrader.Services
 
         public static (string Row3, string Row4) GetPurchaseSummary(string company)
         {
-            AppGlobals.TransactionItem? transaction =
-                FileManager.GetTradeInfo(company);
+            var transaction = FileManager.GetTradeInfo(company);
 
-            if (transaction == null)
+            if (transaction is null)
                 return ("", "");
 
             string row3 =
