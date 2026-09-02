@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
- <PropertyGroup>
-   <TargetFramework>net10.0-maccatalyst</TargetFramework>
-    <OutputType>Exe</OutputType>
+	<PropertyGroup>
+		<TargetFrameworks>net9.0-maccatalyst;net9.0-windows10.0.19041.0</TargetFrameworks>
+	
+	 <OutputType>Exe</OutputType>
     <RootNamespace>ShareTrader</RootNamespace>
 
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
+    <WindowsPackageType>None</WindowsPackageType>
+
 
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -16,10 +19,8 @@
 
     <ApplicationDisplayVersion>1.0.13</ApplicationDisplayVersion>
     <ApplicationVersion>13</ApplicationVersion>
-    
-
-    <DefaultLanguage>en</DefaultLanguage>
-
+ 
+    <DefaultLanguage>en</DefaultLanguage>   
     
 </PropertyGroup>
 

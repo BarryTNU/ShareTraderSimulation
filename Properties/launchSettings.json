@@ -1,5 +1,8 @@
 {
   "profiles": {
+    "Windows Machine": {
+      "commandName": "Project"
+    },
     "MacCatalyst": {
       "commandName": "Project"
     }
