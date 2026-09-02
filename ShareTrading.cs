@@ -62,7 +62,7 @@ namespace ShareTrader
                 return;          // or return false if this method returns bool
 
             bool answer = await page.DisplayAlert(
-                "Reset all Data. Are you sure?",
+                "Confirm Purchase?",
                 message,
                 "Yes",
                 "No");
@@ -156,7 +156,7 @@ namespace ShareTrader
                 return;          // or return false if this method returns bool
 
             bool answer = await page.DisplayAlert(
-                "Reset all Data. Are you sure?",
+                "Continue?",
                 message,
                 "Yes",
                 "No");
