@@ -59,8 +59,9 @@ namespace ShareTrader.Services
 
       
         public static List<string> lst_Companydata = new List<string>();
-      
+
         //===Share Data lists=========
+        public static List<string> lst_Date = new();
         public static List<decimal> lst_Opening = new List<decimal>();
         public static List<decimal> lst_Closing = new List<decimal>();
         public static List<decimal> lst_volume = new List<decimal>();
@@ -122,9 +123,10 @@ namespace ShareTrader.Services
             public string  Trend { get; set; } = "";
             public int Shares { get; set; } = 0;
             public decimal BuyPrice { get; set; } = 0;
-            public decimal TotalCost { get; set; } = 0;                     
-            public decimal CurrentPrice { get; set; } = 0;
+
             public decimal Value { get; set; } = 0;
+            public decimal TotalCost { get; set; } = 0;           
+            public decimal CurrentPrice { get; set; } = 0;            
             public decimal Profit { get; set; } = 0;
         }
 

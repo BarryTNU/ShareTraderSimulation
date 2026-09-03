@@ -308,16 +308,17 @@
                                 Width="110" />
 
                             <syncfusion:DataGridNumericColumn
+                                MappingName="TotalCost"
+                                 HeaderText="Cost"
+                                 Format="C2"
+                                 Width="120" />
+
+                            <syncfusion:DataGridNumericColumn
                                 MappingName="Value"
                                 HeaderText="Value"
                                 Format="C2"
                                 Width="110" />
 
-                            <syncfusion:DataGridNumericColumn
-                                MappingName="TotalCost"
-                                 HeaderText="Cost"
-                                 Format="C2"
-                                 Width="120" />
 
                             <syncfusion:DataGridNumericColumn
                                  MappingName="Profit"

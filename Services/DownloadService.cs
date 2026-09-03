@@ -1,6 +1,8 @@
 ﻿
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
+
 
 namespace ShareTrader.Services
 {
@@ -83,6 +85,19 @@ namespace ShareTrader.Services
 
                 if (!DataIsValid(provider, data))
                 return false;
+
+                // Validate Data
+                // 
+                ParseTiingoData(data);
+
+                if (!ValidatePriceData(apiSymbol, out string reason))
+                {
+                    await AppGlobals.ShowMessage("Data Unavailable",provider + "Does not have data for " + companyName);
+                    
+                    return false;
+                }   
+
+                //=============================================
 
                 success = await SaveData(provider, companyName, data);
             }
@@ -344,5 +359,76 @@ namespace ShareTrader.Services
             return parts[1].ToUpper();
         }
 
+        public static bool ValidatePriceData(string symbol, out string reason)
+        {
+            reason = "";
+
+            if (AppGlobals.lst_Closing.Count == 0)
+            {
+                reason = $"{symbol}: No records returned.";
+                return false;
+            }
+
+            if (AppGlobals.lst_volume.Count == AppGlobals.lst_Closing.Count &&
+                AppGlobals.lst_volume.All(v => v == 0))
+            {
+                reason = $"{symbol}: All trading volumes are zero.";
+                return false;
+            }
+
+            if (AppGlobals.lst_Closing.Distinct().Count() == 1)
+            {
+                reason = $"{symbol}: All closing prices are identical ({AppGlobals.lst_Closing[0]:F2}).";
+                return false;
+            }
+
+            for (int i = 0; i < AppGlobals.lst_Closing.Count; i++)
+            {
+                if (AppGlobals.lst_high[i] < AppGlobals.lst_low[i])
+                {
+                    reason = $"{symbol}: Invalid High/Low on {AppGlobals.lst_Date[i]}.";
+                    return false;
+                }
+
+                if (AppGlobals.lst_Closing[i] < AppGlobals.lst_low[i] ||
+                    AppGlobals.lst_Closing[i] > AppGlobals.lst_high[i])
+                {
+                    reason = $"{symbol}: Close outside daily range on {AppGlobals.lst_Date[i]}.";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+
+
+        public static bool ParseTiingoData(string json)
+    {
+    AppGlobals.lst_Date.Clear();
+            AppGlobals.lst_Opening.Clear();
+            AppGlobals.lst_high.Clear();
+            AppGlobals.lst_low.Clear();
+            AppGlobals.lst_Closing.Clear();
+            AppGlobals.lst_volume.Clear();
+
+        using JsonDocument doc = JsonDocument.Parse(json);
+
+        foreach (JsonElement item in doc.RootElement.EnumerateArray())
+        {
+                AppGlobals.lst_Date.Add(
+                item.GetProperty("date").GetDateTime().ToString("yyyy-MM-dd"));
+
+                AppGlobals.lst_Opening.Add(item.GetProperty("open").GetDecimal());
+                AppGlobals.lst_high.Add(item.GetProperty("high").GetDecimal());
+                AppGlobals.lst_low.Add(item.GetProperty("low").GetDecimal());
+                AppGlobals.lst_Closing.Add(item.GetProperty("close").GetDecimal());
+
+                AppGlobals.lst_volume.Add(item.GetProperty("volume").GetInt64());
+        }
+
+        return AppGlobals.lst_Closing.Count > 0;
     }
+
+}
 }
