@@ -394,7 +394,7 @@ namespace ShareTrader.Services
             System.IO.File.WriteAllText(fPath, LastUpdate.ToString(CultureInfo.InvariantCulture));
         }
 
-        public static void SaveLogFile(string data)
+        public static void SaveLogFile(string message)
         {
             string fPath = Path.Combine(AppGlobals.TradingHistoryPath, "TradingLog", "TradingLog.csv");
 
@@ -402,15 +402,21 @@ namespace ShareTrader.Services
 
             if (File.Exists(fPath))
             {
-                string text = File.ReadAllText(fPath);
-
-                if (text.Length > 0 && !text.EndsWith(crlf))
+                try
                 {
-                    data = crlf + data;
+                    string line =
+                        $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}  {message}";
+
+                    File.AppendAllText(
+                         AppGlobals.LogFile,
+                         Environment.NewLine +
+                         $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}  {message}");
+                }
+                catch
+                {
+                    // Ignore logging errors so they never crash ShareTrader.
                 }
             }
-
-            File.AppendAllText(fPath, data);
         }
 
         public static void SaveTrade(AppGlobals.TransactionItem Transaction)

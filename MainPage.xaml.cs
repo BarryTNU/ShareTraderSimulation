@@ -248,7 +248,7 @@ public partial class MainPage : ContentPage
         FileManager.SaveConfig();
         FileManager.SaveBalances();
         FileManager.SaveLastPriceUpdate();
-        FileManager.SaveLogFile("Portfolio saved at " + DateTime.Now.ToString());
+        FileManager.SaveLogFile(" Portfolio saved.");
 
         await DisplayAlert("Portfolio", "Portfolio Saved.", "OK");
     }
@@ -461,8 +461,33 @@ public partial class MainPage : ContentPage
     }
 
     async void LogFile_Clicked(object sender, EventArgs e)
-       => await DisplayAlert("Help", "Log File Clicked.", "OK");
+    {
+        AnalysisView.IsVisible = false;
+        TextView.IsVisible = true;
 
+        LblAnalysisTitle.Text = "Trading Log.";
+        string fPath = AppGlobals.LogFile;
+
+        try
+        {
+            if (!File.Exists(fPath))
+            {
+                Information.Text = "Log file not found.";
+                return;
+            }
+
+            string[] lines = await File.ReadAllLinesAsync(fPath);
+
+            // Show newest entry first.
+            Array.Reverse(lines);
+
+            Information.Text = string.Join(Environment.NewLine, lines);
+        }
+        catch (Exception ex)
+        {
+            Information.Text = $"Error loading log file:{Environment.NewLine}{ex.Message}";
+        }
+    }
 
     private void Show_Analysis(string company)
     {

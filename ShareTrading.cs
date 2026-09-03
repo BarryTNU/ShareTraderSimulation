@@ -78,7 +78,7 @@ namespace ShareTrader
 
             string tradeDate = DateTime.Today.ToString("yyyy-MM-dd");
             string tradeData = $"{company},{shares},{price},{tradeDate}";
-            LogData = $"{DateTime.Today:d}, Brought {shares} {company} Shares @ {price:C}";                  
+            LogData = $" Brought {shares} {company} Shares @ {price:C}";                  
 
             FileManager.SaveTradingHistory(company, tradeData);
             FileManager.SaveLogFile(LogData);
@@ -169,8 +169,7 @@ namespace ShareTrader
             AppGlobals.BankBalance += value;
             AppGlobals.CapitalInvested -= TotalCost;
 
-             LogData =  $"{DateTime.Today:d}, Sold {shares} {company} Shares @ {price:C}";
-
+            
             //====Save the TempList, then delete the old list and replace it with the new list====
              tempPath = Path.Combine(AppGlobals.TradingHistoryPath, company + ".tmp");
              fPath = Path.Combine(AppGlobals.TradingHistoryPath, company + ".csv");
@@ -193,7 +192,9 @@ namespace ShareTrader
                 File.Delete(fPath);          
                 File.Copy(tempPath, fPath);
              }
-                      
+
+            LogData = $" Sold {shares} {company} Shares @ {price:C}";
+
             FileManager.SaveLogFile(LogData);
             FileManager.SaveConfig();
             FileManager.SaveBalances();
