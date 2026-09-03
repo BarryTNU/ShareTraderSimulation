@@ -480,6 +480,7 @@ public partial class MainPage : ContentPage
 
             // Show newest entry first.
             Array.Reverse(lines);
+            lines = lines.Take(200).ToArray();
 
             Information.Text = string.Join(Environment.NewLine, lines);
         }
