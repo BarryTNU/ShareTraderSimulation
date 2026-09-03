@@ -148,7 +148,7 @@ namespace ShareTrader
             decimal value = shares * price;
 
             string message =
-                $"Selling {shares} {company} shares will return {TotalCost:C}";
+                $"Selling {shares} {company} shares will return {value:C}";
 
             var page = Application.Current?.Windows.FirstOrDefault()?.Page;
 

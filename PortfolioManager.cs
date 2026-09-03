@@ -61,15 +61,6 @@ namespace ShareTrader
 
                         decimal SharePrice = FileManager.LoadCompanyData(Name, 1); //Closing Price of share
 
-                        //  if (SharePrice == null)  
-                        //   {
-                        //      await AppGlobals.ShowMessage(
-                        //     "UpdatePortfolio Error",
-                        //      $"Failed to load company data for {Name}.");
-                        //      continue;
-                        //  }
-
-
                         //====== Get the Trading History for this company=====
 
                         List<AppGlobals.TransactionItem> trades = FileManager.LoadTradingHistory(Name);
@@ -121,25 +112,36 @@ namespace ShareTrader
 
                 AppGlobals.GainsLosses = AppGlobals.PortfolioValue - AppGlobals.CapitalInvested;
 
-                fPath = AppGlobals.BankBalanceFile;
-                string text = File.ReadAllText(fPath);
+                //Get the Bank Balance>
+                if (AppGlobals.BankBalance == 0m)
 
-                if (decimal.TryParse(text, out decimal balance))
-                {
-                    AppGlobals.BankBalance = balance;
+                    {
 
-                }
-                else
-                {
-                    AppGlobals.BankBalance = 0m;   // or handle the error
+                    fPath = AppGlobals.BankBalanceFile;
+                    string text = File.ReadAllText(fPath);
+
+                    if (decimal.TryParse(text, out decimal balance))
+                    {
+                        AppGlobals.BankBalance = balance;
+                    }
+                    else
+                    {
+                        AppGlobals.BankBalance = 0m;   // or handle the error
+                    }
+                                                     
+                        
+                 
                 }
             }
+
             catch (Exception)
             {
                 // Optionally log or handle the exception
             }
+        
+     }
 
-        }
+ 
 
         //====Add company to Portfolio======
         public static async Task AddSelectedCompany(string CompanyName, string Symbol)
@@ -222,6 +224,8 @@ namespace ShareTrader
 
             if (!answer)
                 return;
+            //Check if we hold company shares
+            shares = (await CheckHoldings(companyName)).ToString();
 
             // If shares are still held, ask whether to sell them.
             if (shares != "0")
@@ -235,8 +239,10 @@ namespace ShareTrader
                 if (!answer)
                     return;
 
+                decimal SharePrice = FileManager.LoadCompanyData(companyName, 1); //Closing Price of share
+
                 int nrShares = int.Parse(shares);
-                await ShareTrading.SellShares(companyName, nrShares, 34.56m); // Temporary fix.
+                await ShareTrading.SellShares(companyName, nrShares,SharePrice );
             }
 
             // Remove company from portfolio.
@@ -263,7 +269,38 @@ namespace ShareTrader
             }
 
             await UpdatePortfolio();
-        }     
+        } 
+        
+        private async static Task<int> CheckHoldings(string company)
+        {
+            int Holdings = 0;
+
+            List<AppGlobals.TransactionItem> trades =
+               FileManager.LoadTradingHistory(company);
+            //=====Set up a new list to hold the updated tradingItems list=======
+            List<AppGlobals.TransactionItem> tempList = new List<AppGlobals.TransactionItem>();
+                      
+
+            foreach (var tradeItem in trades)
+            {
+                if (tradeItem == null)
+                    continue;
+                if (tradeItem.Holdings == 0)
+                    continue;                               
+
+                {
+                   Holdings += tradeItem.Holdings;
+                   
+                }                
+            }
+
+            
+
+
+
+
+            return Holdings;
+        }
        
     }
 }

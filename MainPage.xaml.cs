@@ -171,18 +171,25 @@ public partial class MainPage : ContentPage
                dgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
                 // Force SfDataGrid to redraw.
                dgPortfolio.View?.Refresh();
-                dgPortfolio.InvalidateMeasure();              
-               
+                dgPortfolio.InvalidateMeasure();
+
+                // Refresh the totals.
+                UpdatePortfolioTotals();
                 break;
             case CompanySelectorMode.Remove:
                await  PortfolioManager.RemovePortfolioItem(companyName, "0");
                 btnAddNewCompany.IsVisible = false;
+                // Refresh the totals.
+                UpdatePortfolioTotals();
                 break;
             case CompanySelectorMode.Buy:
                 ShowTradePopup(company.Name, SharePrice, true); //true if Buying, false if selling
+                // Refresh the totals.
+                UpdatePortfolioTotals();
                 break;
             case CompanySelectorMode.Sell:
                 ShowTradePopup(company.Name, SharePrice, false);  //true if Buying, false if selling
+                UpdatePortfolioTotals();
                 break;
         }
 

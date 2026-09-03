@@ -1,15 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net9.0-maccatalyst;net9.0-windows10.0.19041.0</TargetFrameworks>
-	
-	 <OutputType>Exe</OutputType>
+	 <PropertyGroup>
+    <TargetFrameworks>net9.0-maccatalyst;net9.0-windows10.0.19041.0</TargetFrameworks>
+
+    <OutputType>Exe</OutputType>
     <RootNamespace>ShareTrader</RootNamespace>
 
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
     <WindowsPackageType>None</WindowsPackageType>
-
 
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -19,10 +18,14 @@
 
     <ApplicationDisplayVersion>1.0.13</ApplicationDisplayVersion>
     <ApplicationVersion>13</ApplicationVersion>
- 
-    <DefaultLanguage>en</DefaultLanguage>   
-    
-</PropertyGroup>
+
+    <!--<DefaultLanguage>en</DefaultLanguage>-->
+  </PropertyGroup>
+
+  <!-- Windows only -->
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <OutputType>WinExe</OutputType>
+  </PropertyGroup>
 
   <!-- MAUI resources -->
   <ItemGroup>
