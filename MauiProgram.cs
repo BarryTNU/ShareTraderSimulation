@@ -6,8 +6,11 @@ namespace ShareTrader
 {
     public static class MauiProgram
     {
+
         public static MauiApp CreateMauiApp()
         {
+
+
             SyncfusionLicenseProvider.RegisterLicense(
             "Ngo9BigBOggjHTQxAR8/V1JAaF5cX2pCd1p/TH5YfUNzdUVEY1ZUTXxaS1ZhSXxVdkJhWX1fcHNQQmJcVkJ9XEY=");
             var builder = MauiApp.CreateBuilder();
@@ -22,6 +25,7 @@ namespace ShareTrader
 
 #if DEBUG
             builder.Logging.AddDebug();
+
 #endif
 
             return builder.Build();

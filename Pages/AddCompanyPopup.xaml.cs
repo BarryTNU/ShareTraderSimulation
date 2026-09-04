@@ -12,6 +12,14 @@ public partial class AddCompanyPopup : ContentPage
     public AddCompanyPopup()
     {
         InitializeComponent();
+
+       // UIHelpers.SetPopupTabOrder(this,
+           // txtShares,
+          //  txtPrice,
+          //  btnAddCompany,
+          //  btnCancel);
+
+      //  UIHelpers.FocusFirst(txtShares);
     }
 
     protected override async void OnAppearing()

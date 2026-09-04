@@ -199,6 +199,7 @@ public partial class MainPage : ContentPage
 
         private async void AddCompany_Clicked(object? sender, EventArgs e)
     {
+       
         string fPath = CompaniesFile;
         selectorMode = CompanySelectorMode.Add;
 

@@ -262,7 +262,7 @@ namespace ShareTrader
             {
                 File.WriteAllLines(fPath, tempList);
 
-                string logEntry = $"{DateTime.Today:d} {companyName} Deleted ";
+                string logEntry = $"{DateTime.Today:d},{companyName} Deleted ";
                 string logFile = AppGlobals.LogFile;
 
                 File.AppendAllText(logFile, logEntry + Environment.NewLine);
