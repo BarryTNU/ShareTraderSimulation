@@ -64,12 +64,12 @@ namespace ShareTrader.Services
 
             try
             {
-            //https://api.tiingo.com/tiingo/daily/ald/prices?startDate=2025-08-01&endDate=2025-08-31&token=YOURTOKEN
-
+        
                 string url = BuildApiUrl(provider, apiSymbol);
-
-                //url = $"https://api.tiingo.com/tiingo/daily/tls?token=1e22624fd218a84bb88c3d777a08c7aa225190ad";
-
+                if (url == "")
+                {
+                    provider = "Tiingo";
+                }
                
 
                 using HttpClient client = new();

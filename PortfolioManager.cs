@@ -1,9 +1,6 @@
 ﻿using Microsoft.Maui.Controls.Handlers;
 using ShareTrader.Services;
 
-
-
-
 namespace ShareTrader
 {
     public class PortfolioManager
@@ -293,12 +290,7 @@ namespace ShareTrader
                    
                 }                
             }
-
             
-
-
-
-
             return Holdings;
         }
        

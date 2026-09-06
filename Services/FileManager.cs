@@ -3,6 +3,7 @@
 //using Android.Content.Res;
 //using Android.Hardware.Camera2;
 using Microsoft.Extensions.Configuration;
+using Syncfusion.Maui.Data;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -341,20 +342,43 @@ namespace ShareTrader.Services
             System.IO.File.WriteAllText(fPath, ConfigString);
         }
 
-        public static bool SavePortfolio()
+        public static bool SavePortfolio(AppGlobals.CompanyItem company)
         {
             string fPath = AppGlobals.PortfolioFile;
             EnsureFolderExists(fPath);
+
             try
             {
-                System.IO.File.WriteAllLines(fPath, AppGlobals.MyPortfolio);
+                // Create one CSV record.
+                string record = $"{company.Name},{company.Symbol},{company.Country}";
+
+                // Don't add duplicates (check by symbol and country).
+                bool exists = AppGlobals.MyPortfolio.Any(line =>
+                {
+                    string[] fields = line.Split(',');
+                    return fields.Length >= 3 &&
+                           fields[1] == company.Symbol &&
+                           fields[2] == company.Country;
+                });
+
+                if (!exists)
+                {
+                    AppGlobals.MyPortfolio.Add(record);
+                }
+
+                File.WriteAllLines(fPath, AppGlobals.MyPortfolio);
+
+                SaveLogFile($"{company.Name} added to Portfolio");
+
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                SaveLogFile($"SavePortfolio Error: {ex.Message}");
                 return false;
             }
         }
+
         public static bool SaveBalances()
         {
             string fPath = "";
@@ -461,8 +485,7 @@ namespace ShareTrader.Services
 
         public static void SaveCompany(AppGlobals.CompanyItem company)
         {
-            //string fileName = Path.Combine(AppGlobals.DataPath, "CompanyData.csv");
-            string fileName = (AppGlobals.CompaniesFile);
+             string fileName = (AppGlobals.CompaniesFile);
             
 
             // Create the file with a header if it doesn't exist.

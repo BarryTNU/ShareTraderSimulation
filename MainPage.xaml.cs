@@ -164,6 +164,7 @@ public partial class MainPage : ContentPage
         switch (selectorMode)
         {
             case CompanySelectorMode.Add:
+                BtnCompanyAction.Text = "Continue";
                 miAddCompany.IsEnabled = MyPortfolio.Count < MaxPortfolioCompanies;
                 await PortfolioManager.AddSelectedCompany(companyName, companySymbol);
                 // Tell Syncfusion to refresh.
@@ -205,6 +206,8 @@ public partial class MainPage : ContentPage
 
         BtnCompanyAction.Text = "Add Company";
         LblCompanySelectorTitle.Text = "Add Company";
+        BtnCancel.Text = "Cancel";
+
         TxtSearch.Text = "";
         TxtSearch.Focus();
         btnAddNewCompany.IsVisible = MyPortfolio.Count < MaxPortfolioCompanies;
@@ -220,6 +223,8 @@ public partial class MainPage : ContentPage
         popup.CompanyAdded += async () =>
         {
             await RefreshCompanyGrid();
+            BtnCancel.Text = "Continue";
+            
         };
 
         await Navigation.PushModalAsync(popup);

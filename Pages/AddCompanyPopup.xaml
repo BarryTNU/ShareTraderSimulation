@@ -38,18 +38,59 @@
                     Placeholder="Share Symbol"
                     MaxLength="8"/>
 
-                <Picker
-                    x:Name="pkCountry"
-                    Title="Select Country">
+                <!-- Country List -->
+                <Label
+                    Text="Select Country"
+                     FontAttributes="Bold"/>
 
-                    <Picker.Items>
-                        <x:String>Australia</x:String>
-                        <x:String>USA</x:String>
-                        <x:String>UK</x:String>
-                        <x:String>NZ</x:String>
-                    </Picker.Items>
+                <Border
+                        StrokeThickness="1"
+                        HeightRequest="170">
 
-                </Picker>
+                    <CollectionView
+                        x:Name="cvCountries"
+                        SelectionMode="Single"
+                        SelectionChanged="cvCountries_SelectionChanged">
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="8">
+
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup Name="CommonStates">
+
+                                            <VisualState Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor"
+                                    Value="Transparent"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+
+                                            <VisualState Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor"
+                                    Value="#2B88D8"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+
+                                    <Label
+                Text="{Binding .}"
+                FontSize="16"
+                FontAttributes="Bold"
+                VerticalOptions="Center"
+                Margin="10,4"
+                TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+
+                </Border>
 
                 <Grid ColumnSpacing="10">
 
@@ -67,6 +108,7 @@
 
                     <Button
                         Grid.Column="1"
+                        x:Name="btnCancel"
                         Text="Cancel"
                         Clicked="Cancel_Clicked"/>
 

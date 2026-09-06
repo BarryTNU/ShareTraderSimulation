@@ -9,19 +9,35 @@ public partial class AddCompanyPopup : ContentPage
     public AppGlobals.CompanyItem NewCompany { get; set; } = new AppGlobals.CompanyItem();
     private List<AppGlobals.CompanyItem> CompaniesPopup = new();
 
+    private readonly List<string> Countries = new()
+{
+    "Australia",
+    "USA",
+    "UK",
+    "NZ"
+};
+
+    private string SelectedCountry = "Australia";
+
+
     public AddCompanyPopup()
     {
         InitializeComponent();
+        cvCountries.ItemsSource = Countries;
+        cvCountries.SelectedItem = Countries[0];
 
-       // UIHelpers.SetPopupTabOrder(this,
-           // txtShares,
-          //  txtPrice,
-          //  btnAddCompany,
-          //  btnCancel);
-
-      //  UIHelpers.FocusFirst(txtShares);
     }
 
+  
+    private void cvCountries_SelectionChanged(
+      object sender,
+      SelectionChangedEventArgs e)
+    {
+        SelectedCountry = e.CurrentSelection.FirstOrDefault()?.ToString() ?? "";
+    }
+
+
+  
     protected override async void OnAppearing()
     {
         base.OnAppearing();
@@ -32,7 +48,7 @@ public partial class AddCompanyPopup : ContentPage
 
 
     private async void Cancel_Clicked(object sender, EventArgs e)
-     {
+    {
         await Navigation.PopModalAsync();
     }
 
@@ -40,7 +56,7 @@ public partial class AddCompanyPopup : ContentPage
     {
         if (string.IsNullOrWhiteSpace(txtName.Text) ||
             string.IsNullOrWhiteSpace(txtSymbol.Text) ||
-            pkCountry.SelectedIndex < 0)
+            string.IsNullOrWhiteSpace(SelectedCountry))
         {
             await DisplayAlert(
                 "Missing Information",
@@ -49,27 +65,27 @@ public partial class AddCompanyPopup : ContentPage
             return;
         }
 
-        if (pkCountry.SelectedIndex != -1)
+        NewCompany = new AppGlobals.CompanyItem
         {
-            NewCompany = new AppGlobals.CompanyItem
-            {
-                Name = txtName.Text?.Trim() ?? "",
-                Symbol = txtSymbol.Text?.Trim().ToUpper() ?? "",
-                Country = pkCountry.SelectedItem?.ToString() ?? "",
-            };
-        }
+            Name = txtName.Text?.Trim() ?? "",
+            Symbol = txtSymbol.Text?.Trim().ToUpper() ?? "",
+            Country = SelectedCountry
+        };
 
 
         FileManager.SaveCompany(NewCompany);
+        FileManager.SavePortfolio(NewCompany);
 
         await DisplayAlert(
             "Company Added",
             $"{NewCompany.Name} ({NewCompany.Symbol}) has been added.",
             "OK");
 
-      CompanyAdded?.Invoke(); // Tell MainPage to refresh.
+           
+        CompanyAdded?.Invoke(); // Tell MainPage to refresh.
+        PortfolioManager.UpdatePortfolio(); // Refresh the portfolio data.
 
-        await Navigation.PopModalAsync();     
+        await Navigation.PopModalAsync();
 
     }
 
@@ -97,28 +113,31 @@ public partial class AddCompanyPopup : ContentPage
 
 
 
-        // Basic validation.
-        if (companyName == "" || symbol == "" || pkCountry.SelectedIndex < 0)
-                    {
-            await DisplayAlert("Missing Information",
+        if (string.IsNullOrWhiteSpace(txtName.Text) ||
+     string.IsNullOrWhiteSpace(txtSymbol.Text) ||
+     string.IsNullOrWhiteSpace(SelectedCountry))
+        {
+            await DisplayAlert(
+                "Missing Information",
                 "Please enter Company Name, Symbol and Country.",
-                "OK");                      
+                "OK");
+            return;
         }
 
-        string country = pkCountry.SelectedItem?.ToString() ?? "";
+        string country = SelectedCountry;
 
         if (CompanyExists(companyName, symbol))
         {
             await DisplayAlert(
             "Company Already Exists",
-            $"{companyName} ({symbol}) already exists in the {country} list.","OK");
+            $"{companyName} ({symbol}) already exists in the {country} list.", "OK");
 
             btnSave.IsEnabled = false;
             return;
         }
         string provider = AppGlobals.ConfigurationManager.APIProvider;
 
-        bool ok = await Services.DownloadService.DownloadFromProvider(provider,companyName, symbol);
+        bool ok = await Services.DownloadService.DownloadFromProvider(provider, companyName, symbol);
 
         btnTest.IsEnabled = true;
 
@@ -129,11 +148,13 @@ public partial class AddCompanyPopup : ContentPage
                 "OK");
 
             btnSave.IsEnabled = true;
-           
+            btnSave.Text = "Save";
+            btnCancel.Text = "Cancel";
+
         }
         else
         {
-            string message =$"Your API Providor may not support this symbol ({symbol}) or the symbol is invalid. Please check and try again.";
+            string message = $"Your API Providor may not support this symbol ({symbol}) or the symbol is invalid. Please check and try again.";
             await DisplayAlert("Download Failed",
                 $"{message}",
                 "OK");
@@ -141,5 +162,7 @@ public partial class AddCompanyPopup : ContentPage
             btnSave.IsEnabled = false;
         }
     }
-      
+
 }
+      
+ 

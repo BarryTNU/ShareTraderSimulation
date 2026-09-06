@@ -98,7 +98,7 @@
 
 
         <!-- Help -->
-        <MenuBarItem Text="Help">
+        <MenuBarItem Text="Information">
 
             <MenuFlyoutItem
                 Text="Manual"
@@ -827,7 +827,7 @@
 
 
             <!-- ===================================================== -->
-            <!-- COMPANY SELECTOR POPUP                                -->
+            <!-- ADD COMPANY SELECTOR POPUP                                -->
             <!-- ===================================================== -->
 
             <Grid

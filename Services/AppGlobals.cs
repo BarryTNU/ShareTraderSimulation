@@ -104,6 +104,8 @@ namespace ShareTrader.Services
         public static string CurrentApiProvider ="";
 
         public static List<string> MyPortfolio = new();
+       
+
 
         public static ObservableCollection<PortfolioItem> PortfolioItems
             = new ObservableCollection<PortfolioItem>();
