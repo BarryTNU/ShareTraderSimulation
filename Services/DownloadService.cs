@@ -313,8 +313,6 @@ namespace ShareTrader.Services
         {
             // Manual provider selected?
 
-           // AppGlobals.ConfigurationManager.APIProvider = "Auto";
-
             if (AppGlobals.ConfigurationManager.APIProvider != "Auto")
             {
                 return await DownloadFromProvider(
