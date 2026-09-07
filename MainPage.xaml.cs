@@ -146,7 +146,7 @@ public partial class MainPage : ContentPage
     private async void CompanyAction_Clicked(object? sender, EventArgs e)
     {
         CompanyItem? company = gridCompanies.SelectedRow as AppGlobals.CompanyItem;
-
+                
 
         if (company == null)
         {
@@ -215,6 +215,7 @@ public partial class MainPage : ContentPage
         btnAddNewCompany.IsVisible = MyPortfolio.Count < MaxPortfolioCompanies;
       await  LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
+        TxtSearch.Focus();
     }
 
     private async void btnAddNewCompany_Clicked(object? sender, EventArgs e)
@@ -244,7 +245,6 @@ public partial class MainPage : ContentPage
 
        await LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
-
     }
 
     private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
