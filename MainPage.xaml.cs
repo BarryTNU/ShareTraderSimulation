@@ -115,11 +115,11 @@ public partial class MainPage : ContentPage
 
     private void ShowTradePopup(string company, decimal price, bool buy)
     {
-        buyingShares = buy;
+            buyingShares = buy;
         if (buyingShares)
-            currentTradeMode = TradeMode.Buy;
+            currentTradeMode = TradeMode.Buy;          
         else
-            currentTradeMode = TradeMode.Sell;
+            currentTradeMode = TradeMode.Sell;            
 
 
         currentCompany = company;
@@ -164,7 +164,7 @@ public partial class MainPage : ContentPage
         switch (selectorMode)
         {
             case CompanySelectorMode.Add:
-                BtnCompanyAction.Text = "Continue";
+                BtnCompanyAction.Text = "Exit";
                 miAddCompany.IsEnabled = MyPortfolio.Count < MaxPortfolioCompanies;
                 await PortfolioManager.AddSelectedCompany(companyName, companySymbol);
                 // Tell Syncfusion to refresh.
@@ -186,10 +186,12 @@ public partial class MainPage : ContentPage
             case CompanySelectorMode.Buy:
                 ShowTradePopup(company.Name, SharePrice, true); //true if Buying, false if selling
                 // Refresh the totals.
+                btnTrade.Text = "Buy";
                 UpdatePortfolioTotals();
                 break;
             case CompanySelectorMode.Sell:
                 ShowTradePopup(company.Name, SharePrice, false);  //true if Buying, false if selling
+                btnTrade.Text = "Sell";
                 UpdatePortfolioTotals();
                 break;
         }
@@ -206,7 +208,7 @@ public partial class MainPage : ContentPage
 
         BtnCompanyAction.Text = "Add Company";
         LblCompanySelectorTitle.Text = "Add Company";
-        BtnCancel.Text = "Cancel";
+        btnExit.Text = "Exit";
 
         TxtSearch.Text = "";
         TxtSearch.Focus();
@@ -223,7 +225,7 @@ public partial class MainPage : ContentPage
         popup.CompanyAdded += async () =>
         {
             await RefreshCompanyGrid();
-            BtnCancel.Text = "Continue";
+            btnExit.Text = "Exit";
             
         };
 
@@ -245,8 +247,23 @@ public partial class MainPage : ContentPage
 
     }
 
-   void TxtSearch_TextChanged(object? sender, EventArgs e)
+    private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
+        string search = e.NewTextValue?.Trim().ToUpper() ?? "";
+
+        if (string.IsNullOrEmpty(search))
+        {
+            gridCompanies.ItemsSource = CompaniesPopup;
+            return;
+        }
+
+        var filtered = CompaniesPopup
+            .Where(c =>
+                c.Name.ToUpper().Contains(search) ||
+                c.Symbol.ToUpper().Contains(search))
+            .ToList();
+
+        gridCompanies.ItemsSource = filtered;
     }
 
     async void SavePortfolio_Clicked(object? sender, EventArgs e)
@@ -554,6 +571,11 @@ public partial class MainPage : ContentPage
         InformationPanel.IsVisible = false;
     }
 
+    private void TxtShares_Completed(object sender, EventArgs e)
+    {
+        btnTrade.Focus();
+    }
+
     private void TxtShares_TextChanged(object sender, TextChangedEventArgs e)
     {
         if (_updatingShares)
@@ -588,6 +610,7 @@ public partial class MainPage : ContentPage
 
         if (currentTradeMode == TradeMode.Buy)
         {
+
             // Buy the shares
             await ShareTrading.BuyShares(currentCompany, shares, currentPrice);
 

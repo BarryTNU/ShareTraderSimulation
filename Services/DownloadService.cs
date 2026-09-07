@@ -73,6 +73,7 @@ namespace ShareTrader.Services
                
 
                 using HttpClient client = new();
+                client.Timeout = TimeSpan.FromSeconds(8);
 
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0");
 

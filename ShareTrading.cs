@@ -14,8 +14,7 @@ namespace ShareTrader
     public  class ShareTrading       
 
     {
-
-       
+     
             public static decimal CalculateTradeValue(string? text, decimal currentPrice)
             {
                 if (string.IsNullOrWhiteSpace(text))
@@ -31,12 +30,9 @@ namespace ShareTrader
 
         public static async Task BuyShares(string company, int shares, decimal price)
          {
-          //  string fPath = "";
-          //  string tempPath = "";
-            string LogData = "";
+             string LogData = "";
             string message;
-       //    bool response;
-            decimal BankBalance = 0m;
+             decimal BankBalance = 0m;
 
             decimal value = shares * price;
 

@@ -164,6 +164,7 @@ namespace ShareTrader.Services
 
               public static async Task ShowLoading(string title, string message)
         {
+           // return ;
             LoadingPage = new ContentPage
             {
                 BackgroundColor = Color.FromArgb("#80000000"),
@@ -178,7 +179,8 @@ namespace ShareTrader.Services
                 {
                     IsRunning = true,
                     WidthRequest = 40,
-                    HeightRequest = 40
+                    HeightRequest = 40,
+                    Color = Colors.White
                 },
 
                 new Label

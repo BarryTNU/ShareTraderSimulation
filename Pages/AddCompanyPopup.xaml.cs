@@ -83,7 +83,7 @@ public partial class AddCompanyPopup : ContentPage
 
            
         CompanyAdded?.Invoke(); // Tell MainPage to refresh.
-        PortfolioManager.UpdatePortfolio(); // Refresh the portfolio data.
+      await  PortfolioManager.UpdatePortfolio(); // Refresh the portfolio data.
 
         await Navigation.PopModalAsync();
 
@@ -136,33 +136,41 @@ public partial class AddCompanyPopup : ContentPage
             return;
         }
         string provider = AppGlobals.ConfigurationManager.APIProvider;
+        
 
-        bool ok = await Services.DownloadService.DownloadFromProvider(provider, companyName, symbol);
-
-        btnTest.IsEnabled = true;
-
-        if (ok)
+        try
         {
-            await DisplayAlert("Success",
-                "Share price download succeeded.",
-                "OK");
+            bool ok = await DownloadService.DownloadData(symbol, companyName);
 
-            btnSave.IsEnabled = true;
-            btnSave.Text = "Save";
-            btnCancel.Text = "Cancel";
+            if (ok)
+            {
+                await DisplayAlert("Success",
+                    "Share price download succeeded.",
+                    "OK");
 
+                btnSave.IsEnabled = true;
+                btnSave.Text = "Save";
+                btnExit.Text = "Exit";
+
+            }
+            else
+            {
+                string message = $"Your API Providor may not support this symbol ({symbol}) or the symbol is invalid. Please check and try again.";
+                await DisplayAlert("Download Failed",
+                    $"{message}",
+                    "OK");
+
+                btnTest.IsEnabled = true;
+                btnSave.IsEnabled = false;
+            }
         }
-        else
+        finally
         {
-            string message = $"Your API Providor may not support this symbol ({symbol}) or the symbol is invalid. Please check and try again.";
-            await DisplayAlert("Download Failed",
-                $"{message}",
-                "OK");
+          
+        }     
 
-            btnSave.IsEnabled = false;
-        }
     }
-
 }
+
       
  

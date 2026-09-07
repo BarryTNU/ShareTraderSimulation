@@ -77,12 +77,12 @@
                                     </VisualStateManager.VisualStateGroups>
 
                                     <Label
-                Text="{Binding .}"
-                FontSize="16"
-                FontAttributes="Bold"
-                VerticalOptions="Center"
-                Margin="10,4"
-                TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
+                                        Text="{Binding .}"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        VerticalOptions="Center"
+                                        Margin="10,4"
+                                        TextColor="{AppThemeBinding Light=Black, Dark=White}"/>
 
                                 </Grid>
                             </DataTemplate>
@@ -108,16 +108,18 @@
 
                     <Button
                         Grid.Column="1"
-                        x:Name="btnCancel"
-                        Text="Cancel"
-                        Clicked="Cancel_Clicked"/>
-
-                    <Button
-                        Grid.Column="2"
                         x:Name="btnSave"
                         Text="Save"
                         IsEnabled="False"
                         Clicked="Save_Clicked"/>
+                    
+                    
+                    <Button
+                        Grid.Column="2"
+                        x:Name="btnExit"
+                        Text="Exit"
+                        Clicked="Cancel_Clicked"/>
+                  
 
                 </Grid>
 

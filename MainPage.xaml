@@ -810,7 +810,7 @@
                 x:Name="BusyOverlay"
                 Grid.Row="0"
                 Grid.RowSpan="3"
-                BackgroundColor="#80000000"
+                 BackgroundColor="#80000000"
                 IsVisible="False"
                 ZIndex="100">
 
@@ -824,6 +824,7 @@
                     VerticalOptions="Center" />
 
             </Grid>
+          
 
 
             <!-- ===================================================== -->
@@ -921,9 +922,9 @@
                                 Clicked="btnAddNewCompany_Clicked"/>
 
                             <Button
-                                 x:Name="BtnCancel"
+                                 x:Name="btnExit"
                                 Grid.Column="2"
-                                Text="Cancel"
+                                Text="Exit"
                                 Clicked="CancelCompanySelection_Clicked" />
 
                         </Grid>
@@ -1042,8 +1043,9 @@
                                 Grid.Column="1"
                                 Keyboard="Numeric"
                                 HorizontalTextAlignment="End"
-                                TextChanged="TxtShares_TextChanged" />
-
+                                TextChanged="TxtShares_TextChanged" 
+                                Completed="TxtShares_Completed"
+                                ReturnType="Next"/>
                         </Grid>
 
 
@@ -1105,8 +1107,9 @@
                             </Grid.ColumnDefinitions>
 
                             <Button
+                                x:Name="btnTrade"
                                 Grid.Column="0"
-                                Text="OK"
+                                Text="Buy"
                                 Clicked="BtnTradeOK_Clicked" />
 
                             <Button
