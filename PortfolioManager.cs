@@ -18,15 +18,14 @@ namespace ShareTrader
             {
                 //==== Match a file in StockData with a company in MyPortfolio and update dgPortfolio ====
 
-                //   decimal currentPrice = 0;         
-                decimal PfCost = 0;
-                decimal PfValue = 0;
-                decimal PfGain = 0;
-                decimal Price = 0;
-                decimal bPrice = 0m; // FIX: Initialize bPrice
-                int Holdings = 0;
-                string fPath = "";
-                //    string bS = "";
+                int SharePackage = 0;//Number of shares in a parcel
+                 decimal ParcelCost = 0m;//
+                decimal ParcelValue = 0m;//Total value of all shares
+                 decimal SharePrice = 0m;//Current share price
+                decimal ParcelGain = 0m;//Total gain/loss of all shares
+                decimal TradePrice = 0m;//Cost of Purchase
+                 string fPath = "";
+
 
                 AppGlobals.PortfolioItems.Clear();
                 AppGlobals.CapitalInvested = 0m;
@@ -39,12 +38,12 @@ namespace ShareTrader
                 {
                     try
                     {
-                        Holdings = 0;
-                        Price = 0;
-                        PfValue = 0;
-                        PfGain = 0;
-                        PfCost = 0;
-                        bPrice = 0m; // FIX: Reset bPrice for each company
+                        SharePackage = 0;
+                        SharePrice = 0;
+                        ParcelValue = 0;
+                        ParcelGain = 0m;//Total gain/loss of all shares
+                        TradePrice = 0m;//Cost of Purchase
+                        TradePrice = 0m; //  Reset Prices for each company
 
                         if (string.IsNullOrWhiteSpace(line))
                             continue;
@@ -56,29 +55,24 @@ namespace ShareTrader
 
                         //===== Get the closing price for this company=====
 
-                        decimal SharePrice = FileManager.LoadCompanyData(Name, 1); //Closing Price of share
+                        SharePrice = FileManager.LoadCompanyData(Name, 1); //Closing Price of share
 
-                        //====== Get the Trading History for this company=====
 
-                        List<AppGlobals.TransactionItem> trades = FileManager.LoadTradingHistory(Name);
+                        List<AppGlobals.TransactionItem> trades =
+                        FileManager.LoadTradingHistory(Name);
 
-                        foreach (AppGlobals.TransactionItem trade in trades)
-                        {
-                            if (trade == null)
-                                continue;
+                        ParcelSummary parcel = CalculateParcelSummary(trades);                     
 
-                            Name = trade.Name;
-                            int shares = trade.Holdings;
-                            bPrice = trade.BuyPrice;
-                            Price = trade.BuyPrice * shares;
-                            PfCost += Price;
-                            Holdings += shares;
-                        }
+                        //=======================================================================================================
 
-                        PfValue = Holdings * SharePrice;
-                        PfGain = PfValue - PfCost;
-                        AppGlobals.CapitalInvested += PfCost;
-                        AppGlobals.PortfolioValue += PfValue;
+                       SharePackage = parcel.Shares;
+                        ParcelCost = SharePackage * parcel.AverageBuyPrice;
+                        ParcelValue =SharePackage * SharePrice;
+                        TradePrice = parcel.AverageBuyPrice;
+                        ParcelGain = ParcelValue - ParcelCost;
+
+                        AppGlobals.CapitalInvested += ParcelCost;
+                        AppGlobals.PortfolioValue += ParcelValue;
 
 
                         string trends = ChartManager.BuyOrSell(Name);
@@ -87,16 +81,15 @@ namespace ShareTrader
                         {
                             CompanyName = Name,
                             Trend = trends,
-                            Shares = Holdings,
-                            BuyPrice = bPrice,
-                            TotalCost = PfCost,
+                            Shares = SharePackage,
+                            TradePrice = parcel.AverageBuyPrice,
                             CurrentPrice = SharePrice,
-                            Value = PfValue,
-                            Profit = PfGain
+                            ItemCost = ParcelCost,
+                            ItemValue = ParcelValue,
+                            Profit = ParcelGain
                         });
 
-
-                    }
+}
                     catch (Exception ex)
                     {
 
@@ -124,9 +117,7 @@ namespace ShareTrader
                     else
                     {
                         AppGlobals.BankBalance = 0m;   // or handle the error
-                    }
-                                                     
-                        
+                    }                                                        
                  
                 }
             }
@@ -136,9 +127,7 @@ namespace ShareTrader
                 // Optionally log or handle the exception
             }
         
-     }
-
- 
+     } 
 
         //====Add company to Portfolio======
         public static async Task AddSelectedCompany(string CompanyName, string Symbol)
@@ -193,6 +182,11 @@ namespace ShareTrader
                 await AppGlobals.ShowMessage("Portfolio", CompanyName + " added to Portfolio.");
 
                 await UpdatePortfolio();
+
+                // Add to Log file.
+                string logEntry = $"{CompanyName} added to Portfolio.";
+                FileManager.SaveLogFile(logEntry);
+
             }
             else
             {
@@ -257,14 +251,27 @@ namespace ShareTrader
 
             if (File.Exists(fPath))
             {
-                File.WriteAllLines(fPath, tempList);
+                File.WriteAllLines(fPath, tempList); // Re-write the Portfoliofile eithout this company
+                 //Delete the company data file
+                fPath = Path.Combine(AppGlobals.TradingHistoryPath, companyName + ".csv ");
 
-                string logEntry = $"{DateTime.Today:d},{companyName} Deleted ";
-                string logFile = AppGlobals.LogFile;
+                if (File.Exists(fPath))
+                {
+                    File.Delete(fPath);
+                }
+                //Delete the company tmp data file
+                fPath = Path.Combine(AppGlobals.TradingHistoryPath, companyName + ".tmp ");
 
-                File.AppendAllText(logFile, logEntry + Environment.NewLine);
+                if (File.Exists(fPath))
+                {
+                    File.Delete(fPath);
+                }
+                // Add to Log file.
+                string logEntry = $"{companyName} Deleted ";
+                FileManager.SaveLogFile(logEntry);               
+
             }
-
+          
             await UpdatePortfolio();
         } 
         
@@ -282,17 +289,84 @@ namespace ShareTrader
             {
                 if (tradeItem == null)
                     continue;
-                if (tradeItem.Holdings == 0)
+                if (tradeItem.Shares == 0)
                     continue;                               
 
                 {
-                   Holdings += tradeItem.Holdings;
+                   Holdings += tradeItem.Shares;
                    
                 }                
             }
             
             return Holdings;
         }
-       
+        //=====================================================
+        public class ParcelSummary
+        {
+            public int Shares { get; set; }
+
+            public decimal AverageBuyPrice { get; set; }
+            public decimal AverageSellPrice { get; set; }
+
+            public decimal TotalInvested { get; set; }
+            public decimal TotalSold { get; set; }
+
+            public decimal RealisedProfit { get; set; }
+        }
+
+        public static ParcelSummary CalculateParcelSummary(List<AppGlobals.TransactionItem> trades)
+        {
+            var summary = new ParcelSummary();
+
+            decimal totalBuyCost = 0m;
+            int totalBuyShares = 0;
+
+            decimal totalSellValue = 0m;
+            int totalSellShares = 0;
+
+            foreach (var trade in trades)
+            {
+                if (trade == null)
+                    continue;
+
+                int shares = trade.Shares;
+                decimal price = trade.TradePrice;      // Transaction price
+
+                if (trade.tradeType == "Buy")
+                {
+                    summary.Shares += shares;
+
+                    totalBuyShares += shares;
+                    totalBuyCost += shares * price;
+
+                    summary.AverageBuyPrice = totalBuyCost / totalBuyShares;
+                }
+                else if (trade.tradeType == "Sell")
+                {
+                    // Calculate profit before reducing holdings
+                    decimal costOfSharesSold = shares * summary.AverageBuyPrice;
+
+                    summary.RealisedProfit += (shares * price) - costOfSharesSold;
+
+                    summary.Shares -= shares;
+
+                    totalSellShares += shares;
+                    totalSellValue += shares * price;
+
+                    summary.AverageSellPrice = totalSellValue / totalSellShares;
+
+                    // Remove sold shares from remaining parcel
+                    totalBuyCost -= costOfSharesSold;
+                    totalBuyShares -= shares;
+                }
+            }
+
+            summary.TotalInvested = totalBuyCost;
+            summary.TotalSold = totalSellValue;
+
+            return summary;
+        }
+
+
     }
 }

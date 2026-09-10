@@ -296,8 +296,8 @@
                                 Width="100" />
 
                             <syncfusion:DataGridNumericColumn
-                                MappingName="BuyPrice"
-                                HeaderText="Buy Price"
+                                MappingName="TradePrice"
+                                HeaderText="Average Buy Price"
                                 Format="C2"
                                 Width="110" />
 
@@ -308,14 +308,14 @@
                                 Width="110" />
 
                             <syncfusion:DataGridNumericColumn
-                                MappingName="TotalCost"
+                                MappingName="ItemCost"
                                  HeaderText="Cost"
                                  Format="C2"
                                  Width="120" />
 
                             <syncfusion:DataGridNumericColumn
-                                MappingName="Value"
-                                HeaderText="Value"
+                                MappingName="ItemValue"
+                                HeaderText="Item Value"
                                 Format="C2"
                                 Width="110" />
 

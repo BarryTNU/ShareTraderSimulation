@@ -104,11 +104,6 @@ namespace ShareTrader.Services
         public static string CurrentApiProvider ="";
 
         public static List<string> MyPortfolio = new();
-       
-
-
-        public static ObservableCollection<PortfolioItem> PortfolioItems
-            = new ObservableCollection<PortfolioItem>();
 
         public static readonly List<string> ApiProviders = new()
             {
@@ -116,19 +111,23 @@ namespace ShareTrader.Services
                 "Tiingo",
                 "AlphaVantage",
                 "TwelveData",
-                "MarketStack"                
+                "MarketStack"
             };
 
+
+        public static ObservableCollection<PortfolioItem> PortfolioItems
+            = new ObservableCollection<PortfolioItem>();
+
+       
         public class PortfolioItem
         {
             public string CompanyName { get; set; } = "";
             public string  Trend { get; set; } = "";
             public int Shares { get; set; } = 0;
-            public decimal BuyPrice { get; set; } = 0;
-
-            public decimal Value { get; set; } = 0;
-            public decimal TotalCost { get; set; } = 0;           
-            public decimal CurrentPrice { get; set; } = 0;            
+            public decimal TradePrice { get; set; } = 0;
+            public decimal CurrentPrice { get; set; } = 0;
+            public decimal ItemCost { get; set; } = 0;
+            public decimal ItemValue { get; set; } = 0;
             public decimal Profit { get; set; } = 0;
         }
 
@@ -157,9 +156,10 @@ namespace ShareTrader.Services
         public class TransactionItem
         {
             public string Name = "";
-            public int Holdings = 0;           
-            public decimal BuyPrice = 0; // The price we paid for the last transaction           
-            public DateTime TransDate = DateTime.Today;            
+            public int Shares = 0;           
+            public decimal TradePrice = 0; // The price we paid for the last transaction           
+            public DateOnly TransDate = DateOnly.FromDateTime(DateTime.Today);
+            public string tradeType = ""; // "Buy" or "Sell"
         }
 
               public static async Task ShowLoading(string title, string message)

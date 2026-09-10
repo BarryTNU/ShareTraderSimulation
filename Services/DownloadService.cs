@@ -88,13 +88,11 @@ namespace ShareTrader.Services
                 return false;
 
                 // Validate Data
-                // 
-                ParseTiingoData(data);
+                ParseJsonData(data);
 
                 if (!ValidatePriceData(apiSymbol, out string reason))
                 {
-                    await AppGlobals.ShowMessage("Data Unavailable",provider + "Does not have data for " + companyName);
-                    
+                 await AppGlobals.ShowMessage("Data Unavailable",provider + " " + reason);                     
                     return false;
                 }   
 
@@ -402,7 +400,7 @@ namespace ShareTrader.Services
 
 
 
-        public static bool ParseTiingoData(string json)
+        public static bool ParseJsonData(string json)
     {
     AppGlobals.lst_Date.Clear();
             AppGlobals.lst_Opening.Clear();

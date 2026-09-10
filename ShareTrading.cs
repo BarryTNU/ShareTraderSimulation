@@ -1,5 +1,4 @@
-﻿
-using ShareTrader.Services;
+﻿using ShareTrader.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,11 +68,12 @@ namespace ShareTrader
 
             AppGlobals.BankBalance -= value;
             AppGlobals.CapitalInvested += value;
+            string tradeType = "Buy";
 
             string tradeInfo = $"{DateTime.Today:d} {shares} Bought @ {price:C}";            
 
             string tradeDate = DateTime.Today.ToString("yyyy-MM-dd");
-            string tradeData = $"{company},{shares},{price},{tradeDate}";
+            string tradeData = $"{company},{shares},{price},{tradeDate},{tradeType},{value}";
             LogData = $" Brought {shares} {company} Shares @ {price:C}";                  
 
             FileManager.SaveTradingHistory(company, tradeData);
@@ -87,61 +87,50 @@ namespace ShareTrader
         public static async Task SellShares(string company, int shares, decimal price)
         {
             string fPath = "";
-            string tempPath = "";
             string LogData = "";
-            int holdings = 0;
-            int totalHoldings = 0;
-            decimal TotalCost = 0m; // Initialize to avoid CS0165
+            int totalHoldings = 0;          
+            decimal sharePrice = 0m;
+            int nrShares = 0;
+            int available = 0;
+            string BuySell = "";
+            decimal SaleProceeds = 0m;           
+           
+            DateOnly DateToday = DateOnly.FromDateTime(DateTime.Today);
+
+            int remainingToSell = shares;
 
             List<AppGlobals.TransactionItem> trades =
                 FileManager.LoadTradingHistory(company);
-            //=====Set up a new list to hold the updated tradingItems list=======
+            // =====Set up a new list to hold the updated tradingItems list=======
             List<AppGlobals.TransactionItem> tempList = new List<AppGlobals.TransactionItem>();
 
-
-                //Code here to see if we have enough shares to conduct the trade.
-                int remainingToSell = shares;
-
-                foreach (var tradeItem in trades)
-                    {
-                    if (tradeItem == null)
-                        continue;
-                    if (tradeItem.Holdings == 0)
-                        continue;
-
-                    if (remainingToSell <= 0)
-                    {
-                        tempList.Add(tradeItem);
-                        continue;
-                    }
-
-                    if (tradeItem.Holdings <= remainingToSell)
-                    {
-                        TotalCost += tradeItem.BuyPrice * tradeItem.Holdings;
-                        totalHoldings += tradeItem.Holdings;
-                        remainingToSell -= tradeItem.Holdings;
-                        tradeItem.Holdings = 0;
-                    }
-                    else
-                    {
-                        totalHoldings += tradeItem.Holdings;
-                        TotalCost += tradeItem.BuyPrice * remainingToSell;
-                        tradeItem.Holdings -= remainingToSell;
-                        remainingToSell = 0;
-                    }
-
-                    tempList.Add(tradeItem);
+            // Code here to see if we have enough shares to conduct the trade.
+            foreach (AppGlobals.TransactionItem trade in trades)
+            {
+                nrShares = trade.Shares;
+                BuySell = (trade.tradeType ?? "").Trim();
+                if (BuySell == "Buy" || BuySell == "") // catches old records that have no tradeType set
+                {
+                    totalHoldings += nrShares;
                 }
+                else if (BuySell == "Sell")
+                {
+                    totalHoldings -= nrShares;
+                }
+            }
 
-                if (totalHoldings < shares)
+            if (totalHoldings < shares)
             {
                 await AppGlobals.ShowMessage(
                     "Sell Shares",
                     "You have insufficient shares for this trade.");
                 return;
             }
+            //===== Get the closing price for this company=====
 
-            decimal value = shares * price;
+            sharePrice = FileManager.LoadCompanyData(company, 1); //Closing Price of share
+            
+            decimal value = shares * price; // Calculate the value of the shares being sold using the current price
 
             string message =
                 $"Selling {shares} {company} shares will return {value:C}";
@@ -149,7 +138,7 @@ namespace ShareTrader
             var page = Application.Current?.Windows.FirstOrDefault()?.Page;
 
             if (page == null)
-                return;          // or return false if this method returns bool
+                return;
 
             bool answer = await page.DisplayAlert(
                 "Continue?",
@@ -160,48 +149,100 @@ namespace ShareTrader
             if (!answer)
                 return;
 
-            holdings -= shares;
+            //====================================================================
+            foreach (var tradeItem in trades)
+            {
+                if (tradeItem == null)
+                    continue;
+               
 
-            AppGlobals.BankBalance += value;
-            AppGlobals.CapitalInvested -= TotalCost;
+                if (tradeItem.Shares == 0)
+                    continue;
 
-            
-            //====Save the TempList, then delete the old list and replace it with the new list====
-             tempPath = Path.Combine(AppGlobals.TradingHistoryPath, company + ".tmp");
-             fPath = Path.Combine(AppGlobals.TradingHistoryPath, company + ".csv");
+                
+                decimal tradePrice = tradeItem.TradePrice;
+
+                if (remainingToSell <= 0)
+                {
+                    // no more to sell, keep the remaining buy record as-is
+                    tempList.Add(tradeItem);
+                    continue;
+                }
+
+                BuySell = (tradeItem.tradeType ?? "").Trim();
+                if (BuySell == "Sell")// skip sell records
+                    continue;
+
+                available = tradeItem.Shares;
+
+                if (available <=  remainingToSell)
+                {
+                    //consume this buy record
+                     remainingToSell -=available;                   
+                    SaleProceeds += tradePrice * available;
+                    available = 0;                 
+                    
+                }
+                else // available >= remainingToSell
+                {
+                    // Partialy consume the buy record
+                    available -= remainingToSell;
+                    SaleProceeds += tradePrice * remainingToSell;
+                    remainingToSell =0;                    
+                }
+
+                // add updated buy record with remaining shares
+                var updated = new AppGlobals.TransactionItem
+                {
+                    Name = tradeItem.Name,
+                    Shares = available,
+                    TradePrice = tradePrice,
+                    TransDate = DateToday,
+                    tradeType = "Buy"
+                };
+
+                tempList.Add(updated);
+            }
+
+
+            fPath = Path.Combine(AppGlobals.TradingHistoryPath, company + ".csv");
             FileManager.EnsureFolderExists(fPath);
 
-            using (StreamWriter writer = new StreamWriter(tempPath))
+            // Write the updated buy records back to file (tempList)
+            using (StreamWriter writer = new StreamWriter(fPath))
             {
-                foreach (AppGlobals.TransactionItem tradeItem in tempList)
+                foreach (AppGlobals.TransactionItem ti in tempList)
                 {
-                    if (tradeItem.Holdings > 0)
+                    if (ti.Shares > 0) // Only write the tradeItem to the file if it has shares greater than 0
                     {
                         writer.WriteLine(
-                            $"{tradeItem.Name}," +
-                            $"{tradeItem.Holdings}," +
-                            $"{tradeItem.BuyPrice}," +
-                            $"{tradeItem.TransDate:yyyy-MM-dd}");
+                            $"{ti.Name}," +
+                            $"{ti.Shares}," +
+                            $"{ti.TradePrice}," +
+                            $"{ti.TransDate:yyyy-MM-dd}," +
+                            $"{ti.tradeType}");
                     }
                 }
                 writer.Close();
-                File.Delete(fPath);          
-                File.Copy(tempPath, fPath);
-             }
+            }
 
             LogData = $" Sold {shares} {company} Shares @ {price:C}";
-
-            FileManager.SaveLogFile(LogData);
+             FileManager.SaveLogFile(LogData);
             FileManager.SaveConfig();
             FileManager.SaveBalances();
-           
-        }
+
+            await PortfolioManager.UpdatePortfolio();
+        }       
     }
 }
             
          
     
     
+
+
+
+
 
 
 

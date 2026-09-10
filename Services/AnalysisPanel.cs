@@ -59,13 +59,15 @@ namespace ShareTrader.Services
 
         public static (string Row3, string Row4) GetPurchaseSummary(string company)
         {
+            //Possibly expand the purchase summary to include multiple purchases in the future, but for now just return the last purchase.
+
             var transaction = FileManager.GetTradeInfo(company);
 
             if (transaction is null)
                 return ("", "");
 
             string row3 =
-                $"Purchased {transaction.Holdings} {company} shares for {transaction.BuyPrice:C} on {transaction.TransDate:dd/MM/yyyy}.";
+                $"Purchased {transaction.Shares} {company} shares for {transaction.TradePrice:C} on {transaction.TransDate:dd/MM/yyyy}.";
 
             return (row3, "");
         }

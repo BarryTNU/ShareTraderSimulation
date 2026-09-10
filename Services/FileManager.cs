@@ -122,7 +122,7 @@ namespace ShareTrader.Services
         //==========================================
         // Load Trading History
         //==========================================         
-
+       
         public static List<AppGlobals.TransactionItem> LoadTradingHistory(string company)
         {
                       
@@ -140,13 +140,16 @@ namespace ShareTrader.Services
                         continue;
 
                     string[] sp = line.Split(',');
+                    if (sp.Length < 5)
+                        continue;
 
                     history.Add(new AppGlobals.TransactionItem
                     {
                         Name = (sp[0]),
-                        Holdings = int.Parse(sp[1]),
-                        BuyPrice = decimal.Parse(sp[2]),
-                        TransDate = DateTime.Parse(sp[3], CultureInfo.InvariantCulture),
+                        Shares = int.Parse(sp[1]),
+                        TradePrice = decimal.Parse(sp[2]),
+                        TransDate = DateOnly.Parse(sp[3], CultureInfo.InvariantCulture),
+                        tradeType = sp[4]
 
                     });
                 }
@@ -287,15 +290,16 @@ namespace ShareTrader.Services
 
             string[] fields = lastLine.Split(',');
 
-            if (fields.Length < 4)
+            if (fields.Length < 5)
                 return null;
 
             AppGlobals.TransactionItem transaction = new()
             {
                 Name = fields[0],
-                Holdings = int.Parse(fields[1]),
-                BuyPrice = decimal.Parse(fields[2]),
-                TransDate = DateTime.Parse(fields[3])
+                Shares = int.Parse(fields[1]),
+                TradePrice = decimal.Parse(fields[2]),
+                TransDate = DateOnly.Parse(fields[3]),
+                tradeType = fields[4].Trim()
             };
 
             return transaction;
