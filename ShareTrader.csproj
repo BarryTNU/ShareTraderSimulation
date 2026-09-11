@@ -1,27 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	 <PropertyGroup>
-    <TargetFrameworks>net9.0-maccatalyst;net9.0-windows10.0.19041.0</TargetFrameworks>
+    <!-- Base targets for every platform -->
+    <BaseTargetFrameworks>net10.0-maccatalyst</BaseTargetFrameworks>
+    <!-- Mac/Linux build -->
+    <TargetFrameworks>$(BaseTargetFrameworks)</TargetFrameworks>
+
+    <!-- Windows adds the Windows target -->
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">
+        $(BaseTargetFrameworks);net10.0-windows10.0.19041.0
+    </TargetFrameworks>
 
     <OutputType>Exe</OutputType>
-    <RootNamespace>ShareTrader</RootNamespace>
-
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
-    <WindowsPackageType>None</WindowsPackageType>
+
+    <ApplicationTitle>ShareTrader</ApplicationTitle>
+    <ApplicationId>com.barrycampbell.sharetrader</ApplicationId>
+
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
 
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
-    <ApplicationTitle>ShareTrader</ApplicationTitle>
-    <ApplicationId>com.companyname.sharetrader</ApplicationId>
-
-    <ApplicationDisplayVersion>1.0.13</ApplicationDisplayVersion>
-    <ApplicationVersion>13</ApplicationVersion>
-
-    <!--<DefaultLanguage>en</DefaultLanguage>-->
-  </PropertyGroup>
-
+</PropertyGroup>
   <!-- Windows only -->
   <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
     <OutputType>WinExe</OutputType>
