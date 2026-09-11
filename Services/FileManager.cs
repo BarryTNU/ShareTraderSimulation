@@ -54,7 +54,7 @@ namespace ShareTrader.Services
                     AppGlobals.ConfigurationManager.MaxDailyRequests = int.Parse(sp[3]);
                     AppGlobals.ConfigurationManager.RequestCount = int.Parse(sp[4]);
                     AppGlobals.ConfigurationManager.LastUpdate = DateTime.Parse(sp[5]);
-                   // AppGlobals.APIProvider = sp[0];
+                  
                     Success = true;
                 }
             }
@@ -265,9 +265,8 @@ namespace ShareTrader.Services
             // // Return the last closing price as decimal, or 0 if none
             if (AppGlobals.lst_Closing != null && AppGlobals.lst_Closing.Count > 0)
                  return AppGlobals.lst_Closing.Last();
- 
-            else
-               return 0m;
+             else
+                return 0m;
         }
 
         public static AppGlobals.TransactionItem? GetTradeInfo(string company)
@@ -424,11 +423,11 @@ namespace ShareTrader.Services
 
         public static void SaveLogFile(string message)
         {
-            string fPath = Path.Combine(AppGlobals.TradingHistoryPath, "TradingLog", "TradingLog.csv");
+            string fPath = Path.Combine(AppGlobals.TradingHistoryPath, "TradingLog");
 
-            FileManager.EnsureFolderExists(fPath);
+            EnsureFolderExists(fPath);
+            fPath = Path.Combine(AppGlobals.TradingHistoryPath, "TradingLog", "TradingLog.csv");
 
-            if (File.Exists(fPath))
             {
                 try
                 {

@@ -275,6 +275,7 @@
                         AutoGenerateColumnsMode="None"
                         SelectionMode="Single"
                         ColumnWidthMode="Fill"
+                        ItemsSource="{Binding PortfolioItems}" 
                         SelectionChanged="dgPortfolio_SelectionChanged">
 
                         <syncfusion:SfDataGrid.Columns>
@@ -1207,9 +1208,10 @@
                                 Grid.Column="1"
                                 Keyboard="Numeric"
                                 HorizontalTextAlignment="End"
-                                TextChanged="TxtBankAmount_TextChanged" />
-
-                        </Grid>
+                                TextChanged="TxtBankAmount_TextChanged"
+                                Completed="TxtBankAmount_Completed"
+                                ReturnType="Done"/>
+                            </Grid>
 
 
                         <!-- New balance -->
@@ -1247,11 +1249,13 @@
                             </Grid.ColumnDefinitions>
 
                             <Button
+                                x:Name="BtnBankOK"
                                 Grid.Column="0"
                                 Text="OK"
                                 Clicked="BtnBankOK_Clicked" />
 
                             <Button
+                                x:Name="BtnBankCancel"
                                 Grid.Column="1"
                                 Text="Cancel"
                                 Clicked="BtnBankCancel_Clicked" />

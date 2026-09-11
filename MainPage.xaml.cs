@@ -19,6 +19,8 @@ public partial class MainPage : ContentPage
         new ObservableCollection<CompanyItem>();
 
     public const int MaxPortfolioCompanies = 50;
+    public const string version = "1.1.0";
+    public const string crlf = "\n";
 
 
     //  string fPath;
@@ -52,22 +54,19 @@ public partial class MainPage : ContentPage
 
     private CompanySelectorMode selectorMode;
 
-
     public MainPage()
     {
         InitializeComponent();
-     //   DeviceDisplay.MainDisplayInfoChanged += OnMainDisplayInfoChanged;
+        // This makes {Binding PortfolioItems} point to the property above.
+        BindingContext = this;
         Loaded += MainPage_Loaded;
-       
     }
 
     private async void MainPage_Loaded(object? sender, EventArgs e)
     {       
-
-        CreateDirectories();       
+    CreateDirectories();       
         FileManager.LoadConfigData();
         BuildApiProviderMenu();
-
         dgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
 
         if (GetPortfolioCount() >= MaxPortfolioCompanies)
@@ -457,11 +456,17 @@ public partial class MainPage : ContentPage
      void Reset_Clicked(object? sender, EventArgs e)
     {
         Reset.ResetAlldData();
+        AppGlobals.PortfolioItems.Clear();
+        dgPortfolio.ItemsSource = null;
+        dgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
+        FileManager.LoadConfigData();       
     }  
 
     async void About_Clicked(object sender, EventArgs e)
-    => await DisplayAlert("Share Trading Simulation", "Version 1.0.0", "OK");
-
+    {
+        string message = "Produced by Camsoft Australia" + crlf + "Website: Camsoft.au" + crlf + "Email: camsoftau@gmail.com";           
+        await  DisplayAlert($"Share Trading Simulation." + crlf + "Version   " + version, message, "OK");
+    }
 
     private void ShowManual(object sender, EventArgs e)
     {
@@ -574,6 +579,13 @@ public partial class MainPage : ContentPage
     private void TxtShares_Completed(object sender, EventArgs e)
     {
         btnTrade.Focus();
+    }
+    private void TxtBankAmount_Completed(object sender, EventArgs e)
+    {
+        if (decimal.TryParse(TxtBankAmount.Text, out decimal amount))
+        {
+            BtnBankOK.Focus();
+        }      
     }
 
     private void TxtShares_TextChanged(object sender, TextChangedEventArgs e)

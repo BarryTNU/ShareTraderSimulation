@@ -172,7 +172,7 @@ namespace ShareTrader
                 await AppGlobals.HideLoading();
             }
 
-            if (success)
+            if (success)  
             {
                 // Write new company
                 string record = $"{CompanyName},{Symbol}";
@@ -338,13 +338,15 @@ namespace ShareTrader
 
                     totalBuyShares += shares;
                     totalBuyCost += shares * price;
-
-                    summary.AverageBuyPrice = totalBuyCost / totalBuyShares;
+                    if (totalBuyShares > 0) 
+                     summary.AverageBuyPrice = totalBuyCost / totalBuyShares;
+                     else
+                     summary.AverageBuyPrice = price;
                 }
-                else if (trade.tradeType == "Sell")
-                {
+               else if (trade.tradeType == "Sell")
+              {
                     // Calculate profit before reducing holdings
-                    decimal costOfSharesSold = shares * summary.AverageBuyPrice;
+                   decimal costOfSharesSold = shares * summary.AverageBuyPrice;
 
                     summary.RealisedProfit += (shares * price) - costOfSharesSold;
 
@@ -353,16 +355,20 @@ namespace ShareTrader
                     totalSellShares += shares;
                     totalSellValue += shares * price;
 
-                    summary.AverageSellPrice = totalSellValue / totalSellShares;
+                   if (totalSellShares > 0)
+                        summary.AverageSellPrice = totalSellValue / totalSellShares;
+                   else
+                        summary.AverageSellPrice = price;
 
                     // Remove sold shares from remaining parcel
-                    totalBuyCost -= costOfSharesSold;
-                    totalBuyShares -= shares;
-                }
+                   totalBuyCost -= costOfSharesSold;
+                  totalBuyShares -= shares;
+               }
             }
 
             summary.TotalInvested = totalBuyCost;
             summary.TotalSold = totalSellValue;
+           
 
             return summary;
         }

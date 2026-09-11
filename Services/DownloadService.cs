@@ -54,7 +54,7 @@ namespace ShareTrader.Services
     string symbol) 
 
         {
-            string apiSymbol = ConvertSymbol(symbol, provider);
+           string apiSymbol = ConvertSymbol(symbol, provider);
 
             await AppGlobals.ShowLoading(
                 "Downloading",
@@ -217,7 +217,7 @@ namespace ShareTrader.Services
         {
             symbol = symbol.Trim();                 
 
-            string[] parts = symbol.Split('.');
+            string[] parts = symbol.Split(',');
 
             string code = parts[0];
             string market = parts.Length > 1 ? parts[1].ToUpper() : "";
@@ -339,7 +339,6 @@ namespace ShareTrader.Services
 
                 if (ok)
                 {
-                    AppGlobals.APIProvider = provider;     // Optional.
                     return true;
                 }
             }

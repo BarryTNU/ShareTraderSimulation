@@ -22,7 +22,7 @@ namespace ShareTrader
                 "Reset all Data. Are you sure?",
                 message,
                 "Yes",
-                "No"); 
+                "No");
             // Only proceed if user clicked Yes
             if (!answer)
             {
@@ -30,16 +30,49 @@ namespace ShareTrader
             }
             else         // User clicked Yes
             {
-                File.Delete(AppGlobals.ConfigFile);
-                File.Delete(AppGlobals.CompaniesFile);
-                File.Delete(AppGlobals.PortfolioFile);
-                File.Delete(AppGlobals.BankBalanceFile);
-                File.Delete(AppGlobals.LastPriceUpdate);
-                File.Delete(AppGlobals.PortfolioPath + "\\Capitalinvested.csv");
-                Directory.Delete(AppGlobals.PortfolioPath +"\\TradingHistory", true);
+                try
+                {
+                    if (File.Exists(AppGlobals.ConfigFile))
+                        File.Delete(AppGlobals.ConfigFile);
 
-               await PortfolioManager.UpdatePortfolio();
-          }
-       }
+                    if (File.Exists(AppGlobals.CompaniesFile))
+                        File.Delete(AppGlobals.CompaniesFile);
+
+                    if (File.Exists(AppGlobals.PortfolioFile))
+                        File.Delete(AppGlobals.PortfolioFile);
+
+                    if (File.Exists(AppGlobals.BankBalanceFile))
+                        File.Delete(AppGlobals.BankBalanceFile);
+
+                    if (File.Exists(AppGlobals.LastPriceUpdate))
+                        File.Delete(AppGlobals.LastPriceUpdate);
+
+                    string capitalFile = Path.Combine(AppGlobals.PortfolioPath, "CapitalInvested.csv");
+                    if (File.Exists(capitalFile))
+                        File.Delete(capitalFile);
+
+                    string historyFolder = Path.Combine(AppGlobals.PortfolioPath, "TradingHistory");
+
+                    if (Directory.Exists(historyFolder))
+                    {
+                        foreach (string file in Directory.GetFiles(historyFolder))
+                        {
+                            File.Delete(file);
+                        }
+
+                        // Optional: delete any subfolders too.
+                        foreach (string dir in Directory.GetDirectories(historyFolder))
+                        {
+                            Directory.Delete(dir, true);
+                        }
+                    }              
+                }
+
+                catch (Exception ex)
+                {
+                    await page.DisplayAlert("Error", $"An error occurred while resetting data: {ex.Message}", "OK");
+                }
+            }
+        }
     }
 }

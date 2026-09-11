@@ -73,7 +73,7 @@ namespace ShareTrader
             string tradeInfo = $"{DateTime.Today:d} {shares} Bought @ {price:C}";            
 
             string tradeDate = DateTime.Today.ToString("yyyy-MM-dd");
-            string tradeData = $"{company},{shares},{price},{tradeDate},{tradeType},{value}";
+            string tradeData = $"{company},{shares},{price},{tradeDate},{tradeType}";
             LogData = $" Brought {shares} {company} Shares @ {price:C}";                  
 
             FileManager.SaveTradingHistory(company, tradeData);
@@ -112,11 +112,7 @@ namespace ShareTrader
                 if (BuySell == "Buy" || BuySell == "") // catches old records that have no tradeType set
                 {
                     totalHoldings += nrShares;
-                }
-                else if (BuySell == "Sell")
-                {
-                    totalHoldings -= nrShares;
-                }
+                }             
             }
 
             if (totalHoldings < shares)
@@ -168,27 +164,26 @@ namespace ShareTrader
                     tempList.Add(tradeItem);
                     continue;
                 }
-
-                BuySell = (tradeItem.tradeType ?? "").Trim();
-                if (BuySell == "Sell")// skip sell records
-                    continue;
-
+             
                 available = tradeItem.Shares;
 
-                if (available <=  remainingToSell)
+                  if (available <=  remainingToSell)
                 {
                     //consume this buy record
                      remainingToSell -=available;                   
                     SaleProceeds += tradePrice * available;
+                    AppGlobals.BankBalance += SaleProceeds;
                     available = 0;                 
-                    
+                    LogData = $" Sold {available} {company} Shares @ {tradePrice:C}";
                 }
                 else // available >= remainingToSell
                 {
                     // Partialy consume the buy record
                     available -= remainingToSell;
                     SaleProceeds += tradePrice * remainingToSell;
-                    remainingToSell =0;                    
+                    AppGlobals.BankBalance += SaleProceeds;
+                    remainingToSell =0; 
+                    LogData = $" Sold {shares} {company} Shares @ {tradePrice:C}";
                 }
 
                 // add updated buy record with remaining shares
@@ -202,7 +197,8 @@ namespace ShareTrader
                 };
 
                 tempList.Add(updated);
-            }
+               
+          }
 
 
             fPath = Path.Combine(AppGlobals.TradingHistoryPath, company + ".csv");
@@ -227,11 +223,11 @@ namespace ShareTrader
             }
 
             LogData = $" Sold {shares} {company} Shares @ {price:C}";
-             FileManager.SaveLogFile(LogData);
+            FileManager.SaveLogFile(LogData);
             FileManager.SaveConfig();
             FileManager.SaveBalances();
 
-            await PortfolioManager.UpdatePortfolio();
+              await PortfolioManager.UpdatePortfolio();
         }       
     }
 }
