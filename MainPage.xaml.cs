@@ -139,6 +139,9 @@ public partial class MainPage : ContentPage
         BuySellPopup.IsVisible = true;
 
         TxtShares.Focus();
+
+        UpdatePortfolioTotals();
+
     }
 
 
@@ -172,30 +175,32 @@ public partial class MainPage : ContentPage
                 // Force SfDataGrid to redraw.
                dgPortfolio.View?.Refresh();
                 dgPortfolio.InvalidateMeasure();
-
                 // Refresh the totals.
-                UpdatePortfolioTotals();
+               // UpdatePortfolioTotals();
                 break;
             case CompanySelectorMode.Remove:
                await  PortfolioManager.RemovePortfolioItem(companyName, "0");
                 btnAddNewCompany.IsVisible = false;
                 // Refresh the totals.
-                UpdatePortfolioTotals();
+              //  UpdatePortfolioTotals();
                 break;
+
             case CompanySelectorMode.Buy:
-                ShowTradePopup(company.Name, SharePrice, true); //true if Buying, false if selling
-                // Refresh the totals.
-                btnTrade.Text = "Buy";
-                UpdatePortfolioTotals();
-                break;
+                LblTradeTitle.Text = "Buy Shares";
+                CompanySelector.IsVisible = false;          // Close selector first.
+                currentTradeMode = TradeMode.Buy;
+                ShowTradePopup(company.Name, SharePrice, true);
+                return;
+
             case CompanySelectorMode.Sell:
-                ShowTradePopup(company.Name, SharePrice, false);  //true if Buying, false if selling
-                btnTrade.Text = "Sell";
-                UpdatePortfolioTotals();
-                break;
+                LblTradeTitle.Text = "Sell Shares";
+                CompanySelector.IsVisible = false;
+                currentTradeMode = TradeMode.Sell;
+                ShowTradePopup(company.Name, SharePrice, false);
+                return;
         }
 
-        CompanySelector.IsVisible = false;
+       // CompanySelector.IsVisible = false;
        
     }
 
@@ -207,12 +212,11 @@ public partial class MainPage : ContentPage
 
         BtnCompanyAction.Text = "Add Company";
         LblCompanySelectorTitle.Text = "Add Company";
-        btnExit.Text = "Exit";
-
+       // btnExit.Text = "Exit";
         TxtSearch.Text = "";
         TxtSearch.Focus();
         btnAddNewCompany.IsVisible = MyPortfolio.Count < MaxPortfolioCompanies;
-      await  LoadCompanySelector(fPath);
+        await  LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
         TxtSearch.Focus();
     }
@@ -225,7 +229,7 @@ public partial class MainPage : ContentPage
         popup.CompanyAdded += async () =>
         {
             await RefreshCompanyGrid();
-            btnExit.Text = "Exit";
+            //btnExit.Text = "Exit";
             
         };
 
@@ -282,6 +286,8 @@ public partial class MainPage : ContentPage
         currentTradeMode = TradeMode.Buy;
         LblCompanySelectorTitle.Text = "Buy Shares";
         BtnCompanyAction.Text = "Buy Shares";
+        btnTrade.IsVisible = true;
+        btnTrade.Text = "Buy";
         TxtSearch.Text = "";
         TxtSearch.Focus();
       await  LoadCompanySelector(fPath);
@@ -295,6 +301,8 @@ public partial class MainPage : ContentPage
         currentTradeMode = TradeMode.Sell;
         LblCompanySelectorTitle.Text = "Sell Shares";
         BtnCompanyAction.Text = "Sell Shares";
+        btnTrade.IsVisible = true;
+        btnTrade.Text = "Sell";
         TxtSearch.Text = "";
         TxtSearch.Focus();
      await   LoadCompanySelector(fPath);
