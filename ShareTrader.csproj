@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	 <PropertyGroup>
+<<<<<<< HEAD
     <!-- Base targets for every platform -->
     <BaseTargetFrameworks>net10.0-maccatalyst</BaseTargetFrameworks>
     <!-- Mac/Linux build -->
@@ -10,6 +11,9 @@
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">
         $(BaseTargetFrameworks);net10.0-windows10.0.19041.0
     </TargetFrameworks>
+=======
+   <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+>>>>>>> 44b5c63 (Working copy after move to Mac stuffup.)
 
     <OutputType>Exe</OutputType>
     <UseMaui>true</UseMaui>
