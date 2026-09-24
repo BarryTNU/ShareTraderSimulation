@@ -440,7 +440,7 @@
                                     Padding="2">
 
                                     <chart:SfCartesianChart
-                                        x:Name="AdxChart"
+                                        x:Name="Chart1"
                                         HorizontalOptions="Fill"
                                         VerticalOptions="Fill">
 
@@ -461,39 +461,72 @@
                                 <!-- CHART 1 LABEL                                     -->
                                 <!-- ================================================= -->
 
-                                <Border
-                                    Grid.Row="1"
-                                    StrokeThickness="1"
-                                    Padding="3">
+                                <Border Grid.Row="1"
+        StrokeThickness="1"
+        Padding="3">
 
                                     <Label
-                                        Text="Average Directional Index  (ADX)"
-                                        FontAttributes="Bold"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center" />
+        x:Name="LblChart1"
+        Text="Click Here"
+        FontAttributes="Bold"
+        HorizontalOptions="Center"
+        VerticalOptions="Center">
+
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="LblChart1_Clicked"/>
+                                        </Label.GestureRecognizers>
+
+                                    </Label>
 
                                 </Border>
 
 
                                 <!-- ================================================= -->
-                                <!-- TEXT / ANALYSIS 1                                -->
+                                <!-- TEXT / ANALYSIS 1 / CHART LIST OVERLAY            -->
                                 <!-- ================================================= -->
 
                                 <Border
-                                    Grid.Row="2"
-                                    StrokeThickness="1"
-                                    Padding="5">
+    Grid.Row="2"
+    StrokeThickness="1"
+    Padding="5">
 
-                                    <ScrollView>
+                                    <Grid>
 
-                                        <Editor
-                                            x:Name="TxtAnalysis1"
-                                            IsReadOnly="True"
-                                            FontSize="11"
-                                            BackgroundColor="Transparent"
-                                            AutoSize="TextChanges" />
+                                        <!-- Normal analysis text -->
+                                        <ScrollView
+            x:Name="Analysis1Scroll"
+            IsVisible="True">
 
-                                    </ScrollView>
+                                            <Editor
+                x:Name="TxtAnalysis1"
+                IsReadOnly="True"
+                FontSize="11"
+                BackgroundColor="Transparent"
+                AutoSize="TextChanges" />
+
+                                        </ScrollView>
+
+                                        <!-- Chart selection list overlays the analysis -->
+                                       
+                                            <CollectionView
+                                                 x:Name="ChartList1"
+                                                IsVisible="False"
+                                                SelectionMode="Single"
+                                                SelectionChanged="ChartList1_SelectionChanged">
+                                          
+
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Border StrokeThickness="0" Padding="6">
+                                                        <Label
+                                                        Text="{Binding .}"
+                                                        FontSize="13"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+
+                                        </CollectionView>
+                                    </Grid>
 
                                 </Border>
 
@@ -550,7 +583,7 @@
                                     Padding="2">
 
                                     <chart:SfCartesianChart
-                                        x:Name="BollingerChart"
+                                        x:Name="Chart2"
                                         HorizontalOptions="Fill"
                                         VerticalOptions="Fill">
 
@@ -571,76 +604,85 @@
                                 <!-- CHART 2 LABEL                                     -->
                                 <!-- ================================================= -->
 
-                                <Border
-                                    Grid.Row="1"
-                                    StrokeThickness="1"
-                                    Padding="3">
+                                <Border Grid.Row="1"
+        StrokeThickness="1"
+        Padding="3">
 
-                                    <Grid>
+                                    <Label
+        x:Name="LblChart2"
+        Text="Click Here"
+        FontAttributes="Bold"
+        HorizontalOptions="Center"
+        VerticalOptions="Center">
 
-                                        <Label
-                                            Text="Bollinger Bands (Volatility)"
-                                            FontAttributes="Bold"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center" />
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="LblChart2_Clicked"/>
+                                        </Label.GestureRecognizers>
 
-                                        <Label
-                                            x:Name="LblChart2Placeholder"
-                                            Text=""
-                                            FontSize="16"
-                                            HorizontalOptions="Center"
-                                            VerticalOptions="Center"
-                                            Opacity="0.5" />
-
-                                    </Grid>
+                                    </Label>
 
                                 </Border>
 
-
                                 <!-- ================================================= -->
-                                <!-- TEXT / ANALYSIS 2                                -->
+                                <!-- ANALYSIS 2 / CHART PICKER (OVERLAY)               -->
                                 <!-- ================================================= -->
 
                                 <Border
-                                    Grid.Row="2"
-                                    StrokeThickness="1"
-                                    Padding="5">
+    Grid.Row="2"
+    StrokeThickness="1"
+    Padding="5">
 
-                                    <Grid RowSpacing="4">
+                                    <Grid>
 
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="20" />
-                                            <RowDefinition Height="20" />
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="*" />
-                                        </Grid.RowDefinitions>
-                                        <Label
-            x:Name="LblAnalysis2Row1"
-            Grid.Row="0"
-            Text="First line of analysis"
-            FontSize="12"
-            VerticalOptions="Center" />
+                                        <!-- Normal analysis panel -->
+                                        <Grid
+            x:Name="Analysis2Panel"
+            RowSpacing="4"
+            IsVisible="True">
 
-                                        <Label
-            x:Name="LblAnalysis2Row2"
-            Grid.Row="1"
-            Text="Second line of analysis"
-            FontSize="12"
-            VerticalOptions="Center" />
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="20"/>
+                                                <RowDefinition Height="20"/>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
 
-                                        <Label
-            x:Name="LblAnalysis2Row3"
-            Grid.Row="2"
-            Text="Third line of analysis"
-            FontSize="12"
-            VerticalOptions="Center" />
+                                            <Label x:Name="LblAnalysis2Row1"
+                   Grid.Row="0"
+                   Text="First line of analysis"
+                   FontSize="12"/>
 
-                                        <Label
-            x:Name="LblAnalysis2Row4"
-            Grid.Row="3"
-            Text="Fourth line of analysis"
-            FontSize="12"
-            VerticalOptions="Center" />
+                                            <Label x:Name="LblAnalysis2Row2"
+                   Grid.Row="1"
+                   Text="Second line of analysis"
+                   FontSize="12"/>
+
+                                            <Label x:Name="LblAnalysis2Row3"
+                   Grid.Row="2"
+                   Text="Third line of analysis"
+                   FontSize="12"/>
+
+                                            <Label x:Name="LblAnalysis2Row4"
+                   Grid.Row="3"
+                   Text="Fourth line of analysis"
+                   FontSize="12"/>
+
+                                        </Grid>
+
+                                        <CollectionView
+                                        x:Name="ChartList2"
+                                        IsVisible="False"
+                                        SelectionMode="Single"
+                                        SelectionChanged="ChartList2_SelectionChanged">                                        
+
+                                        <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Label Text="{Binding .}"
+                                                    FontSize="13"
+                                                     Padding="8,6"/>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
 
                                     </Grid>
 
@@ -690,7 +732,7 @@
 
 
                                 <!-- ================================================= -->
-                                <!-- VOLUME CHART                                      -->
+                                <!-- CHART 3                                     -->
                                 <!-- ================================================= -->
 
                                 <Border
@@ -699,7 +741,7 @@
                                     Padding="2">
 
                                     <chart:SfCartesianChart
-                                        x:Name="VolumeChart"
+                                        x:Name="Chart3"
                                         HorizontalOptions="Fill"
                                         VerticalOptions="Fill">
 
@@ -717,54 +759,86 @@
 
 
                                 <!-- ================================================= -->
-                                <!-- VOLUME LABEL                                      -->
+                                <!-- COLUMN 3     lower                                      -->
                                 <!-- ================================================= -->
 
-                                <Border
-                                    Grid.Row="1"
-                                    StrokeThickness="1"
-                                    Padding="3">
+                                <Border Grid.Row="1"
+        StrokeThickness="1"
+        Padding="3">
 
-                                    <Label
-                                        Text="Moving Average Slope (MAS)"
-                                        FontAttributes="Bold"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center" />
+                                    <Grid>
+
+                                        <!-- Visible chart label -->
+                                        <Label
+            x:Name="LblChart3"
+            Text="Click Here"
+            FontAttributes="Bold"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            IsVisible="True">
+
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="LblChart3_Clicked"/>
+                                            </Label.GestureRecognizers>
+
+                                        </Label>
+                                
+
+                                    </Grid>
 
                                 </Border>
 
+                               
 
                                 <!-- ================================================= -->
-                                <!-- PRICE BY DATE LIST                                -->
+                                <!-- PRICE LIST / CHART PICKER (OVERLAY)               -->
                                 <!-- ================================================= -->
 
                                 <Border
-                                    Grid.Row="2"
-                                    StrokeThickness="1"
-                                    Padding="5">
+    Grid.Row="2"
+    StrokeThickness="1"
+    Padding="5">
 
-                                    <CollectionView
-                                        x:Name="lstPriceByDate"
-                                        HorizontalOptions="Fill"
-                                        VerticalOptions="Fill">
+                                    <Grid>
 
+                                        <!-- Normal price list -->
+                                        <CollectionView
+            x:Name="lstPriceByDate"
+            IsVisible="True"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill">
+
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Label
+                        Text="{Binding .}"
+                        FontSize="12"
+                        Padding="5,2"/>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+
+                                        </CollectionView>
+
+                                        <!-- Chart selection list -->
+                                        <CollectionView
+                                        x:Name="ChartList3"
+                                        IsVisible="False"
+                                        SelectionMode="Single"
+                                        SelectionChanged="ChartList3_SelectionChanged">
+                                       
                                         <CollectionView.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Label 
+Text="{Binding .}"
+                                                     FontSize="13"
+                                                     Padding="8,6"/>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
 
-                                            <DataTemplate x:DataType="x:String">
-
-                                                <Label
-                                                    Text="{Binding .}"
-                                                    FontSize="12"
-                                                    Padding="5,2" />
-
-                                            </DataTemplate>
-
-                                        </CollectionView.ItemTemplate>
-
-                                    </CollectionView>
+                                    </Grid>
 
                                 </Border>
-
 
                                 <!-- ================================================= -->
                                 <!-- COLUMN 3 BOTTOM LABEL                             -->

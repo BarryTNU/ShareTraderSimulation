@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ShareTrader.Helpers;
+using Windows.Storage.Provider;
 
 namespace ShareTrader.Services
 {
@@ -55,7 +56,11 @@ namespace ShareTrader.Services
                     AppGlobals.ConfigurationManager.MaxDailyRequests = int.Parse(sp[3]);
                     AppGlobals.ConfigurationManager.RequestCount = int.Parse(sp[4]);
                     AppGlobals.ConfigurationManager.LastUpdate = DateTime.Parse(sp[5]);
-                  
+                    AppGlobals.ConfigurationManager.Chart1Type= sp[6];
+                    AppGlobals.ConfigurationManager.Chart2Type =sp[7];
+                    AppGlobals.ConfigurationManager.Chart3Type= sp[8];                   
+
+
                     Success = true;
                 }
             }
@@ -348,6 +353,9 @@ namespace ShareTrader.Services
             int MaxHourlyRequests = AppGlobals.ConfigurationManager.MaxHourlyRequests;
             int MaxDailyRequests = AppGlobals.ConfigurationManager.MaxDailyRequests;
             int RequestCount = AppGlobals.ConfigurationManager.RequestCount;
+            string Chart1Type = AppGlobals.ConfigurationManager.Chart1Type;
+            string Chart2Type = AppGlobals.ConfigurationManager.Chart2Type;
+            string Chart3Type = AppGlobals.ConfigurationManager.Chart3Type;
 
             if (APIProvider == "" || APIProvider ==null)
              {
@@ -355,7 +363,7 @@ namespace ShareTrader.Services
                 APIKey = "1e22624fd218a84bb88c3d777a08c7aa225190ad";
             }
 
-            string ConfigString = $"{APIProvider},{APIKey},{MaxHourlyRequests},{MaxDailyRequests},{RequestCount},{LastUpdate}";
+            string ConfigString = $"{APIProvider},{APIKey},{MaxHourlyRequests},{MaxDailyRequests},{RequestCount},{LastUpdate},{Chart1Type},{Chart2Type},{Chart3Type}";
             System.IO.File.WriteAllText(fPath, ConfigString);
         }
 

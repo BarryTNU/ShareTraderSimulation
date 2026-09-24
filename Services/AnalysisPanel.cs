@@ -18,18 +18,63 @@ namespace ShareTrader.Services
 
     public class AnalysisPanel
     {
-        public static void DisplayAnalysis(
-               SfCartesianChart bollingerChart,
-               SfCartesianChart adxChart,
-               SfCartesianChart volumeChart,
-               string company)
+      
+        public static void PlotChart(string chartType,
+                                   SfCartesianChart chart,
+                                   string company)
         {
-            ChartManager.PlotBollingerBands(bollingerChart, 30, company);
-            ChartManager.PlotADX(adxChart, company);
-            ChartManager.PlotMAS(volumeChart, company);
-        }    
-   
-   
+            switch (chartType)
+            {
+                case "ADX":
+                ChartManager.PlotADX(chart, company);
+                    break;
+
+                case "BOLL":
+                    ChartManager.PlotBollingerBands(chart, 30, company);
+                    break;
+
+                case "MAS":
+                    ChartManager.PlotMAS(chart, company);
+                    break;
+
+                case "MACD":
+            //        ChartManager.PlotMACD(chart, company);
+                    break;
+
+                case "RSI":
+             //       ChartManager.PlotRSI(chart, company);
+                    break;
+
+                case "STOCH":
+              //      ChartManager.PlotStochastic(chart, company);
+                    break;
+
+                case "WILLR":
+             //       ChartManager.PlotWilliamsR(chart, company);
+                    break;
+
+                case "ROC":
+           //         ChartManager.PlotROC(chart, company);
+                    break;
+
+                case "ATR":
+              //      ChartManager.PlotATR(chart, company);
+                    break;
+
+                case "VOL":
+            //        ChartManager.PlotVolume(chart, company);
+                    break;
+
+                case "OBV":
+              //      ChartManager.PlotOBV(chart, company);
+                    break;
+
+                default:
+                    chart.Series.Clear();
+                    break;
+            }
+        }
+
         public static string GetRecommendation(string company)
         {
             string signal = ChartManager.BuyOrSell(company);

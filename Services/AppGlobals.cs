@@ -97,6 +97,9 @@ namespace ShareTrader.Services
             public static int MaxDailyRequests = 0;
             public static int RequestCount = 0;
             public static DateTime LastUpdate = DateTime.MinValue;
+            public static String Chart1Type = "";
+            public static String Chart2Type = "";
+            public static String Chart3Type = "";
         }
 
         // Your existing globals...
@@ -114,10 +117,7 @@ namespace ShareTrader.Services
             };
 
         public static ObservableCollection<PortfolioItem> PortfolioItems { get; } = [];
-        //public static ObservableCollection<PortfolioItem> PortfolioItems
-       //     = new ObservableCollection<PortfolioItem>();
-
-       
+              
         public class PortfolioItem
         {
             public string CompanyName { get; set; } = "";

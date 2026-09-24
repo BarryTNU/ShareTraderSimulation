@@ -131,7 +131,7 @@ namespace ShareTrader
 {"Freightways","FRW,nz"}
             };
 
-    public static Dictionary<string, string> USCompanies = new Dictionary<string, string>
+        public static Dictionary<string, string> USCompanies = new Dictionary<string, string>
             {
                 { "Apple", "AAPL.us" },
                 { "Microsoft", "MSFT.us" },
@@ -147,8 +147,8 @@ namespace ShareTrader
                 { "JPMorgan Chase", "JPM.us" }
             };
 
-    // Changed the access modifier of the UKCompanies field to public
-    public static Dictionary<string, string> UKCompanies = new Dictionary<string, string>
+        // Changed the access modifier of the UKCompanies field to public
+        public static Dictionary<string, string> UKCompanies = new Dictionary<string, string>
             {
                 { "BP", "BP.uk" },
                 { "Lloyds", "LLOY.uk" },
@@ -157,7 +157,7 @@ namespace ShareTrader
                 { "Unilever", "ULVR.uk" }
             };
 
-    public static Dictionary<string, string> NZCompanies = new Dictionary<string, string>
+        public static Dictionary<string, string> NZCompanies = new Dictionary<string, string>
             {
                 { "Auckland Airport", "AIA.nz" },
                 { "Air New Zealand", "AIR.nz" },
@@ -165,7 +165,7 @@ namespace ShareTrader
             };
 
 
-    public static Dictionary<string, string> AUSCompanies = new Dictionary<string, string>
+        public static Dictionary<string, string> AUSCompanies = new Dictionary<string, string>
             {
                 {"BHP","BHP,ax"},
                 {"Commonwealth Bank","CBA,ax"},
@@ -174,7 +174,7 @@ namespace ShareTrader
                 {"Santana Minerals Ltd","SMI.ax"},
                 {"Seek Minerals Ltd","SEK.ax"},
                 {"Washington H Soul Pattinson & Co Ltd","SOL.ax"},
-                {"XERO Ltd","XRO.ax"},       
+                {"XERO Ltd","XRO.ax"},
                 {"Rio Tinto", "RIO.ax" },
                 {"ANZ Bank", "ANZ.ax" },
                 {"National Australia Bank", "NAB.ax" },
@@ -189,6 +189,23 @@ namespace ShareTrader
                 {"Santos", "STO.ax" },
                 {"QBE Insurance", "QBE.ax" }
             };
+
+
+
+        public static readonly Dictionary<string, string> ChartTypes = new()
+{
+    { "Average Directional Index", "ADX" },
+    { "Bollinger Bands", "BOLL" },
+    { "Moving Average Slope", "MAS" },
+    { "Relative Strength Index", "RSI" },
+    { "Stochastic Oscillator", "STOC" },
+    { "Williams %R", "WILL" },
+    { "Rate of Change", "ROC" },
+    { "Average True Range", "ATR" },
+    { "Volume", "VOL" },
+    { "On Balance Volume", "OBV" }
+};
+
+
     }
 }
-

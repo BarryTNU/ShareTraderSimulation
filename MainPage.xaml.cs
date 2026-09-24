@@ -1,11 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ShareTrader.Helpers;
 using ShareTrader.Services;
 using System.Collections.ObjectModel;
 using static ShareTrader.Services.AppGlobals;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.Controls;
-using ShareTrader.Helpers;
-using System.Collections;
+using Syncfusion.Maui.Charts;
 
 namespace ShareTrader;
 
@@ -13,7 +10,7 @@ public partial class MainPage : ContentPage
 {
     public ObservableCollection<AppGlobals.PortfolioItem> PortfolioItems
     => AppGlobals.PortfolioItems;
-   // public static ObservableCollection<PortfolioItem> PortfolioItems { get; } = [];
+    // public static ObservableCollection<PortfolioItem> PortfolioItems { get; } = [];
 
     private readonly ObservableCollection<CompanyItem> CompanyList = [];
 
@@ -33,9 +30,9 @@ public partial class MainPage : ContentPage
         Buy,
         Sell
     }
-  
 
-private TradeMode currentTradeMode;
+
+    private TradeMode currentTradeMode;
 
     private enum CompanySelectorMode
     {
@@ -51,13 +48,13 @@ private TradeMode currentTradeMode;
         Withdraw
     }
 
-   
+
 
     private BankMode currentBankMode;
 
     private CompanySelectorMode selectorMode;
 
-    
+
 
     public MainPage()
     {
@@ -70,33 +67,68 @@ private TradeMode currentTradeMode;
     }
 
     private async void MainPage_Loaded(object? sender, EventArgs e)
-    {       
-    CreateDirectories();       
+    {
+        CreateDirectories();
         FileManager.LoadConfigData();
         BuildApiProviderMenu();
         DgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
+
+        if (AppGlobals.ConfigurationManager.Chart1Type =="") 
+                {
+            AppGlobals.ConfigurationManager.Chart1Type = "ADX";
+            AppGlobals.ConfigurationManager.Chart2Type = "BOLL";
+            AppGlobals.ConfigurationManager.Chart3Type = "VOL";
+            FileManager.SaveConfig();
+        }
+  
 
         if (GetPortfolioCount() >= MaxPortfolioCompanies)
         {
             MiAddCompany.IsEnabled = false; // gray out the Add Company menu item if the portfolio is full
         }
 
-    
+
         DateTime LastUpdate = AppGlobals.ConfigurationManager.LastUpdate;
         if (LastUpdate != DateTime.Today)
         {
-           DownloadPrices_Clicked(sender, e);
+            DownloadPrices_Clicked(sender, e);
         }
-        
+
+       ChartList1.ItemsSource = Dictionaries.ChartTypes.Keys.ToList();
+        ChartList2.ItemsSource = Dictionaries.ChartTypes.Keys.ToList();
+        ChartList3.ItemsSource = Dictionaries.ChartTypes.Keys.ToList();
+
+        LblChart1.Text = AssignChartNames(AppGlobals.ConfigurationManager.Chart1Type);
+        LblChart2.Text = AssignChartNames(AppGlobals.ConfigurationManager.Chart2Type);
+        LblChart3.Text = AssignChartNames(AppGlobals.ConfigurationManager.Chart3Type);
+
+
         await PortfolioManager.UpdatePortfolio();
         if (AppGlobals.PortfolioItems.Count > 0)
         {
             string company = AppGlobals.PortfolioItems[0].CompanyName;
             UpdatePortfolioTotals();
-            Show_Analysis(company);            
+            Show_Analysis(company);
         }
-       
-    }   
+  }
+
+    public string AssignChartNames(string ChartName)
+    {
+        foreach (var item in ChartList1.ItemsSource)
+        {
+            string name = item.ToString();
+
+            if (Dictionaries.ChartTypes.TryGetValue(name, out string code))
+            {
+                if (code == ChartName)
+                {
+                    return name;
+                }
+            }
+        }
+
+        return "Click Here";
+    }
 
     public void UpdatePortfolioTotals()
     {
@@ -121,11 +153,11 @@ private TradeMode currentTradeMode;
 
     private void ShowTradePopup(string company, decimal price, bool buy)
     {
-            buyingShares = buy;
+        buyingShares = buy;
         if (buyingShares)
-            currentTradeMode = TradeMode.Buy;          
+            currentTradeMode = TradeMode.Buy;
         else
-            currentTradeMode = TradeMode.Sell;            
+            currentTradeMode = TradeMode.Sell;
 
 
         currentCompany = company;
@@ -160,17 +192,17 @@ private TradeMode currentTradeMode;
         // Use company here.         
 
         if (company == null)
-       {
-          CustomMessageBox.DefaultFocus = DefaultButton.OK;
-          await CustomMessageBox.ShowAsync!(
-          "ShareTrader",
-          "Please select a company.",
-          MessageType.Warning);
+        {
+            CustomMessageBox.DefaultFocus = DefaultButton.OK;
+            await CustomMessageBox.ShowAsync!(
+            "ShareTrader",
+            "Please select a company.",
+            MessageType.Warning);
             return;
-        }    
+        }
 
-    string companyName = company.Name;
-    string companySymbol = company.Symbol;
+        string companyName = company.Name;
+        string companySymbol = company.Symbol;
 
         decimal SharePrice = FileManager.LoadCompanyData(companyName, 1);
 
@@ -183,16 +215,16 @@ private TradeMode currentTradeMode;
                 await PortfolioManager.AddSelectedCompany(companyName, companySymbol);
                 // Tell Syncfusion to refresh.
                 DgPortfolio.ItemsSource = null;
-               DgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
+                DgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
                 // Force SfDataGrid to redraw.
-               DgPortfolio.View?.Refresh();
+                DgPortfolio.View?.Refresh();
                 DgPortfolio.InvalidateMeasure();
                 // Refresh the totals.
-               UpdatePortfolioTotals();
+                UpdatePortfolioTotals();
                 return;
             case CompanySelectorMode.Remove:
                 CompanySelector.IsVisible = false;
-                await  PortfolioManager.RemovePortfolioItem(companyName, "0");
+                await PortfolioManager.RemovePortfolioItem(companyName, "0");
                 BtnAddNewCompany.IsVisible = false;
                 // Refresh the totals.
                 UpdatePortfolioTotals();
@@ -213,23 +245,23 @@ private TradeMode currentTradeMode;
                 ShowTradePopup(company.Name, SharePrice, false);
                 UpdatePortfolioTotals();
                 return;
-        }     
-       
+        }
+
     }
 
-        private async void AddCompany_Clicked(object? sender, EventArgs e)
+    private async void AddCompany_Clicked(object? sender, EventArgs e)
     {
-       
+
         string fPath = CompaniesFile;
         selectorMode = CompanySelectorMode.Add;
 
         BtnCompanyAction.Text = "Add Company";
         LblCompanySelectorTitle.Text = "Add Company";
-       // btnExit.Text = "Exit";
+        // btnExit.Text = "Exit";
         TxtSearch.Text = "";
         TxtSearch.Focus();
         BtnAddNewCompany.IsVisible = MyPortfolio.Count < MaxPortfolioCompanies;
-        await  LoadCompanySelector(fPath);
+        await LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
         TxtSearch.Focus();
     }
@@ -243,13 +275,13 @@ private TradeMode currentTradeMode;
         {
             await RefreshCompanyGrid();
             //btnExit.Text = "Exit";
-            
+
         };
 
         await Navigation.PushModalAsync(popup);
     }
 
-    private  async void RemoveCompany_Clicked(object? sender, EventArgs e)
+    private async void RemoveCompany_Clicked(object? sender, EventArgs e)
     {
         string fPath = PortfolioFile;
         selectorMode = CompanySelectorMode.Remove;
@@ -259,7 +291,7 @@ private TradeMode currentTradeMode;
         TxtSearch.Focus();
         BtnAddNewCompany.IsVisible = false;
 
-       await LoadCompanySelector(fPath);
+        await LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
         if (AppGlobals.PortfolioItems.Count == 1)
         {
@@ -267,7 +299,7 @@ private TradeMode currentTradeMode;
             AnalysisView.IsVisible = false;
         }
     }
-      
+
 
     private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -295,11 +327,11 @@ private TradeMode currentTradeMode;
         CustomMessageBox.DefaultFocus = DefaultButton.OK;
         await CustomMessageBox.ShowAsync!(
         "Portfolio",
-         "Portfolio Saved",         
+         "Portfolio Saved",
           MessageType.Information);
     }
 
-   private async void BuyShares_Clicked(object? sender, EventArgs e)
+    private async void BuyShares_Clicked(object? sender, EventArgs e)
     {
         string fPath = AppGlobals.PortfolioFile;
         selectorMode = CompanySelectorMode.Buy;
@@ -310,7 +342,7 @@ private TradeMode currentTradeMode;
         BtnTrade.Text = "Buy";
         TxtSearch.Text = "";
         TxtSearch.Focus();
-      await  LoadCompanySelector(fPath);
+        await LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
     }
 
@@ -325,10 +357,10 @@ private TradeMode currentTradeMode;
         BtnTrade.Text = "Sell";
         TxtSearch.Text = "";
         TxtSearch.Focus();
-     await   LoadCompanySelector(fPath);
+        await LoadCompanySelector(fPath);
         CompanySelector.IsVisible = true;
     }
-    void Deposit_Clicked(object? sender, EventArgs e)
+  private  void Deposit_Clicked(object? sender, EventArgs e)
     {
         currentBankMode = BankMode.Deposit;
 
@@ -376,7 +408,7 @@ private TradeMode currentTradeMode;
                 break;
 
             case "AlphaVantage":
-                AppGlobals.ConfigurationManager.APIProvider="AlphaVantage";
+                AppGlobals.ConfigurationManager.APIProvider = "AlphaVantage";
                 AppGlobals.APIKey = "JNH36WFVGKTM5DLH";
                 break;
 
@@ -413,14 +445,14 @@ private TradeMode currentTradeMode;
     }
 
 
-    void Withdraw_Clicked(object? sender, EventArgs e)
+  private  void Withdraw_Clicked(object? sender, EventArgs e)
     {
         currentBankMode = BankMode.Withdraw;
 
         LblBankTitle.Text = "Withdraw Funds";
         LblCurrentBalance.Text = AppGlobals.BankBalance.ToString("C");
         LblNewBalance.Text = AppGlobals.BankBalance.ToString("C");
-        TxtBankAmount.Text = "";        
+        TxtBankAmount.Text = "";
         BankPopup.IsVisible = true;
         TxtBankAmount.Focus();
     }
@@ -447,7 +479,7 @@ private TradeMode currentTradeMode;
             CustomMessageBox.DefaultFocus = DefaultButton.OK;
             await CustomMessageBox.ShowAsync!(
             "Error",
-            "Please enter a valid amount.",         
+            "Please enter a valid amount.",
              MessageType.Warning);
             TxtBankAmount.Focus();
             return;
@@ -468,40 +500,40 @@ private TradeMode currentTradeMode;
     {
         BankPopup.IsVisible = false;
         return;
-    } 
+    }
 
     async void DownloadPrices_Clicked(object? sender, EventArgs e)
     {
         await Services.DownloadService.UpdateSharePrices(busyIndicator, BusyOverlay);
-   }
+    }
 
 
     async void Settings_Clicked(object? sender, EventArgs e)
     {
-     CustomMessageBox.DefaultFocus = DefaultButton.OK;
-     await CustomMessageBox.ShowAsync!(
-     "Tools",
-     "Settings not available in this version.",    
-    MessageType.Information);
+        CustomMessageBox.DefaultFocus = DefaultButton.OK;
+        await CustomMessageBox.ShowAsync!(
+        "Tools",
+        "Settings not available in this version.",
+       MessageType.Information);
         return;
     }
-       
+
 
     async void Register_Clicked(object? sender, EventArgs e)
     {
         string Message = "Registration is not required in this version." + Environment.NewLine +
             "However if you use and enjoy the app, please consider supporting us." + Environment.NewLine +
-            "Visit our website for more information." + Environment.NewLine + "camsoftAU@gmail.com"+ Environment.NewLine +
+            "Visit our website for more information." + Environment.NewLine + "camsoftAU@gmail.com" + Environment.NewLine +
             "Thank you for your support.";
 
         CustomMessageBox.DefaultFocus = DefaultButton.OK;
         await CustomMessageBox.ShowAsync!(
         "Register",
-        Message,            
+        Message,
         MessageType.Information);
     }
 
-     void Reset_Clicked(object? sender, EventArgs e)
+    void Reset_Clicked(object? sender, EventArgs e)
     {
         Reset.ResetAlldData();
         AppGlobals.PortfolioItems.Clear();
@@ -511,7 +543,7 @@ private TradeMode currentTradeMode;
         LblBankBalance.Text = 0m.ToString("C");
         LblCurrentBalance.Text = 0m.ToString("C");
         LblNewBalance.Text = 0m.ToString("C");
-    }  
+    }
 
     async void About_Clicked(object sender, EventArgs e)
     {
@@ -520,7 +552,7 @@ private TradeMode currentTradeMode;
         CustomMessageBox.DefaultFocus = DefaultButton.OK;
         await CustomMessageBox.ShowAsync!(
         $"Share Trading Simulation. Version {version}",
-        message,            
+        message,
         MessageType.Information);
     }
 
@@ -575,7 +607,7 @@ private TradeMode currentTradeMode;
 
     private void Show_Analysis(string company)
     {
-       DgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
+        DgPortfolio.ItemsSource = AppGlobals.PortfolioItems;
 
         if (AppGlobals.PortfolioItems.Count == 0)
         {
@@ -584,15 +616,15 @@ private TradeMode currentTradeMode;
             return;
         }
 
-     // string Recomendation = AnalysisPanel.GetRecommendation(company);
+        // string Recomendation = AnalysisPanel.GetRecommendation(company);
 
 
         TextView.IsVisible = false;
         AnalysisView.IsVisible = true;
 
         LblAnalysisTitle.Text =
-             "Analyzing Trends over the past 100 days for " + company;      
-      
+             "Analyzing Trends over the past 100 days for " + company;
+
         lstPriceByDate.ItemsSource = ChartManager.FillPxDateList(company);
 
         var summary = AnalysisPanel.GetPriceSummary();
@@ -600,11 +632,26 @@ private TradeMode currentTradeMode;
         LblAnalysis2Row1.Text = summary.Low;
         LblAnalysis2Row2.Text = summary.High;
         TxtAnalysis1.Text = AnalysisPanel.GetRecommendation(company);
-        AnalysisPanel.DisplayAnalysis(
-            BollingerChart,
-            AdxChart,
-            VolumeChart,
+              
+
+//Plot the three charts with the chart Type previously selected by user
+        AnalysisPanel.PlotChart(
+            AppGlobals.ConfigurationManager.Chart1Type,
+                Chart1,
+                company);
+
+        AnalysisPanel.PlotChart(
+            AppGlobals.ConfigurationManager.Chart2Type,
+            Chart2,
             company);
+
+        AnalysisPanel.PlotChart(
+            AppGlobals.ConfigurationManager.Chart3Type,
+            Chart3,
+            company);
+
+
+
 
         var (row3, row4) = AnalysisPanel.GetPurchaseSummary(company);
 
@@ -613,17 +660,17 @@ private TradeMode currentTradeMode;
 
     }
 
-   private void DgPortfolio_SelectionChanged(
-    object sender,
-    Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
-{
-    if (e.AddedRows == null || e.AddedRows.Count == 0)
-        return;
+    private void DgPortfolio_SelectionChanged(
+     object sender,
+     Syncfusion.Maui.DataGrid.DataGridSelectionChangedEventArgs e)
+    {
+        if (e.AddedRows == null || e.AddedRows.Count == 0)
+            return;
 
-    if (e.AddedRows[0] is not PortfolioItem item)
-        return;
+        if (e.AddedRows[0] is not PortfolioItem item)
+            return;
 
-    string company = item.CompanyName;
+        string company = item.CompanyName;
 
         if (AppGlobals.PortfolioItems.Count > 0)
         {
@@ -636,7 +683,7 @@ private TradeMode currentTradeMode;
         {
             AnalysisView.IsVisible = false;
         }
-}
+    }
 
     private void InformationPanel_LostFocuc(object sender, EventArgs e)
     {
@@ -680,8 +727,8 @@ private TradeMode currentTradeMode;
         {
             CustomMessageBox.DefaultFocus = DefaultButton.OK;
             await CustomMessageBox.ShowAsync!(
-                "Error", 
-                "Please enter the number of shares.",  
+                "Error",
+                "Please enter the number of shares.",
                 MessageType.Warning);
             return;
         }
@@ -689,7 +736,7 @@ private TradeMode currentTradeMode;
         // Use the values here        
 
         BuySellPopup.IsVisible = false;
-       // decimal tradeValue = shares * currentPrice;
+        // decimal tradeValue = shares * currentPrice;
 
         if (currentTradeMode == TradeMode.Buy)
         {
@@ -704,12 +751,12 @@ private TradeMode currentTradeMode;
             await ShareTrading.SellShares(currentCompany, shares, currentPrice);
         }
 
-      await PortfolioManager.UpdatePortfolio();
+        await PortfolioManager.UpdatePortfolio();
         UpdatePortfolioTotals();
         BuySellPopup.IsVisible = false;
     }
 
-     void BtnTradeCancel_Clicked(object sender, EventArgs e)
+    void BtnTradeCancel_Clicked(object sender, EventArgs e)
     {
         // Hide the Buy/Sell popup when cancel is clicked
         BuySellPopup.IsVisible = false;
@@ -742,33 +789,33 @@ private TradeMode currentTradeMode;
             }
         }
         else
-        {            
-                // Load from file
-                foreach (string line in File.ReadAllLines(fPath))
-                
-                {
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
+        {
+            // Load from file
+            foreach (string line in File.ReadAllLines(fPath))
 
-                    string[] parts = line.Split(',');
-                    if (parts.Length >= 2)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                string[] parts = line.Split(',');
+                if (parts.Length >= 2)
+                {
+                    CompaniesPopup.Add(new CompanyItem
                     {
-                        CompaniesPopup.Add(new CompanyItem
-                        {
-                            Name = parts[0].Trim(),
-                            Symbol = parts[1].Trim()
-                        });
+                        Name = parts[0].Trim(),
+                        Symbol = parts[1].Trim()
+                    });
 
                     SortCompaniesPopup();
 
                 }
-          }
-     }
+            }
+        }
 
-            gridCompanies.ItemsSource = null;
-            gridCompanies.ItemsSource = CompaniesPopup;
+        gridCompanies.ItemsSource = null;
+        gridCompanies.ItemsSource = CompaniesPopup;
 
- }
+    }
 
     private void SortCompaniesPopup()
     {
@@ -795,7 +842,7 @@ private TradeMode currentTradeMode;
 
     private async Task RefreshCompanyGrid()
     {
-      await  LoadCompanySelector(AppGlobals.CompaniesFile);
+        await LoadCompanySelector(AppGlobals.CompaniesFile);
 
         gridCompanies.ItemsSource = null;
         gridCompanies.ItemsSource = CompaniesPopup;
@@ -805,7 +852,7 @@ private TradeMode currentTradeMode;
             int lastRow = CompaniesPopup.Count - 1;
 
             gridCompanies.SelectedIndex = lastRow;
-           await gridCompanies.ScrollToRowIndex(lastRow, ScrollToPosition.End);
+            await gridCompanies.ScrollToRowIndex(lastRow, ScrollToPosition.End);
         }
     }
 
@@ -819,17 +866,17 @@ private TradeMode currentTradeMode;
     {
         var display = info ?? DeviceDisplay.MainDisplayInfo;
         //DisplayInfo.Height is in physical pixels; divide by Density to get device-independent units (DIP)
-      double screenHeightDip = display.Height / display.Density;
+        double screenHeightDip = display.Height / display.Density;
 
         // Apply to root layout (preferred) or the page itself    
-         this.HeightRequest = screenHeightDip;
+        this.HeightRequest = screenHeightDip;
     }
 
     private Task ShowCustomMessageBox(
      string title,
      string message,
      MessageType type = MessageType.Information)
-    
+
     {
         LblMessageTitle.Text = title;
         LblMessageText.Text = message;
@@ -914,7 +961,7 @@ private TradeMode currentTradeMode;
 
     private void BtnOK_Clicked(object sender, EventArgs e)
     {
-        MessagePopup.IsVisible = false;       
+        MessagePopup.IsVisible = false;
     }
 
     private void BtnYes_Clicked(object sender, EventArgs e)
@@ -934,4 +981,94 @@ private TradeMode currentTradeMode;
         base.OnDisappearing();
         DeviceDisplay.MainDisplayInfoChanged -= OnMainDisplayInfoChanged;
     }
+
+    private void LblChart1_Clicked(object sender, TappedEventArgs e)
+    {
+       Analysis1Scroll.IsVisible = false;
+       ChartList1.IsVisible = true;
+    }
+  
+ 
+
+    private void ChartList1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.Count == 0)
+            return;
+
+        string chartName = (string)e.CurrentSelection[0];
+        string chartCode = Dictionaries.ChartTypes[chartName];
+
+        LblChart1.Text = chartName;
+        AppGlobals.ConfigurationManager.Chart1Type =chartCode;
+
+        ChartList1.IsVisible = false;
+        Analysis1Scroll.IsVisible = true;
+
+        FileManager.SaveConfig();
+
+        // ChartManager.PlotChart(chartCode, Chart1, company);
+
+        ((CollectionView)sender).SelectedItem = null;
+    }
+
+
+    private void LblChart2_Clicked(object sender, TappedEventArgs e)
+    {
+        Analysis2Panel.IsVisible = false;
+        ChartList2.IsVisible = true;
+    }
+
+  
+    private void ChartList2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.Count == 0)
+            return;
+
+        string chartName = (string)e.CurrentSelection[0];
+        string chartCode = Dictionaries.ChartTypes[chartName];
+
+        LblChart2.Text = chartName;
+        AppGlobals.ConfigurationManager.Chart2Type = chartCode;
+
+        ChartList2.IsVisible = false;
+        Analysis2Panel.IsVisible = true;
+
+        FileManager.SaveConfig();
+
+        // ChartManager.PlotChart(chartCode, Chart1, company);
+
+        ((CollectionView)sender).SelectedItem = null;
+    }
+
+
+    private void LblChart3_Clicked(object sender, TappedEventArgs e)
+    {
+        lstPriceByDate.IsVisible = false;
+        ChartList3.IsVisible = true;
+    }
+
+
+    private void ChartList3_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.Count == 0)
+            return;
+
+        string chartName = (string)e.CurrentSelection[0];
+        string chartCode = Dictionaries.ChartTypes[chartName];
+
+        LblChart3.Text = chartName;
+        AppGlobals.ConfigurationManager.Chart3Type = chartCode;
+
+        ChartList3.IsVisible = false;
+        lstPriceByDate.IsVisible = true;
+
+        FileManager.SaveConfig();
+
+        // ChartManager.PlotChart(chartCode, Chart1, company);
+
+        ((CollectionView)sender).SelectedItem = null;
+    }
+  
+   
 }
+    

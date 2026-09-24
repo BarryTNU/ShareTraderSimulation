@@ -239,6 +239,14 @@ namespace ShareTrader
 
             chart.Series.Add(series);
         }
+
+
+
+
+//===================================================
+//          END OF PLOTTING ROUTINES
+//====================================================
+
         public static List<decimal> LoadCompanyData(string Company, int startindex)
         {
             if (string.IsNullOrEmpty(Company))
