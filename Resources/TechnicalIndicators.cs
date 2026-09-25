@@ -4,14 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShareTrader
+namespace ShareTrader;
+
+     public class MACDResult
 {
+    public List<decimal> MACD { get; set; } = new();
+    public List<decimal> Signal { get; set; } = new();
+    public List<decimal> Histogram { get; set; } = new();
+}
+
+
     public static class TechnicalIndicators
     {
-        public static float LinearRegressionSlope(List<float> prices, int period)
+       
+
+
+        public static decimal LinearRegressionSlope(List<decimal> prices, int period)
         {
             if (prices.Count < period)
-                return 0f;
+                return 0.02m;
 
             if (prices.Count < period)
                 period = prices.Count - 1;
@@ -20,15 +31,15 @@ namespace ShareTrader
 
             int n = period;
 
-            float sumX = 0f;
-            float sumY = 0f;
-            float sumXY = 0f;
-            float sumX2 = 0f;
+            decimal sumX = 0.02m;
+            decimal sumY = 0.02m;
+            decimal sumXY = 0.02m;
+            decimal sumX2 = 0.02m;
 
             for (int i = 0; i < n; i++)
             {
-                float x = i;
-                float y = prices[startIndex + i];
+                decimal x = i;
+                decimal y = prices[startIndex + i];
 
                 sumX += x;
                 sumY += y;
@@ -36,11 +47,11 @@ namespace ShareTrader
                 sumX2 += x * x;
             }
 
-            float numerator = (n * sumXY) - (sumX * sumY);
-            float denominator = (n * sumX2) - (sumX * sumX);
+            decimal numerator = (n * sumXY) - (sumX * sumY);
+            decimal denominator = (n * sumX2) - (sumX * sumX);
 
-            if (denominator == 0f)
-                return 0f;
+            if (denominator == 0.02m)
+                return 0.02m;
 
             return numerator / denominator;
         }
@@ -128,31 +139,62 @@ namespace ShareTrader
             return result;
         }
 
-        public static List<decimal> CalculateMACD(
-        List<decimal> prices,
-        int fastPeriod,
-        int slowPeriod)
+    //==============================================================
+    //  MACD ROUTINES
+    //==============================================================
+    public static MACDResult CalculateMACD(
+List<decimal> prices,
+int fastPeriod = 12,
+int slowPeriod = 26,
+int signalPeriod = 9)
+    {
+        var result = new MACDResult();
+
+        if (prices == null || prices.Count == 0)
+            return result;
+
+        // Existing EMA routine.
+        List<decimal> fastEMA = CalculateEMA(prices, fastPeriod);
+        List<decimal> slowEMA = CalculateEMA(prices, slowPeriod);
+
+        // --- MACD Line ---
+        for (int i = 0; i < prices.Count; i++)
         {
-            List<decimal> fastEMA = CalculateEMA(prices, fastPeriod);
-            List<decimal> slowEMA = CalculateEMA(prices, slowPeriod);
-
-            List<decimal> macd = new List<decimal>(prices.Count);
-
-            for (int i = 0; i < prices.Count; i++)
+            if (fastEMA[i] == decimal.MinValue ||
+                slowEMA[i] == decimal.MinValue)
             {
-                if (fastEMA[i] == decimal.MinValue ||
-                    slowEMA[i] == decimal.MinValue)
-                {
-                    macd.Add(decimal.MinValue);
-                }
-                else
-                {
-                    macd.Add(fastEMA[i] - slowEMA[i]);
-                }
+                result.MACD.Add(decimal.MinValue);
+            }
+            else
+            {
+                result.MACD.Add(fastEMA[i] - slowEMA[i]);
+            }
+        }
+        // --- Signal Line (EMA of MACD) ---
+        // --- Signal Line (EMA of MACD) ---
+        result.Signal = CalculateMACDSignal(result.MACD, signalPeriod);
+
+        // --- Histogram ---
+        result.Histogram = new List<decimal>(prices.Count);
+
+        for (int i = 0; i < prices.Count; i++)
+        {
+            if (result.MACD[i] == decimal.MinValue ||
+                result.Signal[i] == decimal.MinValue)
+            {
+                result.Histogram.Add(decimal.MinValue);
+                
+            }
+            else
+            {
+                result.Histogram.Add(result.MACD[i] - result.Signal[i]);
             }
 
-            return macd;
         }
+        return result;
+    }
+
+
         public static List<decimal> CalculateMACDSignal(
       List<decimal> macd,
       int signalPeriod)
@@ -160,74 +202,100 @@ namespace ShareTrader
             return CalculateEMA(macd, signalPeriod);
         }
 
-        public static List<decimal> CalculateMACDHistogram(
-            List<decimal> macd,
-            List<decimal> signal)
-        {
-            List<decimal> histogram = new List<decimal>(macd.Count);
+    public static List<decimal> CalculateMACDHistogram(
+List<decimal> macd,
+List<decimal> signal)
+    {
+        List<decimal> histogram = new List<decimal>(macd.Count);
 
-            for (int i = 0; i < macd.Count; i++)
+        for (int i = 0; i < macd.Count; i++)
+        {
+            // Reject any invalid values.
+            if (macd[i] == decimal.MinValue ||
+                signal[i] == decimal.MinValue ||
+                macd[i] == decimal.MaxValue ||
+                signal[i] == decimal.MaxValue)
             {
-                if (macd[i] == decimal.MinValue ||
-                    signal[i] == decimal.MinValue)
-                {
-                    histogram.Add(decimal.MinValue);
-                }
-                else
-                {
-                    histogram.Add(macd[i] - signal[i]);
-                }
+                histogram.Add(decimal.MinValue);
+                continue;
             }
 
-            return histogram;
+            histogram.Add(macd[i] - signal[i]);
         }
-        public static List<decimal> CalculateEMA(List<decimal> values, int period)
+
+        return histogram;
+    }
+    public static List<decimal> CalculateEMA(List<decimal> values, int period)
         {
-            List<decimal> result = new List<decimal>(values.Count);
+            List<decimal> ema = new List<decimal>(values.Count);
+
+            // Fill result with invalid values.
+            for (int i = 0; i < values.Count; i++)
+                ema.Add(decimal.MinValue);
+
+            if (values == null || values.Count < period)
+                return ema;
 
             decimal multiplier = 2m / (period + 1);
 
-            int firstValidIndex = -1;
+            // Find first run of valid values long enough for an SMA.
+            int start = -1;
 
-            // Initialize result with invalid values
-            for (int i = 0; i < values.Count; i++)
+            for (int i = 0; i <= values.Count - period; i++)
             {
-                result.Add(decimal.MinValue);
-            }
+                bool valid = true;
 
-            // Find the first valid value
-            for (int i = 0; i < values.Count; i++)
-            {
-                if (values[i] != decimal.MinValue)
+                for (int j = 0; j < period; j++)
                 {
-                    firstValidIndex = i;
+                    if (values[i + j] == decimal.MinValue)
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                if (valid)
+                {
+                    start = i;
                     break;
                 }
             }
 
-            // No valid values
-            if (firstValidIndex == -1)
-                return result;
+            if (start == -1)
+                return ema;
 
-            // Seed EMA with first valid value
-            result[firstValidIndex] = values[firstValidIndex];
+            // Seed EMA with the SMA of the first period values.
+            decimal sma = 0m;
+            for (int i = start; i < start + period; i++)
+                sma += values[i];
 
-            // Compute EMA
-            for (int i = firstValidIndex + 1; i < values.Count; i++)
+            sma /= period;
+
+            int firstEMA = start + period - 1;
+            ema[firstEMA] = sma;
+
+            // Continue EMA calculation.
+            for (int i = firstEMA + 1; i < values.Count; i++)
             {
                 if (values[i] == decimal.MinValue)
                 {
-                    // Carry previous EMA forward
-                    result[i] = result[i - 1];
+                    ema[i] = ema[i - 1];
                 }
                 else
                 {
-                    result[i] = (values[i] - result[i - 1]) * multiplier + result[i - 1];
+                    ema[i] = ema[i - 1] + (values[i] - ema[i - 1]) * multiplier;
                 }
             }
 
-            return result;
+            return ema;
         }
+
+        //====================================================
+        //   END OF MACD ROUTINES
+        //====================================================
+
+
+
         // === RSI FUNCTION ===
         // Relative Strength Index
 
@@ -368,9 +436,9 @@ namespace ShareTrader
         }
 
 
-        public static List<float> PlotLRS(List<float> prices, int period)
+        public static List<decimal> PlotLRS(List<decimal> prices, int period)
         {
-            var trendValues = new List<float>();
+            var trendValues = new List<decimal>();
 
             if (prices == null || prices.Count < 2)
                 return trendValues;
@@ -382,49 +450,48 @@ namespace ShareTrader
 
             for (int i = startIndex; i < prices.Count; i++)
             {
-                float slope = (prices[i] - prices[i - period]) / prices[i - period];
-                float y;
+                decimal slope = (prices[i] - prices[i - period]) / prices[i - period];
+                decimal y;
 
-                if (slope > 0.002f)
+                if (slope > 0.02m)
                 {
-                    y = 1f;      // Up
+                    y = 1m;      // Up
                 }
-                else if (slope < -0.002f)
+                else if (slope < -0.02m)
                 {
-                    y = -1f;     // Down
+                    y = -1m;     // Down
                 }
                 else
                 {
-                    y = 0f;      // Sideways
+                    y = 0.02m;      // Sideways
                 }
 
-                trendValues.Add(y);
+                    trendValues.Add(y);
+                }
+
+                return trendValues;
             }
-
-            return trendValues;
-        }
-
-
+       
 
         //  ' Stochastic Oscillator
 
         //  'Purpose: Measures momentum(overbought / oversold).
         // 'Formula:
         // ' %K = (Close – LowestLow) / (HighestHigh – LowestLow) * 100 %D = SMA(%K, 3)
-        public static List<float> Stochastic(
-      List<float> high,
-      List<float> low,
-      List<float> close,
+        public static List<decimal> Stochastic(
+     List<decimal> high,
+     List<decimal> low,
+     List<decimal> close,
       int period)
         {
-            List<float> result = new();
+           List<decimal> result = new();
 
             for (int i = period; i < close.Count; i++)
             {
-                float hh = high.Skip(i - period).Take(period).Max();
-                float ll = low.Skip(i - period).Take(period).Min();
+                decimal hh = high.Skip(i - period).Take(period).Max();
+                decimal ll = low.Skip(i - period).Take(period).Min();
 
-                float value = ((close[i] - ll) / (hh - ll)) * 100f;
+               decimal value = ((close[i] - ll) / (hh - ll)) * 100m;
                 result.Add(value);
             }
 
@@ -436,13 +503,13 @@ namespace ShareTrader
         ////  'Purpose: Measures speed Of price change.
         //  'Formula:
         //  ' ROC = [(Close_today – Close_n_days_ago) / Close_n_days_ago] * 100
-        public static List<float> ROC(List<float> values, int period)
+        public static List<decimal> ROC(List<decimal> values, int period)
         {
-            List<float> result = new();
+           List<decimal> result = new();
 
             for (int i = period; i < values.Count; i++)
             {
-                float roc = ((values[i] - values[i - period]) / values[i - period]) * 100f;
+                decimal roc = ((values[i] - values[i - period]) / values[i - period]) * 100m;
                 result.Add(roc);
             }
 
@@ -457,26 +524,26 @@ namespace ShareTrader
         //  'Formula:
         //  ' CCI = (TypicalPrice – SMA(TypicalPrice)) / (0.015 * MeanDeviation)
         //   'TypicalPrice = (High + Low + Close) / 3
-        public static List<float> CCI(
-    List<float> high,
-    List<float> low,
-    List<float> close,
+        public static List<decimal> CCI(
+   List<decimal> high,
+   List<decimal> low,
+   List<decimal> close,
     int period)
         {
-            List<float> result = new();
+           List<decimal> result = new();
 
             for (int i = period; i < close.Count; i++)
             {
-                List<float> tpList = high.Skip(i - period).Take(period)
-                    .Zip(low.Skip(i - period).Take(period), (h, l) => (h + l) / 2f)
-                    .Zip(close.Skip(i - period).Take(period), (hm, c) => (hm + c) / 2f)
+               List<decimal> tpList = high.Skip(i - period).Take(period)
+                    .Zip(low.Skip(i - period).Take(period), (h, l) => (h + l) / 2m)
+                    .Zip(close.Skip(i - period).Take(period), (hm, c) => (hm + c) / 2m)
                     .ToList();
 
-                float sma = tpList.Average();
+               decimal sma = tpList.Average();
 
-                float md = tpList.Average(x => Math.Abs(x - sma));
+                decimal md = tpList.Average(x => Math.Abs(x - sma));
 
-                float index = (tpList.Last() - sma) / (0.015f * md);
+                decimal index = (tpList.Last() - sma) / (0.015m * md);
 
                 result.Add(index);
             }
@@ -491,18 +558,18 @@ namespace ShareTrader
         //  ' TR = Max(High–Low, |High–PrevClose|, |Low–PrevClose|)
         //  'ATR = SMA(TR, N)
 
-        public static List<float> ATR(
-    List<float> high,
-    List<float> low,
-    List<float> close,
+        public static List<decimal> ATR(
+   List<decimal> high,
+   List<decimal> low,
+   List<decimal> close,
     int period)
         {
-            List<float> tr = new();
+           List<decimal> tr = new();
 
             // Calculate True Range
             for (int i = 1; i < high.Count; i++)
             {
-                float trueRange = Math.Max(
+                decimal trueRange = Math.Max(
                     high[i] - low[i],
                     Math.Max(
                         Math.Abs(high[i] - close[i - 1]),
@@ -512,12 +579,12 @@ namespace ShareTrader
                 tr.Add(trueRange);
             }
 
-            List<float> result = new();
+           List<decimal> result = new();
 
             // Calculate ATR as a simple moving average of True Range
             for (int i = period; i < tr.Count; i++)
             {
-                float average = tr.Skip(i - period).Take(period).Average();
+                decimal average = tr.Skip(i - period).Take(period).Average();
                 result.Add(average);
             }
 
@@ -526,10 +593,10 @@ namespace ShareTrader
 
 
 
-        public static List<float> OBV(List<float> close, List<float> volume)
+        public static List<decimal> OBV(List<decimal> close,List<decimal> volume)
         {
-            List<float> result = new();
-            float obvValues = 0;
+           List<decimal> result = new();
+            decimal obvValues = 0;
 
             for (int i = 1; i < close.Count; i++)
             {
@@ -548,29 +615,29 @@ namespace ShareTrader
             return result;
         }
 
-        public static List<float> PSAR(
-    List<float> highPrices,
-    List<float> lowPrices,
-    float startAF,
-    float stepAF,
-    float maxAF)
+        public static List<decimal> PSAR(
+   List<decimal> highPrices,
+   List<decimal> lowPrices,
+    decimal startAF,
+    decimal stepAF,
+    decimal maxAF)
         {
             int n = highPrices.Count;
-            List<float> psar = new(new float[n]);
+           List<decimal> psar = new(new decimal[n]);
 
             bool trendUp = true;          // Start with an uptrend
-            float af = startAF;
+            decimal af = startAF;
 
             // Extreme Point
-            float ep = lowPrices[0];
+            decimal ep = lowPrices[0];
 
             // Initialize PSAR
             psar[0] = lowPrices[0];
 
             for (int i = 1; i < n; i++)
             {
-                float priorPSAR = psar[i - 1];
-                float newPSAR;
+                decimal priorPSAR = psar[i - 1];
+                decimal newPSAR;
 
                 if (trendUp)
                 {
@@ -625,14 +692,56 @@ namespace ShareTrader
             return psar;
         }
 
+        // ===================== Williams %R =====================
+        // Williams %R is a momentum oscillator that measures how close the
+        // current price is to the recent highest high and lowest low.
+        // Purpose: Identifies overbought / oversold conditions.
+
+        public static List<decimal> WilliamsR(
+            List<decimal> highs,
+            List<decimal> lows,
+            List<decimal> closes,
+            int period)
+        {
+            var wr = new List<decimal>();
+
+            for (int i = 0; i < closes.Count; i++)
+            {
+                if (i < period - 1)
+                {
+                    // Not enough data yet.
+                    wr.Add(decimal.MinValue);   // ShareTrader uses this instead of NaN.
+                    continue;
+                }
+
+                decimal highestHigh = highs.Skip(i - period + 1).Take(period).Max();
+                decimal lowestLow = lows.Skip(i - period + 1).Take(period).Min();
+
+                decimal range = highestHigh - lowestLow;
+
+                if (range == 0)
+                {
+                    wr.Add(0m);
+                }
+                else
+                {
+                    decimal value = ((highestHigh - closes[i]) / range) * -100m;
+                    wr.Add(value);
+                }
+            }
+
+            return wr;
+        }
+
+
 
 
         //  '========Volume Expansion (Breakout Strength)=======
         //  '==Call it like  " Dim volExpand = DetectVolumeExpansion(Volume, 20, 1.5)" ===
         public static List<bool> DetectVolumeExpansion(
-    List<float> volume,
+   List<decimal> volume,
     int period,
-    float multiplier)
+    decimal multiplier)
         {
             List<bool> result = new();
 
@@ -644,7 +753,7 @@ namespace ShareTrader
                 }
                 else
                 {
-                    float avg = 0;
+                    decimal avg = 0;
 
                     for (int j = i - period; j <= i - 1; j++)
                     {
@@ -661,6 +770,6 @@ namespace ShareTrader
         }
 
     }
-}
+
 
 

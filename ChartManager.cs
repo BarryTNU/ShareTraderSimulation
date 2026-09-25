@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Maui.Graphics;
 using Syncfusion.Maui.Charts;
+using Microsoft.Maui.Controls;
 using ShareTrader.Services;
 using System.Globalization;
 using Microsoft.Maui.Controls;
@@ -32,10 +33,14 @@ namespace ShareTrader
         public static decimal volume =0m;
         public static decimal avgVolume =0m;
         public static decimal BuyPrice =0m;
+       
+        
         public class ChartPoint
         { public int Index { get; set; }
-            public decimal Value { get; set; }
+            public decimal Value { get; set; } 
         }
+               
+
 
         public static void PlotBollingerBands(SfCartesianChart chart, int period, string CompanyName)
         {
@@ -154,10 +159,8 @@ namespace ShareTrader
             chart.Series.Clear();
 
             // Make sure company data is loaded
-            if (lst_Closing.Count == 0)
-            {
-                LoadCompanyData(CompanyName, 100);
-            }
+                 LoadCompanyData(CompanyName, 100);
+           
 
             List<decimal> plots =
                 TechnicalIndicators.ADX(
@@ -195,10 +198,8 @@ namespace ShareTrader
             chart.Series.Clear();
 
             // Make sure company data is loaded
-            if (lst_Closing.Count == 0)
-            {
-                LoadCompanyData(CompanyName, 100);
-            }
+                 LoadCompanyData(CompanyName, 100);
+           
 
             // Calculate the 30-day moving average
           //  List<decimal>a30 =
@@ -240,12 +241,489 @@ namespace ShareTrader
             chart.Series.Add(series);
         }
 
+    
+
+        public static void PlotVolume(SfCartesianChart chart, string CompanyName)
+        {
+            int days = 0;
+
+            // Make sure company data is loaded
+                LoadCompanyData(CompanyName, 100);
+          
+            try
+            {
+                chart.Series.Clear();
+
+                if (days <= lst_Volume.Count)
+                {
+                    days = lst_Volume.Count;
+                }
+
+                var volumeData = new List<ChartPoint>();
+
+                for (int i = 0; i < lst_Volume.Count; i++)
+                {
+                    volumeData.Add(new ChartPoint
+                    {
+                        Index = i,
+                        Value = lst_Volume[i]
+                    });
+                }
+
+                var volumeSeries = new ColumnSeries
+                {
+                    Label = "Volume",
+                    ItemsSource = volumeData,
+                    XBindingPath = "Index",
+                    YBindingPath = "Value"
+                };
+
+                chart.Series.Add(volumeSeries);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error Plotting Volume: {ex.Message}");
+            }
+        }
 
 
 
-//===================================================
-//          END OF PLOTTING ROUTINES
-//====================================================
+        public static void PlotATR(SfCartesianChart chart, string CompanyName)
+        {
+            int days = 0;
+
+            // Make sure company data is loaded
+            LoadCompanyData(CompanyName, 100);
+
+            // Clear anything currently displayed in this chart.
+            chart.Series.Clear();
+
+            // Calculate ATR.
+            var result = TechnicalIndicators.ATR(
+                lst_High,
+                lst_Low,
+                lst_Closing,
+                14);
+
+            if (days <= result.Count)
+            {
+                days = result.Count;
+            }
+
+            // Create chart data points.
+            var data = new List<ChartPoint>();
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                data.Add(new ChartPoint
+                {
+                    Index = i,
+                    Value = result[i]
+                });
+            }
+
+            // Create the ATR line.
+            var series = new LineSeries
+            {
+                Label = "ATR",
+                ItemsSource = data,
+                XBindingPath = "Index",
+                YBindingPath = "Value",
+                StrokeWidth = 2
+            };
+
+            chart.Series.Add(series);
+        }
+
+              
+
+        public static void PlotRSI(SfCartesianChart chart, string CompanyName)
+        {
+            int days = 0;
+
+            // Make sure company data is loaded.
+            LoadCompanyData(CompanyName, 100);
+
+            try
+            {
+                // Clear anything currently displayed in this chart.
+                chart.Series.Clear();
+
+                // Calculate RSI.
+                var result = TechnicalIndicators.RSI(
+                    lst_Closing,
+                    14);
+
+                if (days <= result.Count)
+                {
+                    days = result.Count;
+                }
+
+                // Create chart data points.
+                var data = new List<ChartPoint>();
+
+                for (int i = 0; i < result.Count; i++)
+                {
+                    data.Add(new ChartPoint
+                    {
+                        Index = i,
+                        Value = result[i]
+                    });
+                }
+
+                // Create the RSI line.
+                var series = new LineSeries
+                {
+                    Label = "RSI",
+                    ItemsSource = data,
+                    XBindingPath = "Index",
+                    YBindingPath = "Value",
+                    StrokeWidth = 2
+                    // Stroke = Colors.Red
+                };
+
+                chart.Series.Add(series);              
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error Plotting RSI: {ex.Message}");
+            }
+        }
+
+  
+
+        public static void PlotOBV(SfCartesianChart chart, string CompanyName)
+        {
+
+            // Make sure company data is loaded.
+            LoadCompanyData(CompanyName, 100);
+
+            // Calculate OBV values
+            List<decimal> result = TechnicalIndicators.OBV(lst_Closing, lst_Volume);
+
+            // Create chart data
+            var chartData = new List<ChartPoint>();
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                chartData.Add(new ChartPoint
+                {
+                    Index = i + 1,
+                    Value = result[i]
+                });
+            }
+
+            // Clear any previous series
+            chart.Series.Clear();
+
+            // Create the OBV line series
+            var series = new LineSeries
+            {
+                ItemsSource = chartData,
+                XBindingPath = nameof(ChartPoint.Index),
+                YBindingPath = nameof(ChartPoint.Value),
+                StrokeWidth = 2
+            };
+
+            chart.Series.Add(series);      
+       
+        }
+
+        public static void PlotWilliams(SfCartesianChart chart, string companyName)
+        {
+            // Make sure company data is loaded.
+            LoadCompanyData(companyName, 100);
+
+            try
+            {
+                // Clear anything currently displayed.
+                chart.Series.Clear();
+
+                // Calculate Williams %R.
+                List<decimal> williamsValues = TechnicalIndicators.WilliamsR(
+                    lst_High,
+                    lst_Low,
+                    lst_Closing,
+                    14);
+
+                // Create chart data, skipping the warm-up values.
+                var williamsData = new List<ChartPoint>();
+
+                for (int i = 0; i < williamsValues.Count; i++)
+                {
+                    if (williamsValues[i] == decimal.MinValue)
+                        continue;
+
+                    williamsData.Add(new ChartPoint
+                    {
+                        Index = i + 1,
+                        Value = williamsValues[i]
+                    });
+                }
+
+                // Create Williams %R line series.
+                var williamsSeries = new LineSeries
+                {
+                    ItemsSource = williamsData,
+                    XBindingPath = nameof(ChartPoint.Index),
+                    YBindingPath = nameof(ChartPoint.Value),
+                    StrokeWidth = 2
+                };
+
+                chart.Series.Add(williamsSeries);
+
+                // Set axis titles and Williams %R range.
+                if (chart.YAxes.Count > 0)
+                {
+                    if (chart.YAxes[0] is NumericalAxis yAxis)
+                    {
+                        yAxis.Minimum = -100;
+                        yAxis.Maximum = 0;
+                        yAxis.Interval = 20;                       
+                    }
+                }
+
+                chart.Annotations.Clear();
+
+                chart.Annotations.Add(new HorizontalLineAnnotation
+                {
+                    Y1 = -20,
+                    Stroke = Colors.Red,  
+                    StrokeWidth = 1,
+                    Text = "Overbought"
+                });
+
+                chart.Annotations.Add(new HorizontalLineAnnotation
+                {
+                    Y1 = -80,
+                    Stroke = Colors.Green,
+                    StrokeWidth = 1,
+                    Text = "Oversold"
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error Plotting Williams: {ex.Message}");
+            }
+        }
+
+
+        public static void PlotStochastic(SfCartesianChart chart, string companyName)
+        {
+            // Make sure company data is loaded.
+            LoadCompanyData(companyName, 100);
+
+            try
+            {
+                // Clear existing chart.
+                chart.Series.Clear();
+
+                // Calculate Stochastic Oscillator (%K).
+                List<decimal> stochasticValues = TechnicalIndicators.Stochastic(
+                    lst_High,
+                    lst_Low,
+                    lst_Closing,
+                    14);
+
+                // Create chart data, skipping warm-up values.
+                var stochasticData = new List<ChartPoint>();
+
+                for (int i = 0; i < stochasticValues.Count; i++)
+                {
+                    if (stochasticValues[i] == decimal.MinValue)
+                        continue;
+
+                    stochasticData.Add(new ChartPoint
+                    {
+                        Index = i + 1,
+                        Value = stochasticValues[i]
+                    });
+                }
+
+                // Create the Stochastic line series.
+                var stochasticSeries = new LineSeries
+                {
+                    ItemsSource = stochasticData,
+                    XBindingPath = nameof(ChartPoint.Index),
+                    YBindingPath = nameof(ChartPoint.Value),
+                    StrokeWidth = 2
+                };
+
+                chart.Series.Add(stochasticSeries);
+
+                // Set Y-axis range to 0–100.
+                if (chart.YAxes.Count > 0 && chart.YAxes[0] is NumericalAxis yAxis)
+                {
+                    yAxis.Minimum = 0;
+                    yAxis.Maximum = 100;
+                    yAxis.Interval = 20;                   
+                }
+
+                chart.Annotations.Clear();
+
+                // Clear any previous annotations.
+                chart.Annotations.Clear();
+
+                // Overbought line.
+                chart.Annotations.Add(new HorizontalLineAnnotation
+                {
+                    Y1 = 80,
+                    Stroke = Colors.Red,
+                    StrokeWidth = 1,                    
+                    Text = "Overbought"
+                    
+                });
+
+                // Oversold line.
+                chart.Annotations.Add(new HorizontalLineAnnotation
+                {
+                    Y1 = 20,
+                    Stroke = Colors.Green,
+                    StrokeWidth = 1,
+                    Text = "Oversold"                   
+                });
+
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error plotting Stochastic: {ex.Message}");
+            }
+        }
+
+        public static void PlotMACD(SfCartesianChart chart, string companyName)
+        {
+            // Load last 100 days of company data.
+            LoadCompanyData(companyName, 100);
+
+            try
+            {
+                chart.Series.Clear();
+                chart.Annotations.Clear();
+
+                // Calculate MACD, Signal and Histogram.
+                MACDResult macd = TechnicalIndicators.CalculateMACD(lst_Closing);
+
+           
+
+
+                var macdData = new List<ChartPoint>();
+                var signalData = new List<ChartPoint>();
+                var histogramData = new List<ChartPoint>();
+
+
+
+                for (int i = 0; i < macd.MACD.Count; i++)
+                {
+                    if (macd.Histogram[i] != decimal.MinValue)
+                    {
+                        histogramData.Add(new ChartPoint
+                        {
+                            Index = i + 1,
+                            Value = macd.Histogram[i]
+                        });
+                    }
+
+                    if (macd.MACD[i] != decimal.MinValue)
+                    {
+                        macdData.Add(new ChartPoint
+                        {
+                            Index = i + 1,
+                            Value = macd.MACD[i]
+                        });
+                    }
+
+                    if (macd.Signal[i] != decimal.MinValue)
+                    {
+                        signalData.Add(new ChartPoint
+                        {
+                            Index = i + 1,
+                            Value = macd.Signal[i]
+                        });
+                    }
+                }
+
+
+
+                chart.PaletteBrushes = new List<Brush>
+                {
+                    new SolidColorBrush(Colors.ForestGreen), // Histogram
+                    new SolidColorBrush(Colors.DodgerBlue),  // MACD
+                    new SolidColorBrush(Colors.Orange)       // Signal
+                };
+
+
+                // ---------- Histogram ----------
+                chart.Series.Add(new ColumnSeries
+                {
+                    ItemsSource = histogramData,
+                    XBindingPath = nameof(ChartPoint.Index),
+                    YBindingPath = nameof(ChartPoint.Value),
+                    EnableTooltip = false
+                });
+
+                // ---------- MACD Line ----------
+                chart.Series.Add(new LineSeries
+                {
+                    ItemsSource = macdData,
+                    XBindingPath = nameof(ChartPoint.Index),
+                    YBindingPath = nameof(ChartPoint.Value),
+                    StrokeWidth = 2.5,
+                    EnableTooltip = false
+                });
+
+                // ---------- Signal Line ----------
+                chart.Series.Add(new LineSeries
+                {
+                    ItemsSource = signalData,
+                    XBindingPath = nameof(ChartPoint.Index),
+                    YBindingPath = nameof(ChartPoint.Value),
+                    StrokeWidth = 2,
+                    EnableTooltip = false
+                });
+
+                // ---------- Zero Line ----------
+                chart.Annotations.Add(new HorizontalLineAnnotation
+                {
+                    Y1 = 0,
+                    Stroke = Colors.Gray,
+                    StrokeWidth = 1
+                });
+
+                // ---------- Tidy up chart appearance ----------
+
+                // Hide the legend (or remove this line if you never show a legend)
+                chart.Legend = null;
+
+                // ---------- Axes ----------
+                chart.XAxes.Clear();
+                chart.YAxes.Clear();
+
+                chart.XAxes.Add(new NumericalAxis
+                {
+                    IsVisible = false
+                });
+
+                chart.YAxes.Add(new NumericalAxis
+                {
+                    IsVisible = true
+                });
+            }
+
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error plotting MACD: {ex.Message}");
+            }
+        }
+
+
+        //===================================================
+        //          END OF PLOTTING ROUTINES
+        //====================================================
 
         public static List<decimal> LoadCompanyData(string Company, int startindex)
         {
@@ -496,97 +974,63 @@ namespace ShareTrader
             return singleList;
         }
 
-        public static string BuyOrSell(string CompanyName)
+        public static string BuyOrSell(string companyName)
         {
-          
-            LoadCompanyData(CompanyName, 100);           
+            LoadCompanyData(companyName, 100);
 
-            List<float> lstClose = ConvertListToSingle(lst_Closing);
+            const int period = 30;
 
             List<decimal> prices = lst_Closing;
-            int Period = 30;
-            decimal slope = (decimal)TechnicalIndicators.LinearRegressionSlope(lstClose, Period);
-            decimal slopeNorm = slope / prices.Last();
-
-            decimal sma = prices
-                .Skip(prices.Count - Period)
-                .Take(Period)
-                .Average();
 
             decimal price = prices.Last();
 
-            int volPeriod = Period;
+            // Last 30 prices.
+            List<decimal> recent = prices.TakeLast(period).ToList();
 
-            List<decimal> recent = prices
-                .Skip(prices.Count - volPeriod)
-                .Take(volPeriod)
-                .ToList();
+            // Linear regression slope.
+            decimal slope = TechnicalIndicators.LinearRegressionSlope(prices, period);
+            decimal slopeNorm = slope / price;
 
+            // 30-day SMA.
+            decimal sma = recent.Average();
+
+            // Volatility.
             decimal volatility = (recent.Max() - recent.Min()) / price;
 
-            decimal score = slopeNorm * 100m;   // scale it
+            // Score.
+            decimal score = slopeNorm * 100m;
 
-            if (price > sma)
-                score += 10m;
-            else
-                score -= 10m;
+            score += price > sma ? 10m : -10m;
 
             if (volatility < 0.01m)
-                score += 5m;        // calm → good
+                score += 5m;
             else if (volatility > 0.03m)
-                score -= 5m;        // too volatile → risky
+                score -= 5m;
 
-            int strength;
-           string signal = "";
-
-            if (score > 20m)
-                strength = 3;
-            else if (score > 10m)
-                strength = 2;
-            else if (score > 2m)
-                strength = 1;
-            else if (score < -20m)
-                strength = -3;
-            else if (score < -10m)
-                strength = -2;
-            else if (score < -2m)
-                strength = -1;
-            else
-                strength = 0;
-
-            switch (strength)
+            // Determine strength.
+            int strength = score switch
             {
+                > 20m => 3,
+                > 10m => 2,
+                > 2m => 1,
+                < -20m => -3,
+                < -10m => -2,
+                < -2m => -1,
+                _ => 0
+            };
 
-                case 3:
-                    signal = "▲ ▲ ▲";
-                    break;
-
-                case 2:
-                    signal = "▲ ▲";
-                    break;
-
-                case 1:
-                    signal = "▲";
-                    break;
-
-                case 0:
-                    signal = "▶";
-                    break;
-
-                case -1:
-                    signal = "▼";
-                    break;
-
-                case -2:
-                    signal = "▼ ▼";
-                    break;
-
-                case -3:
-                    signal = "▼ ▼ ▼";
-                    break;
-            }
-
-            return signal;
+            // Convert strength to signal.
+            return strength switch
+            {
+                3 => "▲ ▲ ▲",
+                2 => "▲ ▲",
+                1 => "▲",
+                0 => "▶",
+                -1 => "▼",
+                -2 => "▼ ▼",
+                -3 => "▼ ▼ ▼",
+                _ => "▶"
+            };
         }
         //=================For future use maybe=========================
 

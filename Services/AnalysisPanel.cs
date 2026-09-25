@@ -38,19 +38,19 @@ namespace ShareTrader.Services
                     break;
 
                 case "MACD":
-            //        ChartManager.PlotMACD(chart, company);
+                    ChartManager.PlotMACD(chart, company);
                     break;
 
                 case "RSI":
-             //       ChartManager.PlotRSI(chart, company);
+                      ChartManager.PlotRSI(chart, company);
                     break;
 
-                case "STOCH":
-              //      ChartManager.PlotStochastic(chart, company);
+                case "STOC":
+                    ChartManager.PlotStochastic(chart, company);
                     break;
 
-                case "WILLR":
-             //       ChartManager.PlotWilliamsR(chart, company);
+                case "WILL":
+                    ChartManager.PlotWilliams(chart, company);
                     break;
 
                 case "ROC":
@@ -58,15 +58,15 @@ namespace ShareTrader.Services
                     break;
 
                 case "ATR":
-              //      ChartManager.PlotATR(chart, company);
+                   ChartManager.PlotATR(chart, company);
                     break;
 
                 case "VOL":
-            //        ChartManager.PlotVolume(chart, company);
+                    ChartManager.PlotVolume(chart, company);
                     break;
 
                 case "OBV":
-              //      ChartManager.PlotOBV(chart, company);
+                    ChartManager.PlotOBV(chart, company);
                     break;
 
                 default:

@@ -190,13 +190,26 @@ namespace ShareTrader
                 {"QBE Insurance", "QBE.ax" }
             };
 
-
+        public static readonly Dictionary<string, string> IndicatorDescriptions = new()
+{
+    { "MACD", "Measures momentum using the difference between the 12-day and 26-day EMAs. The signal line is a 9-day EMA of the MACD." },
+    { "RSI", "Measures the speed and magnitude of recent price changes on a scale from 0 to 100." },
+    { "ADX", "Measures the strength of a trend regardless of its direction." },
+    { "OBV", "Uses trading volume to indicate whether money is flowing into or out of a share." },
+    { "ATR", "Measures market volatility using the average trading range over a selected period." },
+    { "ROC", "Measures the percentage change in price over a specified number of days." },
+    { "WILL", "Williams %R measures overbought and oversold conditions." },
+    { "STOC", "The Stochastic Oscillator compares the closing price with the recent trading range." },
+    { "BOLL", "Bollinger Bands show volatility using bands plotted around a moving average." },
+    { "MAV", "Moving Averages smooth price data to help identify the underlying trend." }
+};
 
         public static readonly Dictionary<string, string> ChartTypes = new()
 {
     { "Average Directional Index", "ADX" },
     { "Bollinger Bands", "BOLL" },
     { "Moving Average Slope", "MAS" },
+    { "Moving Average Convergence Divergence", "MACD" },
     { "Relative Strength Index", "RSI" },
     { "Stochastic Oscillator", "STOC" },
     { "Williams %R", "WILL" },

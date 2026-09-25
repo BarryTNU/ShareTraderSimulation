@@ -1006,8 +1006,10 @@ public partial class MainPage : ContentPage
 
         FileManager.SaveConfig();
 
-        // ChartManager.PlotChart(chartCode, Chart1, company);
+        string company = AppGlobals.PortfolioItems[0].CompanyName;
+          Show_Analysis(company);
 
+       
         ((CollectionView)sender).SelectedItem = null;
     }
 
@@ -1035,7 +1037,8 @@ public partial class MainPage : ContentPage
 
         FileManager.SaveConfig();
 
-        // ChartManager.PlotChart(chartCode, Chart1, company);
+        string company = AppGlobals.PortfolioItems[0].CompanyName;
+        Show_Analysis(company);
 
         ((CollectionView)sender).SelectedItem = null;
     }
@@ -1064,7 +1067,8 @@ public partial class MainPage : ContentPage
 
         FileManager.SaveConfig();
 
-        // ChartManager.PlotChart(chartCode, Chart1, company);
+        string company = AppGlobals.PortfolioItems[0].CompanyName;
+        Show_Analysis(company);
 
         ((CollectionView)sender).SelectedItem = null;
     }
