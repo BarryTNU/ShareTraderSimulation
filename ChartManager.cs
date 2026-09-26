@@ -46,9 +46,25 @@ namespace ShareTrader
         {
             if (period <= 0)
                 period = 30;
-            
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
 
-          //  decimal multiplier = 2.5m;
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
+
+
+            //  decimal multiplier = 2.5m;
             // Clear previous chart
             chart.Series.Clear();
 
@@ -157,9 +173,26 @@ namespace ShareTrader
         {
             // Clear previous chart
             chart.Series.Clear();
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
+
 
             // Make sure company data is loaded
-                 LoadCompanyData(CompanyName, 100);
+            LoadCompanyData(CompanyName, 100);
            
 
             List<decimal> plots =
@@ -192,13 +225,33 @@ namespace ShareTrader
 
             chart.Series.Clear();
             chart.Series.Add(series);
+
+            AddReferenceLines(chart, "ADX");
+
         }
+
         public async static void PlotMAS(SfCartesianChart chart, string CompanyName)
         {
             chart.Series.Clear();
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
 
             // Make sure company data is loaded
-                 LoadCompanyData(CompanyName, 100);
+            LoadCompanyData(CompanyName, 100);
            
 
             // Calculate the 30-day moving average
@@ -247,8 +300,25 @@ namespace ShareTrader
         {
             int days = 0;
 
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
+
             // Make sure company data is loaded
-                LoadCompanyData(CompanyName, 100);
+            LoadCompanyData(CompanyName, 100);
           
             try
             {
@@ -292,6 +362,23 @@ namespace ShareTrader
         public static void PlotATR(SfCartesianChart chart, string CompanyName)
         {
             int days = 0;
+
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
 
             // Make sure company data is loaded
             LoadCompanyData(CompanyName, 100);
@@ -342,6 +429,23 @@ namespace ShareTrader
         {
             int days = 0;
 
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
+
             // Make sure company data is loaded.
             LoadCompanyData(CompanyName, 100);
 
@@ -379,11 +483,13 @@ namespace ShareTrader
                     ItemsSource = data,
                     XBindingPath = "Index",
                     YBindingPath = "Value",
-                    StrokeWidth = 2
-                    // Stroke = Colors.Red
+                    StrokeWidth = 2,
+                    Fill= Colors.Red
                 };
 
-                chart.Series.Add(series);              
+                chart.Series.Add(series);
+
+                AddReferenceLines(chart, "RSI");
             }
             catch (Exception ex)
             {
@@ -396,6 +502,23 @@ namespace ShareTrader
 
         public static void PlotOBV(SfCartesianChart chart, string CompanyName)
         {
+
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
 
             // Make sure company data is loaded.
             LoadCompanyData(CompanyName, 100);
@@ -433,6 +556,24 @@ namespace ShareTrader
 
         public static void PlotWilliams(SfCartesianChart chart, string companyName)
         {
+
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
+
             // Make sure company data is loaded.
             LoadCompanyData(companyName, 100);
 
@@ -485,23 +626,7 @@ namespace ShareTrader
                     }
                 }
 
-                chart.Annotations.Clear();
-
-                chart.Annotations.Add(new HorizontalLineAnnotation
-                {
-                    Y1 = -20,
-                    Stroke = Colors.Red,  
-                    StrokeWidth = 1,
-                    Text = "Overbought"
-                });
-
-                chart.Annotations.Add(new HorizontalLineAnnotation
-                {
-                    Y1 = -80,
-                    Stroke = Colors.Green,
-                    StrokeWidth = 1,
-                    Text = "Oversold"
-                });
+                AddReferenceLines(chart, "WILL");
             }
             catch (Exception ex)
             {
@@ -513,6 +638,23 @@ namespace ShareTrader
 
         public static void PlotStochastic(SfCartesianChart chart, string companyName)
         {
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
+
             // Make sure company data is loaded.
             LoadCompanyData(companyName, 100);
 
@@ -561,30 +703,9 @@ namespace ShareTrader
                     yAxis.Maximum = 100;
                     yAxis.Interval = 20;                   
                 }
+                              
 
-                chart.Annotations.Clear();
-
-                // Clear any previous annotations.
-                chart.Annotations.Clear();
-
-                // Overbought line.
-                chart.Annotations.Add(new HorizontalLineAnnotation
-                {
-                    Y1 = 80,
-                    Stroke = Colors.Red,
-                    StrokeWidth = 1,                    
-                    Text = "Overbought"
-                    
-                });
-
-                // Oversold line.
-                chart.Annotations.Add(new HorizontalLineAnnotation
-                {
-                    Y1 = 20,
-                    Stroke = Colors.Green,
-                    StrokeWidth = 1,
-                    Text = "Oversold"                   
-                });
+                AddReferenceLines(chart, "STOC");
 
             }
             catch (Exception ex)
@@ -596,6 +717,23 @@ namespace ShareTrader
 
         public static void PlotMACD(SfCartesianChart chart, string companyName)
         {
+
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
             // Load last 100 days of company data.
             LoadCompanyData(companyName, 100);
 
@@ -704,14 +842,17 @@ namespace ShareTrader
 
                 chart.XAxes.Add(new NumericalAxis
                 {
-                    IsVisible = false
+                    IsVisible = true
                 });
 
                 chart.YAxes.Add(new NumericalAxis
                 {
                     IsVisible = true
                 });
+
+                AddReferenceLines(chart, "MACD");
             }
+           
 
             catch (Exception ex)
             {
@@ -720,6 +861,107 @@ namespace ShareTrader
             }
         }
 
+        public static void PlotROC(SfCartesianChart chart, string companyName)
+        {
+            // Start with a completely fresh set of axes.
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Annotations.Clear();
+
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true
+            });
+
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN
+            });
+
+            const int Days = 100;
+            const int RocPeriod = 14;
+
+            // Load the last 100 days of company data.
+            LoadCompanyData(companyName, Days);
+
+            // Calculate the 14-day Rate of Change.
+            List<decimal> rocValues = TechnicalIndicators.ROC(lst_Closing, RocPeriod);
+
+            // Create the chart data source.
+            var chartData = new List<ChartPoint>();          
+
+            for (int i = 0; i < rocValues.Count; i++)
+            {
+                chartData.Add(new ChartPoint
+                {
+                    Index = i,
+                    Value = rocValues[i]
+                });
+            }
+
+            // Clear previous series.
+            chart.Series.Clear();
+
+            // ROC line.
+            chart.Series.Add(new LineSeries
+            {
+                ItemsSource = chartData,
+                XBindingPath = nameof(ChartPoint.Index),
+                YBindingPath = nameof(ChartPoint.Value),
+                Fill = new SolidColorBrush(Colors.Brown),
+                StrokeWidth = 2
+            });
+
+            AddReferenceLines(chart, "ROC");
+        }
+
+
+        public static void AddReferenceLines(SfCartesianChart chart, string indicatorCode)
+        {
+            // Remove only existing reference line annotations.
+            chart.Annotations.Clear();
+
+            switch (indicatorCode.ToUpper())
+            {
+                case "RSI":
+                    AddReferenceLine(chart, 70, Colors.Red);
+                    AddReferenceLine(chart, 50, Colors.Gray);
+                    AddReferenceLine(chart, 30, Colors.Green);
+                    break;
+
+                case "STOC":
+                    AddReferenceLine(chart, 80, Colors.Red);
+                    AddReferenceLine(chart, 20, Colors.Green);
+                    break;
+
+                case "WILL":
+                    AddReferenceLine(chart, -20, Colors.Red);
+                    AddReferenceLine(chart, -80, Colors.Green);
+                    break;
+
+                case "MACD":
+                case "ROC":
+                    AddReferenceLine(chart, 0, Colors.Gray);
+                    break;
+
+                case "ADX":
+                    AddReferenceLine(chart, 25, Colors.Orange);
+                    break;
+            }
+        }
+
+        private static void AddReferenceLine(SfCartesianChart chart, double y, Color color)
+        {
+            chart.Annotations.Add(new HorizontalLineAnnotation
+            {
+                Y1 = y,
+                Stroke = color,
+                StrokeWidth = 1,
+                StrokeDashArray = new DoubleCollection { 4, 4 }
+            });
+        }
 
         //===================================================
         //          END OF PLOTTING ROUTINES

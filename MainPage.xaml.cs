@@ -80,7 +80,9 @@ public partial class MainPage : ContentPage
             AppGlobals.ConfigurationManager.Chart3Type = "VOL";
             FileManager.SaveConfig();
         }
-  
+
+
+
 
         if (GetPortfolioCount() >= MaxPortfolioCompanies)
         {
@@ -108,9 +110,25 @@ public partial class MainPage : ContentPage
         {
             string company = AppGlobals.PortfolioItems[0].CompanyName;
             UpdatePortfolioTotals();
+            UpdateChartTooltips();
             Show_Analysis(company);
         }
   }
+
+
+    private void UpdateChartTooltips()
+    {
+        ToolTipProperties.SetText(Chart1, GetIndicatorDescription(AppGlobals.ConfigurationManager.Chart1Type));
+        ToolTipProperties.SetText(Chart2, GetIndicatorDescription(AppGlobals.ConfigurationManager.Chart2Type));
+        ToolTipProperties.SetText(Chart3, GetIndicatorDescription(AppGlobals.ConfigurationManager.Chart3Type));       
+    }
+
+    private string GetIndicatorDescription(string code)
+    {
+        return Dictionaries.IndicatorDescriptions.TryGetValue(code, out var text)
+            ? text
+            : "Technical indicator.";
+    }
 
     public string AssignChartNames(string ChartName)
     {
@@ -1000,6 +1018,7 @@ public partial class MainPage : ContentPage
 
         LblChart1.Text = chartName;
         AppGlobals.ConfigurationManager.Chart1Type =chartCode;
+        UpdateChartTooltips();
 
         ChartList1.IsVisible = false;
         Analysis1Scroll.IsVisible = true;
@@ -1028,7 +1047,7 @@ public partial class MainPage : ContentPage
 
         string chartName = (string)e.CurrentSelection[0];
         string chartCode = Dictionaries.ChartTypes[chartName];
-
+        UpdateChartTooltips();
         LblChart2.Text = chartName;
         AppGlobals.ConfigurationManager.Chart2Type = chartCode;
 
@@ -1061,7 +1080,7 @@ public partial class MainPage : ContentPage
 
         LblChart3.Text = chartName;
         AppGlobals.ConfigurationManager.Chart3Type = chartCode;
-
+        UpdateChartTooltips();
         ChartList3.IsVisible = false;
         lstPriceByDate.IsVisible = true;
 

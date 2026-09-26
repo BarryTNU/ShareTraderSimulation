@@ -54,11 +54,11 @@ namespace ShareTrader.Services
                     break;
 
                 case "ROC":
-           //         ChartManager.PlotROC(chart, company);
+                    ChartManager.PlotROC(chart, company);
                     break;
 
                 case "ATR":
-                   ChartManager.PlotATR(chart, company);
+                    ChartManager.PlotATR(chart, company);
                     break;
 
                 case "VOL":

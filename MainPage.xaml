@@ -435,6 +435,7 @@
                                 <!-- ================================================= -->
 
                                 <Border
+                                     x:Name="Chart1Border"
                                     Grid.Row="0"
                                     StrokeThickness="1"
                                     Padding="2">
@@ -578,6 +579,7 @@
                                 <!-- ================================================= -->
 
                                 <Border
+                                     x:Name="Chart2Border"
                                     Grid.Row="0"
                                     StrokeThickness="1"
                                     Padding="2">
@@ -736,6 +738,7 @@
                                 <!-- ================================================= -->
 
                                 <Border
+                                     x:Name="Chart3Border"
                                     Grid.Row="0"
                                     StrokeThickness="1"
                                     Padding="2">

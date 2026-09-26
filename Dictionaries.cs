@@ -190,18 +190,41 @@ namespace ShareTrader
                 {"QBE Insurance", "QBE.ax" }
             };
 
-        public static readonly Dictionary<string, string> IndicatorDescriptions = new()
+      
+   public static readonly Dictionary<string, string> IndicatorDescriptions = new()
 {
-    { "MACD", "Measures momentum using the difference between the 12-day and 26-day EMAs. The signal line is a 9-day EMA of the MACD." },
-    { "RSI", "Measures the speed and magnitude of recent price changes on a scale from 0 to 100." },
-    { "ADX", "Measures the strength of a trend regardless of its direction." },
-    { "OBV", "Uses trading volume to indicate whether money is flowing into or out of a share." },
-    { "ATR", "Measures market volatility using the average trading range over a selected period." },
-    { "ROC", "Measures the percentage change in price over a specified number of days." },
-    { "WILL", "Williams %R measures overbought and oversold conditions." },
-    { "STOC", "The Stochastic Oscillator compares the closing price with the recent trading range." },
-    { "BOLL", "Bollinger Bands show volatility using bands plotted around a moving average." },
-    { "MAV", "Moving Averages smooth price data to help identify the underlying trend." }
+    { "MACD",
+      "Moving Average Convergence Divergence (MACD) measures momentum by comparing the 12-day and 26-day Exponential Moving Averages (EMAs). A 9-day EMA of the MACD forms the signal line. Crossovers between the MACD and signal line can indicate potential buy or sell signals, while the distance between them reflects the strength of momentum." },
+
+    { "RSI",
+      "Relative Strength Index (RSI) measures the speed and magnitude of recent price movements on a scale from 0 to 100. Values above 70 may indicate an overbought market, while values below 30 may indicate an oversold market. RSI is commonly used to identify momentum shifts and possible reversal points." },
+
+    { "ADX",
+      "Average Directional Index (ADX) measures the strength of a trend, regardless of whether prices are rising or falling. Values below 20 often indicate a weak or sideways market, while values above 25–30 suggest a strengthening trend. ADX is best used together with other indicators that identify trend direction." },
+
+    { "OBV",
+      "On Balance Volume (OBV) combines price movement and trading volume to estimate whether money is flowing into or out of a share. Rising OBV suggests accumulation by buyers, while falling OBV suggests distribution by sellers. Divergences between OBV and price can provide early warning of potential trend changes." },
+
+    { "ATR",
+      "Average True Range (ATR) measures market volatility by calculating the average daily trading range over a selected period. A rising ATR indicates increasing volatility, while a falling ATR indicates quieter market conditions. ATR measures volatility only—it does not indicate trend direction." },
+
+    { "ROC",
+      "Rate of Change (ROC) measures the percentage change in price over a specified number of trading days. Positive values indicate upward momentum, while negative values indicate downward momentum. ROC is useful for spotting accelerating or weakening price trends and potential momentum reversals." },
+
+    { "WILL",
+      "Williams %R is a momentum indicator that measures overbought and oversold conditions on a scale from 0 to -100. Readings above -20 often indicate overbought conditions, while readings below -80 often indicate oversold conditions. It is similar to the Stochastic Oscillator but uses an inverted scale. " },
+
+    { "STOC",
+      "The Stochastic Oscillator compares the closing price with the recent trading range over a selected period. Values range from 0 to 100, with readings above 80 often considered overbought and below 20 considered oversold. Crossovers between the %K and %D lines may signal potential changes in momentum. Stochastic %K is mathematically equivalent to the Williams %R indicator, displayed on a 0 to 100 scale." },
+
+    { "BOLL",
+      "Bollinger Bands measure price volatility by plotting upper and lower bands around a moving average. The bands widen during periods of high volatility and narrow during quieter markets. Prices touching or moving outside the bands can signal unusually strong moves, but should be confirmed with other indicators." },
+
+    { "MAS",
+      "Moving Averages smooth daily price fluctuations to reveal the underlying market trend. Short-term averages respond quickly to price changes, while longer-term averages highlight the broader trend. Crossovers between moving averages are commonly used to identify potential trend changes." },
+
+    { "VOL",
+      "Volume shows the number of shares traded during each trading period. Rising volume confirms stronger buying or selling interest, while low volume often indicates weaker conviction behind price movements. Significant price moves accompanied by high volume are generally considered more reliable than moves on low volume." }
 };
 
         public static readonly Dictionary<string, string> ChartTypes = new()
