@@ -33,6 +33,10 @@ namespace ShareTrader.Services
                     ChartManager.PlotBollingerBands(chart, 30, company);
                     break;
 
+                case "LRS":
+                    ChartManager.PlotLRS(chart,company);
+                    break;
+
                 case "MAS":
                     ChartManager.PlotMAS(chart, company);
                     break;

@@ -222,16 +222,20 @@ namespace ShareTrader
 
     { "MAS",
       "Moving Averages smooth daily price fluctuations to reveal the underlying market trend. Short-term averages respond quickly to price changes, while longer-term averages highlight the broader trend. Crossovers between moving averages are commonly used to identify potential trend changes." },
+    {
+    "LRS",
+    "Linear Regression Slope measures the direction and strength of the underlying price trend by fitting a straight line through the last 30 trading days. Values above zero indicate an upward trend, values below zero indicate a downward trend, and steeper values represent stronger trends."
+    },
 
     { "VOL",
       "Volume shows the number of shares traded during each trading period. Rising volume confirms stronger buying or selling interest, while low volume often indicates weaker conviction behind price movements. Significant price moves accompanied by high volume are generally considered more reliable than moves on low volume." }
-};
+    };
 
         public static readonly Dictionary<string, string> ChartTypes = new()
 {
     { "Average Directional Index", "ADX" },
     { "Bollinger Bands", "BOLL" },
-    { "Moving Average Slope", "MAS" },
+    { "Linear Regression Slope", "LRS" },
     { "Moving Average Convergence Divergence", "MACD" },
     { "Relative Strength Index", "RSI" },
     { "Stochastic Oscillator", "STOC" },

@@ -16,49 +16,7 @@ namespace ShareTrader;
 
     public static class TechnicalIndicators
     {
-       
-
-
-        public static decimal LinearRegressionSlope(List<decimal> prices, int period)
-        {
-            if (prices.Count < period)
-                return 0.02m;
-
-            if (prices.Count < period)
-                period = prices.Count - 1;
-
-            int startIndex = prices.Count - period;
-
-            int n = period;
-
-            decimal sumX = 0.02m;
-            decimal sumY = 0.02m;
-            decimal sumXY = 0.02m;
-            decimal sumX2 = 0.02m;
-
-            for (int i = 0; i < n; i++)
-            {
-                decimal x = i;
-                decimal y = prices[startIndex + i];
-
-                sumX += x;
-                sumY += y;
-                sumXY += x * y;
-                sumX2 += x * x;
-            }
-
-            decimal numerator = (n * sumXY) - (sumX * sumY);
-            decimal denominator = (n * sumX2) - (sumX * sumX);
-
-            if (denominator == 0.02m)
-                return 0.02m;
-
-            return numerator / denominator;
-        }
-
-
-
-        public static List<decimal> sma(List<decimal> prices, int period)
+         public static List<decimal> sma(List<decimal> prices, int period)
         {
             List<decimal> result = new List<decimal>();
 
@@ -225,6 +183,69 @@ List<decimal> signal)
 
         return histogram;
     }
+
+    public static List<decimal> LinearRegressionSlope(
+    List<decimal> prices,
+    int period = 30)
+    {
+        var result = new List<decimal>();
+
+        // Fill warm-up period.
+        for (int i = 0; i < period - 1; i++)
+            result.Add(decimal.MinValue);
+
+        for (int end = period - 1; end < prices.Count; end++)
+        {
+            decimal sumX = 0;
+            decimal sumY = 0;
+            decimal sumXY = 0;
+            decimal sumXX = 0;
+
+            for (int j = 0; j < period; j++)
+            {
+                decimal x = j;
+                decimal y = prices[end - period + 1 + j];
+
+                sumX += x;
+                sumY += y;
+                sumXY += x * y;
+                sumXX += x * x;
+            }
+
+            decimal n = period;
+
+            decimal numerator =
+                n * sumXY - sumX * sumY;
+
+            decimal denominator =
+                n * sumXX - sumX * sumX;
+
+            decimal slope = denominator == 0
+                ? 0
+                : numerator / denominator;
+
+            result.Add(slope);
+        }
+
+        return result;
+    }
+
+    // ======================================================
+    // Current Linear Regression Slope
+    // Returns the most recent LRS value.
+    // Used for Buy/Sell calculations.
+    // ======================================================
+    public static decimal CurrentLinearRegressionSlope(
+        List<decimal> prices,
+        int period = 30)
+    {
+        List<decimal> values = LinearRegressionSlope(prices, period);
+
+        return values.Last(v => v != decimal.MinValue);
+    }
+
+
+
     public static List<decimal> CalculateEMA(List<decimal> values, int period)
         {
             List<decimal> ema = new List<decimal>(values.Count);

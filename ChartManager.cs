@@ -46,29 +46,9 @@ namespace ShareTrader
         {
             if (period <= 0)
                 period = 30;
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
 
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
-
-
-            //  decimal multiplier = 2.5m;
-            // Clear previous chart
-            chart.Series.Clear();
-
-
+            InitializeChart(chart);
+       
             // Make sure company data is loaded
             LoadCompanyData(CompanyName, 100);
 
@@ -102,94 +82,23 @@ namespace ShareTrader
             }
 
             // Create Syncfusion data collections
-            List<ChartPoint> middleData = new();
-            List<ChartPoint> upperData = new();
-            List<ChartPoint> lowerData = new();
+            int start = period - 1;
 
-            for (int i = 0; i < middleBand.Count; i++)
-            {
-                int index = i + period - 1;
+            var middleData = CreateChartPoints(middleBand, start);
+            var upperData = CreateChartPoints(upperBand, start);
+            var lowerData = CreateChartPoints(lowerBand, start);
 
-                middleData.Add(new ChartPoint
-                {
-                    Index = index,
-                    Value = middleBand[i]
-                });
-
-                upperData.Add(new ChartPoint
-                {
-                    Index = index,
-                    Value = upperBand[i]
-                });
-
-                lowerData.Add(new ChartPoint
-                {
-                    Index = index,
-                    Value = lowerBand[i]
-                });
-            }
-
-            // Remove previous Bollinger series
-            chart.Series.Clear();
-
-            // Middle Band
-            LineSeries middleSeries = new ()
-            {
-                ItemsSource = middleData,
-                XBindingPath = "Index",
-                YBindingPath = "Value",
-                Label = "Bollinger Middle",
-                Fill = Colors.Black,
-                StrokeWidth = 2
-            };
-
-            // Upper Band
-            LineSeries upperSeries = new ()
-            {
-                ItemsSource = upperData,
-                XBindingPath = "Index",
-                YBindingPath = "Value",
-                Label = "Bollinger Upper",
-                Fill = Colors.Green,
-                StrokeWidth = 2
-            };
-
-            // Lower Band
-            LineSeries lowerSeries = new ()
-            {
-                ItemsSource = lowerData,
-                XBindingPath = "Index",
-                YBindingPath = "Value",
-                Label = "Bollinger Lower",
-                Fill = Colors.Red,
-                StrokeWidth = 2
-            };
-
-            chart.Series.Add(middleSeries);
-            chart.Series.Add(upperSeries);
-            chart.Series.Add(lowerSeries);
+            // Add the three Bollinger Band lines.
+            chart.Series.Add(CreateLineSeries(middleData, Colors.Black));
+            chart.Series.Add(CreateLineSeries(upperData, Colors.Green));
+            chart.Series.Add(CreateLineSeries(lowerData, Colors.Red));
         }
+      
         public static void PlotADX(SfCartesianChart chart, string CompanyName)
         {
-            // Clear previous chart
-            chart.Series.Clear();
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
 
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
-
+            InitializeChart(chart);
+            
 
             // Make sure company data is loaded
             LoadCompanyData(CompanyName, 100);
@@ -213,42 +122,133 @@ namespace ShareTrader
                 });
             }
 
-            LineSeries series = new ()
-            {
-                ItemsSource = data,
-                XBindingPath = "Index",
-                YBindingPath = "Value",
-                Label = "ADX",
-                Fill = Colors.Blue,
-                StrokeWidth = 2
-            };
-
-            chart.Series.Clear();
-            chart.Series.Add(series);
+            chart.Series.Add(CreateLineSeries(data, Colors.Blue));
 
             AddReferenceLines(chart, "ADX");
 
         }
 
+        public static void PlotLRS(SfCartesianChart chart, string companyName)
+        {
+            InitializeChart(chart);
+
+            LoadCompanyData(companyName, 100);
+
+            // Calculate 30-day Linear Regression Slope.
+            List<decimal> lrs = TechnicalIndicators.LinearRegressionSlope(lst_Closing, 30);
+
+            // Smooth the display with a 5-day EMA.
+            lrs = TechnicalIndicators.CalculateEMA(lrs, 5);
+
+            // Scale for easier reading.
+            for (int i = 0; i < lrs.Count; i++)
+            {
+                if (lrs[i] != decimal.MinValue)
+                    lrs[i] *= 100m;
+            }
+
+            var upTrend = new List<ChartPoint>();
+            var weakening = new List<ChartPoint>();
+            var downTrend = new List<ChartPoint>();
+
+            for (int i = 0; i < lrs.Count; i++)
+            {
+                if (lrs[i] == decimal.MinValue)
+                    continue;
+
+                decimal current = lrs[i];
+                decimal previous = (i == 0 || lrs[i - 1] == decimal.MinValue)
+                    ? current
+                    : lrs[i - 1];
+
+                // Start with gaps in all three series.
+                var green = new ChartPoint { Index = i, Value = decimal.MinValue };
+                var blue = new ChartPoint { Index = i, Value = decimal.MinValue };
+                var red = new ChartPoint { Index = i, Value = decimal.MinValue };
+
+                if (current >= 0)
+                {
+                    if (current > previous)
+                        green.Value = current;      // Bullish and strengthening.
+                    else
+                        blue.Value = current;       // Bullish but weakening.
+                }
+                else
+                {
+                    if (current < previous)
+                        red.Value = current;        // Bearish and strengthening.
+                    else
+                        blue.Value = current;       // Bearish but recovering.
+                }
+
+                upTrend.Add(green);
+                weakening.Add(blue);
+                downTrend.Add(red);
+            }
+
+            // Draw coloured trend segments.
+            AddColouredLineRuns(chart, lrs);
+
+            // Grey zero reference line.
+            AddReferenceLines(chart, "LRS");
+            AddReferenceLines(chart, "LRS");
+        }
+
+        private static void AddColouredLineRuns(
+    SfCartesianChart chart,
+    List<decimal> values)
+        {
+            if (values.Count < 2)
+                return;
+
+            List<ChartPoint> segment = new();
+            Color currentColour = Colors.Gray;
+
+            for (int i = 1; i < values.Count; i++)
+            {
+                if (values[i] == decimal.MinValue || values[i - 1] == decimal.MinValue)
+                    continue;
+
+                decimal previous = values[i - 1];
+                decimal current = values[i];
+
+                Color colour;
+
+                if (current >= 0)
+                    colour = current >= previous ? Colors.ForestGreen : Colors.RoyalBlue;
+                else
+                    colour = current <= previous ? Colors.Firebrick : Colors.RoyalBlue;
+
+                // Start a new coloured segment.
+                if (segment.Count == 0 || colour != currentColour)
+                {
+                    if (segment.Count > 1)
+                        chart.Series.Add(CreateSplineSeries(segment, currentColour, 3));
+
+                    segment = new List<ChartPoint>
+            {
+                new ChartPoint { Index = i - 1, Value = previous }
+            };
+
+                    currentColour = colour;
+                }
+
+                segment.Add(new ChartPoint
+                {
+                    Index = i,
+                    Value = current
+                });
+            }
+
+            // Draw the final segment.
+            if (segment.Count > 1)
+                chart.Series.Add(CreateLineSeries(segment, currentColour, 3));
+        }
+
+
         public async static void PlotMAS(SfCartesianChart chart, string CompanyName)
         {
-            chart.Series.Clear();
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
-
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+            InitializeChart(chart);
 
             // Make sure company data is loaded
             LoadCompanyData(CompanyName, 100);
@@ -264,6 +264,9 @@ namespace ShareTrader
             List<ChartPoint> data = new();
             List<Brush> brushes = new();
 
+
+         //   var data = CreateChartPoints(maSlope);
+
             for (int i = 0; i < maSlope.Count; i++)
             {
                 data.Add(new ChartPoint
@@ -272,13 +275,13 @@ namespace ShareTrader
                     Value = maSlope[i]
                 });
 
-                // Green for positive, red for negative, grey for zero
+                // Forest Green for positive, Firebrick for negative, Light Gray for zero.
                 if (maSlope[i] > 0)
-                    brushes.Add(new SolidColorBrush(Colors.Green));
+                    brushes.Add(new SolidColorBrush(Colors.ForestGreen));
                 else if (maSlope[i] < 0)
-                    brushes.Add(new SolidColorBrush(Colors.Red));
+                    brushes.Add(new SolidColorBrush(Colors.Firebrick));
                 else
-                    brushes.Add(new SolidColorBrush(Colors.Gray));
+                    brushes.Add(new SolidColorBrush(Colors.LightGray));
             }
 
             ColumnSeries series = new ()
@@ -300,47 +303,23 @@ namespace ShareTrader
         {
             int days = 0;
 
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
-
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+            InitializeChart(chart);
+           
 
             // Make sure company data is loaded
             LoadCompanyData(CompanyName, 100);
           
             try
             {
-                chart.Series.Clear();
 
                 if (days <= lst_Volume.Count)
                 {
                     days = lst_Volume.Count;
                 }
 
-                var volumeData = new List<ChartPoint>();
+              var volumeData = CreateChartPoints(lst_Volume);
 
-                for (int i = 0; i < lst_Volume.Count; i++)
-                {
-                    volumeData.Add(new ChartPoint
-                    {
-                        Index = i,
-                        Value = lst_Volume[i]
-                    });
-                }
-
-                var volumeSeries = new ColumnSeries
+              var volumeSeries = new ColumnSeries
                 {
                     Label = "Volume",
                     ItemsSource = volumeData,
@@ -363,29 +342,13 @@ namespace ShareTrader
         {
             int days = 0;
 
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
-
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+            InitializeChart(chart);
+                      
 
             // Make sure company data is loaded
             LoadCompanyData(CompanyName, 100);
 
-            // Clear anything currently displayed in this chart.
-            chart.Series.Clear();
-
+          
             // Calculate ATR.
             var result = TechnicalIndicators.ATR(
                 lst_High,
@@ -399,61 +362,27 @@ namespace ShareTrader
             }
 
             // Create chart data points.
-            var data = new List<ChartPoint>();
+            var data = CreateChartPoints(result);
 
-            for (int i = 0; i < result.Count; i++)
-            {
-                data.Add(new ChartPoint
-                {
-                    Index = i,
-                    Value = result[i]
-                });
-            }
 
             // Create the ATR line.
-            var series = new LineSeries
-            {
-                Label = "ATR",
-                ItemsSource = data,
-                XBindingPath = "Index",
-                YBindingPath = "Value",
-                StrokeWidth = 2
-            };
-
-            chart.Series.Add(series);
+            chart.Series.Add(CreateLineSeries(data, Colors.DarkOrange));
         }
 
-              
-
+      
         public static void PlotRSI(SfCartesianChart chart, string CompanyName)
         {
             int days = 0;
 
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
-
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+            InitializeChart(chart);
+                      
 
             // Make sure company data is loaded.
             LoadCompanyData(CompanyName, 100);
 
             try
             {
-                // Clear anything currently displayed in this chart.
-                chart.Series.Clear();
-
+              
                 // Calculate RSI.
                 var result = TechnicalIndicators.RSI(
                     lst_Closing,
@@ -465,29 +394,10 @@ namespace ShareTrader
                 }
 
                 // Create chart data points.
-                var data = new List<ChartPoint>();
-
-                for (int i = 0; i < result.Count; i++)
-                {
-                    data.Add(new ChartPoint
-                    {
-                        Index = i,
-                        Value = result[i]
-                    });
-                }
+                 var data = CreateChartPoints(result);
 
                 // Create the RSI line.
-                var series = new LineSeries
-                {
-                    Label = "RSI",
-                    ItemsSource = data,
-                    XBindingPath = "Index",
-                    YBindingPath = "Value",
-                    StrokeWidth = 2,
-                    Fill= Colors.Red
-                };
-
-                chart.Series.Add(series);
+                chart.Series.Add(CreateLineSeries(data, Colors.Red));
 
                 AddReferenceLines(chart, "RSI");
             }
@@ -503,23 +413,9 @@ namespace ShareTrader
         public static void PlotOBV(SfCartesianChart chart, string CompanyName)
         {
 
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
+            InitializeChart(chart);
 
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
-
+           
             // Make sure company data is loaded.
             LoadCompanyData(CompanyName, 100);
 
@@ -527,62 +423,24 @@ namespace ShareTrader
             List<decimal> result = TechnicalIndicators.OBV(lst_Closing, lst_Volume);
 
             // Create chart data
-            var chartData = new List<ChartPoint>();
-
-            for (int i = 0; i < result.Count; i++)
-            {
-                chartData.Add(new ChartPoint
-                {
-                    Index = i + 1,
-                    Value = result[i]
-                });
-            }
-
-            // Clear any previous series
-            chart.Series.Clear();
+         var data = CreateChartPoints(result);
 
             // Create the OBV line series
-            var series = new LineSeries
-            {
-                ItemsSource = chartData,
-                XBindingPath = nameof(ChartPoint.Index),
-                YBindingPath = nameof(ChartPoint.Value),
-                StrokeWidth = 2
-            };
+            chart.Series.Add(CreateLineSeries(data, Colors.DeepSkyBlue));
 
-            chart.Series.Add(series);      
-       
         }
 
         public static void PlotWilliams(SfCartesianChart chart, string companyName)
         {
 
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
-
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+            InitializeChart(chart);          
 
             // Make sure company data is loaded.
             LoadCompanyData(companyName, 100);
 
             try
             {
-                // Clear anything currently displayed.
-                chart.Series.Clear();
-
-                // Calculate Williams %R.
+                 // Calculate Williams %R.
                 List<decimal> williamsValues = TechnicalIndicators.WilliamsR(
                     lst_High,
                     lst_Low,
@@ -590,30 +448,10 @@ namespace ShareTrader
                     14);
 
                 // Create chart data, skipping the warm-up values.
-                var williamsData = new List<ChartPoint>();
-
-                for (int i = 0; i < williamsValues.Count; i++)
-                {
-                    if (williamsValues[i] == decimal.MinValue)
-                        continue;
-
-                    williamsData.Add(new ChartPoint
-                    {
-                        Index = i + 1,
-                        Value = williamsValues[i]
-                    });
-                }
+                  var williamsData = CreateChartPoints(williamsValues, 1, true);
 
                 // Create Williams %R line series.
-                var williamsSeries = new LineSeries
-                {
-                    ItemsSource = williamsData,
-                    XBindingPath = nameof(ChartPoint.Index),
-                    YBindingPath = nameof(ChartPoint.Value),
-                    StrokeWidth = 2
-                };
-
-                chart.Series.Add(williamsSeries);
+                chart.Series.Add(CreateLineSeries(williamsData, Colors.BlueViolet));
 
                 // Set axis titles and Williams %R range.
                 if (chart.YAxes.Count > 0)
@@ -638,31 +476,14 @@ namespace ShareTrader
 
         public static void PlotStochastic(SfCartesianChart chart, string companyName)
         {
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
-
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+            InitializeChart(chart);
+          
 
             // Make sure company data is loaded.
             LoadCompanyData(companyName, 100);
 
             try
             {
-                // Clear existing chart.
-                chart.Series.Clear();
-
                 // Calculate Stochastic Oscillator (%K).
                 List<decimal> stochasticValues = TechnicalIndicators.Stochastic(
                     lst_High,
@@ -671,30 +492,10 @@ namespace ShareTrader
                     14);
 
                 // Create chart data, skipping warm-up values.
-                var stochasticData = new List<ChartPoint>();
-
-                for (int i = 0; i < stochasticValues.Count; i++)
-                {
-                    if (stochasticValues[i] == decimal.MinValue)
-                        continue;
-
-                    stochasticData.Add(new ChartPoint
-                    {
-                        Index = i + 1,
-                        Value = stochasticValues[i]
-                    });
-                }
+               var stochasticData = CreateChartPoints(stochasticValues, 1, true);
 
                 // Create the Stochastic line series.
-                var stochasticSeries = new LineSeries
-                {
-                    ItemsSource = stochasticData,
-                    XBindingPath = nameof(ChartPoint.Index),
-                    YBindingPath = nameof(ChartPoint.Value),
-                    StrokeWidth = 2
-                };
-
-                chart.Series.Add(stochasticSeries);
+                chart.Series.Add(CreateLineSeries(stochasticData, Colors.SeaGreen));
 
                 // Set Y-axis range to 0–100.
                 if (chart.YAxes.Count > 0 && chart.YAxes[0] is NumericalAxis yAxis)
@@ -715,75 +516,27 @@ namespace ShareTrader
             }
         }
 
+      
+
         public static void PlotMACD(SfCartesianChart chart, string companyName)
         {
 
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
+            InitializeChart(chart);
 
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+           
             // Load last 100 days of company data.
             LoadCompanyData(companyName, 100);
 
             try
             {
-                chart.Series.Clear();
-                chart.Annotations.Clear();
+                 chart.Annotations.Clear();
 
                 // Calculate MACD, Signal and Histogram.
-                MACDResult macd = TechnicalIndicators.CalculateMACD(lst_Closing);
+                MACDResult macd = TechnicalIndicators.CalculateMACD(lst_Closing);                         
 
-           
-
-
-                var macdData = new List<ChartPoint>();
-                var signalData = new List<ChartPoint>();
-                var histogramData = new List<ChartPoint>();
-
-
-
-                for (int i = 0; i < macd.MACD.Count; i++)
-                {
-                    if (macd.Histogram[i] != decimal.MinValue)
-                    {
-                        histogramData.Add(new ChartPoint
-                        {
-                            Index = i + 1,
-                            Value = macd.Histogram[i]
-                        });
-                    }
-
-                    if (macd.MACD[i] != decimal.MinValue)
-                    {
-                        macdData.Add(new ChartPoint
-                        {
-                            Index = i + 1,
-                            Value = macd.MACD[i]
-                        });
-                    }
-
-                    if (macd.Signal[i] != decimal.MinValue)
-                    {
-                        signalData.Add(new ChartPoint
-                        {
-                            Index = i + 1,
-                            Value = macd.Signal[i]
-                        });
-                    }
-                }
-
+                var macdData = CreateChartPoints(macd.MACD, 1, true);
+                var signalData = CreateChartPoints(macd.Signal, 1, true);
+                var histogramData = CreateChartPoints(macd.Histogram, 1, true);
 
 
                 chart.PaletteBrushes = new List<Brush>
@@ -863,22 +616,7 @@ namespace ShareTrader
 
         public static void PlotROC(SfCartesianChart chart, string companyName)
         {
-            // Start with a completely fresh set of axes.
-            chart.XAxes.Clear();
-            chart.YAxes.Clear();
-            chart.Annotations.Clear();
-
-            chart.XAxes.Add(new NumericalAxis
-            {
-                IsVisible = true
-            });
-
-            chart.YAxes.Add(new NumericalAxis
-            {
-                IsVisible = true,
-                Minimum = double.NaN,
-                Maximum = double.NaN
-            });
+            InitializeChart(chart);          
 
             const int Days = 100;
             const int RocPeriod = 14;
@@ -890,29 +628,11 @@ namespace ShareTrader
             List<decimal> rocValues = TechnicalIndicators.ROC(lst_Closing, RocPeriod);
 
             // Create the chart data source.
-            var chartData = new List<ChartPoint>();          
+            var chartData = CreateChartPoints(rocValues);
 
-            for (int i = 0; i < rocValues.Count; i++)
-            {
-                chartData.Add(new ChartPoint
-                {
-                    Index = i,
-                    Value = rocValues[i]
-                });
-            }
-
-            // Clear previous series.
-            chart.Series.Clear();
 
             // ROC line.
-            chart.Series.Add(new LineSeries
-            {
-                ItemsSource = chartData,
-                XBindingPath = nameof(ChartPoint.Index),
-                YBindingPath = nameof(ChartPoint.Value),
-                Fill = new SolidColorBrush(Colors.Brown),
-                StrokeWidth = 2
-            });
+            chart.Series.Add(CreateLineSeries(chartData, Colors.Brown));
 
             AddReferenceLines(chart, "ROC");
         }
@@ -949,6 +669,11 @@ namespace ShareTrader
                 case "ADX":
                     AddReferenceLine(chart, 25, Colors.Orange);
                     break;
+
+                case "LRS":
+                    AddReferenceLine(chart, 0, Colors.Gray);
+                    break; 
+
             }
         }
 
@@ -1108,113 +833,7 @@ namespace ShareTrader
 
             return formattedItems;
         }
-
-        public static void GetHighLowDates()
-        {
-          //  decimal High = 0m;
-         //   decimal Low = 0m;
-          //  decimal temp = 0m;
-
-            foreach (var item in lst_PriceByDate)
-             {
-               // temp = item.Price
-            }   
-           
-        }
-
-        public static bool ConservativeSellSignal()
-       //decimal closePrice,
-       //   decimal sma7,
-      //    decimal sma20,
-      //    decimal sma30,
-      //    decimal currentMACD,
-      //    decimal currentSignal,
-      //    decimal rsi,
-      //    decimal buyPrice)
-        {
-            //==============================================
-            // 1. Capital preservation (highest priority)
-            //==============================================
-            bool stopLoss =
-                closePrice <= BuyPrice * 0.94m;      // 6% stop loss
-
-            //==============================================
-            // 2. Confirmed trend reversal
-            //==============================================
-            bool trendReversal =
-                sma7 < sma20 &&
-                sma20 < sma30 &&
-                currentMACD < currentSignal;
-
-            //==============================================
-            // 3. Overbought momentum rolling over
-            //==============================================
-            bool overboughtReversal =
-                rsi > 75m &&
-                currentMACD < currentSignal;
-
-            //==============================================
-            // 4. Price has broken the long-term trend
-            //==============================================
-            bool priceBelowTrend =
-                closePrice < sma30 &&
-                currentMACD < currentSignal;
-
-            //==============================================
-            // Sell if ANY major warning occurs
-            //==============================================
-            return stopLoss ||
-                   trendReversal ||
-                   overboughtReversal ||
-                   priceBelowTrend;
-        }
-
-        public static bool ConservativeBuySignal()
-     //   decimal closePrice,
-     //   decimal sma7,
-     //   decimal sma20,
-     //   decimal sma30,
-     //   decimal currentMACD,
-     //   decimal currentSignal,
-     //   decimal adx,
-     //   decimal RS_I,
-     //   decimal volume,
-     //   decimal avgVolume)
-        {
-            // 1. Long-term uptrend
-            bool trendUp =
-                closePrice > sma30 &&
-                sma7 > sma20 &&
-                sma20 > sma30;
-            // 2. Momentum confirmation
-            bool momentumPositive =
-               currentMACD > currentSignal;
-            // 3. Trend strength
-            bool strongTrend =
-                adx >= 20m;
-            // 4. Avoid overbought entries
-            bool notOverbought =
-                rsi < 70m;
-            // 5. Volume confirmation
-            bool goodVolume =
-                volume > avgVolume;
-            return trendUp &&
-                   momentumPositive &&
-                   strongTrend &&
-                   notOverbought &&
-                   goodVolume;
-        }
       
-
-        public static List<Single> ConvertListToSingle(List<decimal> decimalList)
-        {
-            var singleList = new List<Single>(decimalList.Count);
-            foreach (var d in decimalList)
-            {
-                singleList.Add((Single)d);
-            }
-            return singleList;
-        }
 
         public static string BuyOrSell(string companyName)
         {
@@ -1229,8 +848,8 @@ namespace ShareTrader
             // Last 30 prices.
             List<decimal> recent = prices.TakeLast(period).ToList();
 
-            // Linear regression slope.
-            decimal slope = TechnicalIndicators.LinearRegressionSlope(prices, period);
+            // Current Linear Regression Slope (last calculated value).
+            decimal slope = TechnicalIndicators.CurrentLinearRegressionSlope(prices, period);
             decimal slopeNorm = slope / price;
 
             // 30-day SMA.
@@ -1384,47 +1003,101 @@ namespace ShareTrader
             return Math.Min(100, Math.Abs(score) * 8);
         }
 
+        private static void InitializeChart(SfCartesianChart chart)
+        {
+            chart.Series.Clear();
+            chart.Annotations.Clear();
+            chart.XAxes.Clear();
+            chart.YAxes.Clear();
+            chart.Legend = null;
 
-    //   Reccomendations =
-  //      @"
-//A further refinement
+            chart.XAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
 
-//Because your program already computes a wide range of indicators, I'd split the score into 
-//categories rather than having one overall score. For example:
+                LabelStyle = new ChartAxisLabelStyle
+                {
+                    FontSize = 9        // Default is about 12–14
+                },
 
-//Trend Score(-5 to +5)
-//Momentum Score(-5 to +5)
-//Strength Score(-3 to +3)
-//Volume Score(-2 to +2)
-//Risk Score(-5 to 0)
+                MajorTickStyle = new ChartAxisTickStyle
+                {
+                    TickSize = 3         // Shorter tick marks
+                }
+            });
 
-//Then:
+            chart.YAxes.Add(new NumericalAxis
+            {
+                IsVisible = true,
+                Minimum = double.NaN,
+                Maximum = double.NaN,
 
-//Overall Score =
-//Trend +
-//Momentum +
-//Strength +
-//Volume +
-//Risk
+                LabelStyle = new ChartAxisLabelStyle
+                {
+                    FontSize = 9
+                },
 
-//This gives you much more insight.A stock could have:
+                MajorTickStyle = new ChartAxisTickStyle
+                {
+                    TickSize = 3
+                }
+            });
+        }
 
-//Trend      +5
-//Momentum   +4
-//Strength   +3
-//Volume     +2
-//Risk       -4
-//----------------
-//Overall   +10
+        private static List<ChartPoint> CreateChartPoints(
+    List<decimal> values,
+    int startIndex = 0,
+    bool skipInvalid = false)
+        {
+            var points = new List<ChartPoint>();
 
-//Even though the overall score is excellent, the negative Risk Score
-//immediately tells you there's something to investigate—perhaps the stock is overbought or unusually volatile.
+            for (int i = 0; i < values.Count; i++)
+            {
+                if (skipInvalid && values[i] == decimal.MinValue)
+                    continue;
 
-//Knowing the way your trading application has evolved over the past few weeks,
-//I think this multi-component scoring system would become one of its strongest features. 
-//It would also make it easy to rank all stocks in your watchlist by overall quality while 
-//still showing why each stock received its score. I think it would fit very naturally with the 
-//TrendScore, ForecastSignal, and MarketBehaviour concepts you've already started developing.";
+                points.Add(new ChartPoint
+                {
+                    Index = i + startIndex,
+                    Value = values[i]
+                });
+            }
+
+            return points;
+        }
+
+        private static LineSeries CreateLineSeries(
+       List<ChartPoint> points,
+       Color colour,
+       double width = 2)
+        {
+            return new LineSeries
+            {
+                ItemsSource = points,
+                XBindingPath = nameof(ChartPoint.Index),
+                YBindingPath = nameof(ChartPoint.Value),
+                Fill = colour,
+                StrokeWidth = width,
+                EnableTooltip = false,
+            };
+        }
+
+        private static SplineSeries CreateSplineSeries(
+    List<ChartPoint> points,
+    Color colour,
+    double width = 3)
+        {
+            return new SplineSeries
+            {
+                ItemsSource = points,
+                XBindingPath = nameof(ChartPoint.Index),
+                YBindingPath = nameof(ChartPoint.Value),
+                Fill = colour,
+                StrokeWidth = width,
+                EnableTooltip = false
+            };
+        }
+
 
     }
 }
