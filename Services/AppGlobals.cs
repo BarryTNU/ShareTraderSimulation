@@ -8,15 +8,14 @@ using ShareTrader.Helpers;
 namespace ShareTrader.Services
 {
     public static class AppGlobals
-    {
-
-        public static readonly string RootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShareTrader");
-        public static readonly string ConfigPath = Path.Combine(RootPath, "Config");
-        public static readonly string DataPath = Path.Combine(RootPath, "Data");
-        public static readonly string PortfolioPath = Path.Combine(RootPath, "Portfolio");
-        public static readonly string TradingHistoryPath = Path.Combine(PortfolioPath, "TradingHistory");
-        public static readonly string LogPath = Path.Combine(PortfolioPath, "TradingHistory","TradingLog");
-        public static readonly string CompaniesPath = Path.Combine(DataPath, "Companies");
+    {   
+       public static readonly string RootPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ShareTrader");
+       public static readonly string ConfigPath = Path.Combine(RootPath, "Config");
+       public static readonly string DataPath = Path.Combine(RootPath, "Data");
+       public static readonly string PortfolioPath = Path.Combine(RootPath, "Portfolio");
+       public static readonly string TradingHistoryPath = Path.Combine(PortfolioPath, "TradingHistory");
+       public static readonly string LogPath = Path.Combine(PortfolioPath, "TradingHistory","TradingLog");
+       public static readonly string CompaniesPath = Path.Combine(DataPath, "Companies");
 
 
         public static readonly string ConfigFile = Path.Combine(ConfigPath, "APIData.csv");

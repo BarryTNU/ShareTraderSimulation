@@ -11,7 +11,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ShareTrader.Helpers;
-using Windows.Storage.Provider;
+//using Windows.Storage.Provider;
+
 
 namespace ShareTrader.Services
 {

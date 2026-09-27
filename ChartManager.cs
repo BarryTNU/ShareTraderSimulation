@@ -586,8 +586,6 @@ namespace ShareTrader
 
                 // ---------- Tidy up chart appearance ----------
 
-                // Hide the legend (or remove this line if you never show a legend)
-                chart.Legend = null;
 
                 // ---------- Axes ----------
                 chart.XAxes.Clear();
@@ -1009,7 +1007,7 @@ namespace ShareTrader
             chart.Annotations.Clear();
             chart.XAxes.Clear();
             chart.YAxes.Clear();
-            chart.Legend = null;
+           
 
             chart.XAxes.Add(new NumericalAxis
             {

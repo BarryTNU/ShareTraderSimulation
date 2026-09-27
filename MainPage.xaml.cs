@@ -16,7 +16,7 @@ public partial class MainPage : ContentPage
 
     private readonly ObservableCollection<CompanyItem> CompaniesPopup = [];
     public const int MaxPortfolioCompanies = 50;
-    public const string version = "1.2.0";
+    public const string version = "2.1.0";
     public const string crlf = "\n";
 
 
@@ -130,23 +130,21 @@ public partial class MainPage : ContentPage
             : "Technical indicator.";
     }
 
-    public string AssignChartNames(string ChartName)
+    public string AssignChartNames(string chartName)
     {
-        foreach (var item in ChartList1.ItemsSource)
+        foreach (string name in ChartList1.ItemsSource!)
         {
-            string name = item.ToString();
-
-            if (Dictionaries.ChartTypes.TryGetValue(name, out string code))
+            if (Dictionaries.ChartTypes.TryGetValue(name, out string? code))
             {
-                if (code == ChartName)
-                {
+                if (code == chartName)
                     return name;
-                }
             }
         }
 
-        return "Click Here";
+        return string.Empty;
     }
+
+
 
     public void UpdatePortfolioTotals()
     {
