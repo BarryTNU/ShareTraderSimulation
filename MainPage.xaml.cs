@@ -331,6 +331,8 @@ public partial class MainPage : ContentPage
                 c.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
                 c.Symbol.Contains(search, StringComparison.OrdinalIgnoreCase))
             .ToList();
+
+        gridCompanies.ItemsSource = filtered;
     }
 
     async void SavePortfolio_Clicked(object? sender, EventArgs e)
@@ -807,7 +809,7 @@ public partial class MainPage : ContentPage
         else
         {
             // Load from file
-            foreach (string line in File.ReadAllLines(fPath))
+            foreach (string line in File.ReadAllLines(fPath).Skip(1))
 
             {
                 if (string.IsNullOrWhiteSpace(line))
@@ -820,12 +822,11 @@ public partial class MainPage : ContentPage
                     {
                         Name = parts[0].Trim(),
                         Symbol = parts[1].Trim()
-                    });
-
-                    SortCompaniesPopup();
-
+                    });                   
                 }
             }
+
+            SortCompaniesPopup();
         }
 
         gridCompanies.ItemsSource = null;
