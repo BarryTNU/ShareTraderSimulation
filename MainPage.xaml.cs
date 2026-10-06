@@ -809,7 +809,7 @@ public partial class MainPage : ContentPage
         else
         {
             // Load from file
-            foreach (string line in File.ReadAllLines(fPath).Skip(1))
+            foreach (string line in File.ReadAllLines(fPath)) //.Skip(1))
 
             {
                 if (string.IsNullOrWhiteSpace(line))

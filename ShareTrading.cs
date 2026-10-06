@@ -95,6 +95,7 @@ namespace ShareTrader
             int nrShares = 0;
             int available = 0;
             string BuySell = "";
+            decimal SaleCost = 0m;  
             decimal SaleProceeds = 0m;           
            
             DateOnly DateToday = DateOnly.FromDateTime(DateTime.Today);
@@ -131,10 +132,10 @@ namespace ShareTrader
 
             sharePrice = FileManager.LoadCompanyData(company, 1); //Closing Price of share
             
-            decimal value = shares * price; // Calculate the value of the shares being sold using the current price
+            SaleProceeds = shares * sharePrice; // Calculate the value of the shares being sold using the current price
 
             string message =
-                $"Selling {shares} {company} shares will return {value:C}";
+                $"Selling {shares} {company} shares will return {SaleProceeds:C}";
 
             var page = Application.Current?.Windows.FirstOrDefault()?.Page;
 
@@ -162,7 +163,7 @@ namespace ShareTrader
                     continue;
 
                 
-                decimal tradePrice = tradeItem.TradePrice;
+                decimal BuyPrice = tradeItem.TradePrice;
 
                 if (remainingToSell <= 0)
                 {
@@ -177,19 +178,17 @@ namespace ShareTrader
                 {
                     //consume this buy record
                      remainingToSell -=available;                   
-                    SaleProceeds += tradePrice * available;
-                    AppGlobals.BankBalance += SaleProceeds;
-                    available = 0;                 
-                    LogData = $" Sold {available} {company} Shares @ {tradePrice:C}";
+                   SaleCost += BuyPrice * available;
+                       available = 0;                 
+                    LogData = $" Sold {available} {company} Shares @ {sharePrice:C} , A Gain/Loss of {SaleProceeds - SaleCost:C}";
                 }
                 else // available >= remainingToSell
                 {
                     // Partialy consume the buy record
                     available -= remainingToSell;
-                    SaleProceeds += tradePrice * remainingToSell;
-                    AppGlobals.BankBalance += SaleProceeds;
+                    SaleCost += BuyPrice * remainingToSell;
                     remainingToSell =0; 
-                    LogData = $" Sold {shares} {company} Shares @ {tradePrice:C}";
+                    LogData = $" Sold {shares} {company} Shares @ {sharePrice:C} , A Gain/Loss of {SaleProceeds - SaleCost:C}";
                 }
 
                 // add updated buy record with remaining shares
@@ -197,10 +196,12 @@ namespace ShareTrader
                 {
                     Name = tradeItem.Name,
                     Shares = available,
-                    TradePrice = tradePrice,
+                    TradePrice = sharePrice,
                     TransDate = DateToday,
                     tradeType = "Buy"
                 };
+
+                AppGlobals.BankBalance += SaleProceeds;
 
                 tempList.Add(updated);
                

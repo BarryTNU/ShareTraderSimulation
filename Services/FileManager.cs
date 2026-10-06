@@ -517,7 +517,8 @@ namespace ShareTrader.Services
             // Create the file with a header if it doesn't exist.
             if (!File.Exists(fileName))
             {
-                File.WriteAllText(fileName, "Name,Symbol,Country\n");
+               // File.WriteAllText(fileName, "Name,Symbol,Country\n");
+             //   File.WriteAllText(fileName, "");
             }
 
             string line = $"{company.Name},{company.Symbol},{company.Country}";
