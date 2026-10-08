@@ -1105,19 +1105,22 @@ Text="{Binding .}"
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                                </Grid.ColumnDefinitions>
 
                             <Label
                                 Grid.Column="0"
                                 Text="Price:"
                                 VerticalOptions="Center" />
 
-                            <Label
-                                x:Name="LblPrice"
+
+                          <Entry
+                                x:Name="TxtPrice"
                                 Grid.Column="1"
-                                Text="$0.00"
-                                FontAttributes="Bold"
-                                HorizontalTextAlignment="End" />
+                                Keyboard="Numeric"
+                                HorizontalTextAlignment="End"
+                                TextChanged="TxtPrice_TextChanged" 
+                                Completed="TxtPrice_Completed"
+                                ReturnType="Next"/>                             
 
                         </Grid>
 

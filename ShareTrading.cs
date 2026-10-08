@@ -180,16 +180,14 @@ namespace ShareTrader
                      remainingToSell -=available;                   
                    SaleCost += BuyPrice * available;
                        available = 0;                 
-                    LogData = $" Sold {available} {company} Shares @ {sharePrice:C} , A Gain/Loss of {SaleProceeds - SaleCost:C}";
-                }
+                         }
                 else // available >= remainingToSell
                 {
                     // Partialy consume the buy record
                     available -= remainingToSell;
                     SaleCost += BuyPrice * remainingToSell;
                     remainingToSell =0; 
-                    LogData = $" Sold {shares} {company} Shares @ {sharePrice:C} , A Gain/Loss of {SaleProceeds - SaleCost:C}";
-                }
+                 }
 
                 // add updated buy record with remaining shares
                 var updated = new AppGlobals.TransactionItem
@@ -201,7 +199,7 @@ namespace ShareTrader
                     tradeType = "Buy"
                 };
 
-                AppGlobals.BankBalance += SaleProceeds;
+               
 
                 tempList.Add(updated);
                
@@ -229,12 +227,14 @@ namespace ShareTrader
                 writer.Close();
             }
 
-            LogData = $" Sold {shares} {company} Shares @ {price:C}";
+            AppGlobals.BankBalance += SaleProceeds;
+            LogData = $" Sold {shares} {company} Shares @ {sharePrice:C} , A Gain/Loss of {SaleProceeds - SaleCost:C}";
             FileManager.SaveLogFile(LogData);
             FileManager.SaveConfig();
             FileManager.SaveBalances();
 
-              await PortfolioManager.UpdatePortfolio();
+           
+            await PortfolioManager.UpdatePortfolio();
         }       
     }
 }

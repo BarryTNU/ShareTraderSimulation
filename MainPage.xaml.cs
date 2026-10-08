@@ -16,11 +16,13 @@ public partial class MainPage : ContentPage
 
     private readonly ObservableCollection<CompanyItem> CompaniesPopup = [];
     public const int MaxPortfolioCompanies = 50;
-    public const string version = "2.1.0";
+    public const string version = "2.1.2";
     public const string crlf = "\n";
 
 
     //  string fPath;
+
+    private bool _settingPrice;
     private bool _updatingShares;
     private bool buyingShares;
     private decimal currentPrice;
@@ -80,8 +82,6 @@ public partial class MainPage : ContentPage
             AppGlobals.ConfigurationManager.Chart3Type = "VOL";
             FileManager.SaveConfig();
         }
-
-
 
 
         if (GetPortfolioCount() >= MaxPortfolioCompanies)
@@ -175,14 +175,16 @@ public partial class MainPage : ContentPage
         else
             currentTradeMode = TradeMode.Sell;
 
-
+        _settingPrice = false;
         currentCompany = company;
         currentPrice = price;
+        TxtPrice.Text = price.ToString("C");
+        
 
         LblTradeTitle.Text = buyingShares ? "Buy Shares" : "Sell Shares";
 
         LblCompany.Text = company;
-        LblPrice.Text = price.ToString("C");
+        TxtPrice.Text = price.ToString("C");
 
         TxtShares.Text = "";
 
@@ -191,6 +193,17 @@ public partial class MainPage : ContentPage
         LblPopupBankBalance.Text =
            AppGlobals.BankBalance.ToString("C");
 
+        if (buyingShares)
+        {
+           TxtPrice.IsEnabled = true;
+            _settingPrice = true;
+        }
+        else
+        {
+            TxtPrice.IsEnabled = false;
+            _settingPrice = false;
+        }
+
         BuySellPopup.IsVisible = true;
 
         TxtShares.Focus();
@@ -198,6 +211,8 @@ public partial class MainPage : ContentPage
         UpdatePortfolioTotals();
 
     }
+
+
 
 
     private async void CompanyAction_Clicked(object? sender, EventArgs e)
@@ -708,10 +723,7 @@ public partial class MainPage : ContentPage
         InformationPanel.IsVisible = false;
     }
 
-    private void TxtShares_Completed(object sender, EventArgs e)
-    {
-        BtnTrade.Focus();
-    }
+    private void TxtShares_Completed(object sender, EventArgs e) => BtnTrade.Focus();
     private void TxtBankAmount_Completed(object sender, EventArgs e)
     {
         if (decimal.TryParse(TxtBankAmount.Text, out _))
@@ -719,6 +731,23 @@ public partial class MainPage : ContentPage
             BtnBankOK.Focus();
         }
     }
+
+ 
+
+    private void TxtPrice_TextChanged(object sender, TextChangedEventArgs e)
+    {       
+        // No action necessary   
+    }
+
+    private void TxtPrice_Completed(object sender, EventArgs e)
+    {
+        if (decimal.TryParse(TxtPrice.Text, out decimal price))
+        {
+            currentPrice = price;
+            TxtPrice.Text = price.ToString("C2");
+        }
+    }
+
 
     private void TxtShares_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -1093,4 +1122,3 @@ public partial class MainPage : ContentPage
   
    
 }
-    
